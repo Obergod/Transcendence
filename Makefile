@@ -3,9 +3,6 @@ NAME = transcendance
 BINARY_NAME = $(NAME)
 MODULE_NAME = $(NAME)  # change to github.com/yourname/transcendance if needed
 
-# Répertoires
-SRCS_DIR = src/
-
 # Commands Go
 GOCMD = go
 GOBUILD = $(GOCMD) build
@@ -32,27 +29,28 @@ ensure-module:
 		printf "$(GREEN)✓ go.mod created$(RESET)\n"; \
 	fi
 
-# Compilation du binaire
+# Compilation du binaire (à la racine)
 $(NAME): ensure-module
 	@printf "$(CYAN)Building $(NAME)...$(RESET)"
-	@cd $(SRCS_DIR) && $(GOBUILD) -o ../$(NAME)
+	@$(GOBUILD) -o $(NAME) .
 	@printf "$(CLEAR)$(GREEN)✓ $(NAME) created!$(RESET)\n"
 
-# Nettoyage (objets go + cache)
+# Nettoyage (cache Go seulement)
 clean:
 	@printf "$(YELLOW)Cleaning Go cache...$(RESET)"
 	@$(GOCLEAN) -cache
 	@printf "$(CLEAR)$(GREEN)✓ Go cache cleaned!$(RESET)\n"
 
+# Nettoyage complet (binaire + go.mod)
 fclean: clean
 	@printf "$(YELLOW)Deleting $(NAME)...$(RESET)"
 	@rm -f $(NAME)
 	@rm -f go.mod
-	@printf "$(CLEAR)$(GREEN)✓ $(NAME) deleted!$(RESET)\n"
+	@printf "$(CLEAR)$(GREEN)✓ $(NAME) and go.mod deleted!$(RESET)\n"
 
 # Reconstruction
 re: fclean all
 
-# Lancer le programme (optionnel)
+# Lancer le programme
 run: all
 	@./$(NAME)
