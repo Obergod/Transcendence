@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
     "image/color"
+	//"golang.org/x/image/math/fixed"
 
 	"github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -45,7 +46,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
     screen.Fill(color.RGBA{0, 0, 0, 255})
 
     // Prepare a debug string with the player's coordinates
-    debugStr := fmt.Sprintf("Player Position: (%d, %d), HP: %d", g.player.X, g.player.Y, g.player.HP)
+    debugStr := fmt.Sprintf("Player Position: (%d, %d), HP: %d", g.player.X / 64, g.player.Y / 64, g.player.HP)
 
     // Draw the debug string on the screen
     ebitenutil.DebugPrint(screen, debugStr)
