@@ -2,6 +2,7 @@ package main
 
 import (
     "log"
+    //"golang.org/x/image/math/fixed"
 
     "github.com/hajimehoshi/ebiten/v2"
 
@@ -12,8 +13,8 @@ import (
 func main() {
     // Initialize the player at starting coordinates (e.g., the center of the screen)
     // For a 800x600 window, (400, 300) is the center
-    startX, startY := 400, 300
-    initialPlayer := player.NewPlayer(startX, startY)
+    startX, startY, baseHP := 400, 300, 100
+    initialPlayer := player.NewPlayer(startX, startY, baseHP)
 
     game := game.NewGame(initialPlayer);
 

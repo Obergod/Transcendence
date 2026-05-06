@@ -1,11 +1,16 @@
 package player
 
+import (
+	//"golang.org/x/image/math/fixed"
+)
+
 type Player struct {
-    X, Y int
+    X, Y	int
+	HP		int
 }
 
-func NewPlayer(startX, startY int) *Player {
-    return &Player{X: startX, Y: startY}
+func NewPlayer(startX, startY int, baseHP int) *Player {
+    return &Player{X: startX, Y: startY, HP: baseHP}
 }
 
 func (p *Player) MoveUp()    { p.Y++ }

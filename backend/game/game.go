@@ -21,6 +21,9 @@ func NewGame(p *player.Player) *Game {
 // Update logic runs every tick (1/60 second by default)
 func (g *Game) Update() error {
     // Handle arrow key input
+	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+    	return ebiten.Termination
+	}
     if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
         g.player.MoveUp()
     }
@@ -42,7 +45,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
     screen.Fill(color.RGBA{0, 0, 0, 255})
 
     // Prepare a debug string with the player's coordinates
-    debugStr := fmt.Sprintf("Player Position: (%d, %d)", g.player.X, g.player.Y)
+    debugStr := fmt.Sprintf("Player Position: (%d, %d), HP: %d", g.player.X, g.player.Y, g.player.HP)
 
     // Draw the debug string on the screen
     ebitenutil.DebugPrint(screen, debugStr)
