@@ -3,7 +3,10 @@ NAME = transcendance
 BINARY_NAME = $(NAME)
 MODULE_NAME = $(NAME)  # change to github.com/yourname/transcendance if needed
 
-# Commands Go
+# Dossier contenant tous les fichiers .go
+BACKEND_DIR = backend
+
+# Commandes Go
 GOCMD = go
 GOBUILD = $(GOCMD) build
 GOCLEAN = $(GOCMD) clean
@@ -21,7 +24,7 @@ CLEAR = \033[2K\r
 
 all: $(NAME)
 
-# Vérifie et crée go.mod si absent
+# Vérifie et crée go.mod à la racine (là où se trouve le Makefile)
 ensure-module:
 	@if [ ! -f go.mod ]; then \
 		printf "$(YELLOW)go.mod not found. Running 'go mod init $(MODULE_NAME)'...$(RESET)\n"; \
@@ -29,10 +32,10 @@ ensure-module:
 		printf "$(GREEN)✓ go.mod created$(RESET)\n"; \
 	fi
 
-# Compilation du binaire (à la racine)
+# Compilation : on reste à la racine, on spécifie le dossier backend
 $(NAME): ensure-module
 	@printf "$(CYAN)Building $(NAME)...$(RESET)"
-	@$(GOBUILD) -o $(NAME) .
+	@$(GOBUILD) -o $(NAME) ./$(BACKEND_DIR)
 	@printf "$(CLEAR)$(GREEN)✓ $(NAME) created!$(RESET)\n"
 
 # Nettoyage (cache Go seulement)
