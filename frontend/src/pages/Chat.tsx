@@ -8,7 +8,7 @@ const Chat = () => {
   // On adapte notre fausse base de données pour ce chat privé
   const [messages, setMessages] = useState([
     { id: 1, author: friendName, content: `Salut, tu es chaud pour un multi ?`, isMe: false, time: "11:20" },
-    { id: 2, author: "Maati_42", content: "Grave, je finis un truc et je t'invite !", isMe: true, time: "11:22" },
+    { id: 2, author: "Impots.gouv.fr", content: "Grave, je finis un truc et je t'invite !", isMe: true, time: "11:22" },
   ]);
 
   const [currentInput, setCurrentInput] = useState("");
@@ -19,7 +19,7 @@ const Chat = () => {
 
     const newMessage = {
       id: messages.length + 1,
-      author: "Maati_42",
+      author: "Impots.gouv.fr",
       content: currentInput,
       isMe: true,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

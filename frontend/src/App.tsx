@@ -6,6 +6,7 @@ import Profile from './pages/Profile';
 import GameSolo from './pages/GameSolo';
 import MatchHistory from './pages/MatchHistory';
 import Chat from './pages/Chat';
+import Multiplayer from './pages/Multiplayer';
 
 function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -37,29 +38,27 @@ function App() {
             </Link>
           </div>
 
-          {!isLoggedIn ? (
-            <button onClick={() => setIsLoginOpen(true)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition-all shadow-[0_0_15px_rgba(220,38,38,0.5)]">
-              Login / Sign in
-            </button>
-          ) : (
-            // NOUVEAU : On a transformé la div en <Link to="/profile">
-            <Link to="/profile" className="flex items-center space-x-4 cursor-pointer hover:bg-gray-800 p-2 rounded-lg transition-colors">
-              <span className="font-bold text-lg">Impots.gouv.fr</span>
-              <div className="w-12 h-12 bg-gray-700 rounded-full border-2 border-red-500 overflow-hidden">
-                <svg className="w-full h-full text-gray-400 mt-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
-              </div>
-            </Link>
-          )}
+          {isLoggedIn && (
+          <Link to="/profile" className="flex items-center space-x-4 cursor-pointer hover:bg-gray-800 p-2 rounded-lg transition-colors">
+            <span className="font-bold text-lg">Impots.gouv.fr</span>
+            <div className="w-12 h-12 bg-gray-700 rounded-full border-2 border-red-500 overflow-hidden">
+              <svg className="w-full h-full text-gray-400 mt-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </Link>
+        )}
 
         </header>
 
         {/* NOUVEAU : LA ZONE DYNAMIQUE (Le GPS) */}
 	<Routes>
-  		<Route path="/" element={<Home />} />
+  		<Route path="/" element={<Home isLoggedIn={isLoggedIn} onLoginClick={() => setIsLoginOpen(true)} />} />
   		<Route path="/profile" element={<Profile onLogout={() => setIsLoggedIn(false)} />} />
 		<Route path="/play/solo" element={<GameSolo />} />
 		<Route path="/history" element={<MatchHistory />} />
 		<Route path="/chat/:friendName" element={<Chat />} />
+		<Route path="/play/multi" element={<Multiplayer />} />
 	</Routes>
 
         {/* --- MODALES --- */}
