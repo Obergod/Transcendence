@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
-    "transcendance/backend/player"
+    "transcendance/internal/player"
 )
 
 type Game struct {
