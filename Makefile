@@ -5,9 +5,10 @@ MODULE_NAME = $(NAME)
 # Dossiers
 BACKEND_DIR = backend
 GAME_DIR = game
-STATIC_DIR = static
-WASM_OUT = $(STATIC_DIR)/main.wasm
 FRONTEND_DIR = frontend
+# CHANGEMENT ICI : Le Wasm doit aller dans le dossier public de React !
+WASM_DIR = $(FRONTEND_DIR)/public
+WASM_OUT = $(WASM_DIR)/main.wasm
 
 # Versions
 EBITEN_VERSION = v2.5.7
@@ -31,7 +32,7 @@ CYAN = \033[36m
 RESET = \033[0m
 CLEAR = \033[2K\r
 
-.PHONY: all clean fclean re ensure-module install-deps tidy server wasm frontend run
+.PHONY: all clean fclean re ensure-module install-deps tidy server wasm frontend run dev
 
 all: server wasm frontend
 
@@ -62,10 +63,10 @@ server: tidy
 # --- Compilation WASM (jeu) ---
 wasm: tidy
 	@printf "$(CYAN)Building WASM game...$(RESET)"
-	@mkdir -p $(STATIC_DIR)
+	@mkdir -p $(WASM_DIR)
 	@cd $(GAME_DIR) && GOOS=js GOARCH=wasm $(GOBUILD) -o ../$(WASM_OUT) main_wasm.go
-	@printf "$(CLEAR)$(GREEN)✓ WASM created at $(WASM_OUT)$(RESET)"
-	@cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $(STATIC_DIR)/ 2>/dev/null || \
+	@printf "$(CLEAR)$(GREEN)✓ WASM created at $(WASM_OUT)$(RESET)\n"
+	@cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $(WASM_DIR)/ 2>/dev/null || \
 		printf "$(YELLOW)⚠ wasm_exec.js not copied (Go not found)$(RESET)\n"
 
 # --- Compilation frontend React ---
@@ -84,8 +85,8 @@ fclean: clean
 	@printf "$(YELLOW)Deleting $(NAME)...$(RESET)"
 	@rm -f $(NAME)
 	@printf "$(CLEAR)$(GREEN)✓ $(NAME) deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting $(WASM_OUT) and static/wasm_exec.js...$(RESET)"
-	@rm -f $(WASM_OUT) $(STATIC_DIR)/wasm_exec.js
+	@printf "$(YELLOW)Deleting WASM files...$(RESET)"
+	@rm -f $(WASM_OUT) $(WASM_DIR)/wasm_exec.js
 	@printf "$(CLEAR)$(GREEN)✓ WASM files deleted$(RESET)\n"
 	@printf "$(YELLOW)Deleting go.mod and go.sum...$(RESET)"
 	@rm -f go.mod go.sum
@@ -96,6 +97,19 @@ fclean: clean
 
 re: fclean all
 
-# --- Exécution : rebuild tout + lance serveur ---
+# ==========================================
+# 🚀 MODE DÉVELOPPEMENT (La commande magique)
+# ==========================================
+dev: wasm
+	@printf "$(CYAN)Starting Backend and Frontend in DEV mode...$(RESET)\n"
+	@# Le "trap" permet de tuer le backend Go automatiquement quand on quitte Vite (Ctrl+C)
+	@trap 'kill 0' SIGINT; \
+	$(GOCMD) run $(BACKEND_DIR)/main.go & \
+	cd $(FRONTEND_DIR) && $(NPM_RUN) dev
+
+# ==========================================
+# 🚀 MODE PRODUCTION
+# ==========================================
 run: server wasm frontend
+	@printf "$(CYAN)Starting Production Server...$(RESET)\n"
 	@./$(NAME)

@@ -70,22 +70,27 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
     gameWorld.Unlock()
     log.Printf("Joueur %s déconnecté", playerID)
 }
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+)
 
 func main() {
-    go gameLoop()
+	// Notre route API qui ne peut pas être bloquée
+	http.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
+		// Ce message va s'afficher dans ton terminal de gauche !
+		fmt.Println("➡️ BINGO ! Requête reçue sur /api/hello depuis React !")
 
-    http.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
-    http.Handle("/wasm/", http.StripPrefix("/wasm/", http.FileServer(http.Dir("./static"))))
-    http.HandleFunc("/ws", handleWebSocket)
+		w.Header().Set("Content-Type", "application/json")
+		// On ajoute les autorisations de sécurité (CORS) au cas où
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		json.NewEncoder(w).Encode(map[string]string{"message": "Backend fonctionne"})
+	})
 
-    log.Println("Serveur sur http://localhost:8080")
-    log.Fatal(http.ListenAndServe(":8080", nil))
-}
+	fs := http.FileServer(http.Dir("./frontend/dist"))
+	http.Handle("/", fs)
 
-func gameLoop() {
-    for {
-        gameWorld.Update()
-        // TODO: diffuser l'état à tous les joueurs (via WebSocket)
-        time.Sleep(16 * time.Millisecond)
-    }
+	log.Println("Serveur sur http://localhost:8081")
+	log.Fatal(http.ListenAndServe(":8081", nil))
 }
