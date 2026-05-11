@@ -9,6 +9,8 @@ import (
     "github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
     "transcendance/internal/player"
+	"transcendance/internal/utils"
+    "github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Game struct {
@@ -43,13 +45,18 @@ func (g *Game) Update() error {
 // Draw renders the screen every frame
 func (g *Game) Draw(screen *ebiten.Image) {
     // Clear the screen with a dark background
-    screen.Fill(color.RGBA{0, 0, 0, 255})
+    screen.Fill(color.Black)
+
+	pX := utils.FixedToFloat(g.player.X)
+	pY := utils.FixedToFloat(g.player.Y)
 
     // Prepare a debug string with the player's coordinates
-    debugStr := fmt.Sprintf("Player Position: (%d, %d), HP: %d", g.player.X / 64, g.player.Y / 64, g.player.HP)
+    debugStr := fmt.Sprintf("Player Position: (%d, %d), HP: %d", pX, pY, g.player.HP)
 
     // Draw the debug string on the screen
     ebitenutil.DebugPrint(screen, debugStr)
+	vector.FillRect(screen, float32(pX), float32(pY),
+		float32(32), float32(32), color.RGBA{255, 0, 0 , 255}, false)
 }
 
 // Layout defines the game's logical screen size

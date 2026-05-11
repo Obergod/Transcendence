@@ -11,7 +11,7 @@ WASM_DIR = $(FRONTEND_DIR)/public
 WASM_OUT = $(WASM_DIR)/main.wasm
 
 # Versions
-EBITEN_VERSION = v2.5.7
+EBITEN_VERSION = latest
 
 # Commandes Go
 GOCMD = go
