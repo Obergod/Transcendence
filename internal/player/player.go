@@ -3,6 +3,7 @@ package player
 import (
 	"math"
 	"golang.org/x/image/math/fixed"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Player struct {
@@ -10,6 +11,7 @@ type Player struct {
 	HP		int
 	Speed	fixed.Int26_6
 	ID       string
+	Image	*ebiten.Image
 }
 
 func NewPlayer(startX, startY int, baseHP int) *Player {

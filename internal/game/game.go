@@ -6,11 +6,19 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+<<<<<<< HEAD
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	//"golang.org/x/image/math/fixed"
 	"github.com/gorilla/websocket"
 	"transcendance/internal/player"
 	"transcendance/internal/protocol"
+=======
+    "github.com/hajimehoshi/ebiten/v2/ebitenutil"
+
+    "transcendance/internal/player"
+	"transcendance/internal/utils"
+    "github.com/hajimehoshi/ebiten/v2/vector"
+>>>>>>> ee7fd06e13e46e9e34ef9291a815f4dccf0c8c82
 )
 
 type Game struct {
@@ -99,26 +107,19 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{0, 0, 0, 255})
+    // Clear the screen with a dark background
+    screen.Fill(color.Black)
 
-	g.mu.RLock()
-	defer g.mu.RUnlock()
+	pX := utils.FixedToFloat(g.player.X)
+	pY := utils.FixedToFloat(g.player.Y)
 
-	// Convertir fixed.Int26_6 en float64 pour le dessin
-	px := float64(g.player.X) / 64.0
-	py := float64(g.player.Y) / 64.0
-	ebitenutil.DrawRect(screen, px-16, py-16, 32, 32, color.RGBA{0, 255, 0, 255})
+    // Prepare a debug string with the player's coordinates
+    debugStr := fmt.Sprintf("Player Position: (%d, %d), HP: %d", pX, pY, g.player.HP)
 
-	// Dessiner others
-	for _, pos := range g.otherPlayers {
-		ebitenutil.DrawRect(screen, pos.X-16, pos.Y-16, 32, 32, color.RGBA{255, 0, 0, 255})
-	}
-	for _, e := range g.enemies {
-		ebitenutil.DrawRect(screen, e.X-16, e.Y-16, 32, 32, color.RGBA{255, 0, 255, 255})
-	}
-
-	debugStr := fmt.Sprintf("Player Position: (%.1f, %.1f), HP: %d", px, py, g.player.HP)
-	ebitenutil.DebugPrint(screen, debugStr)
+    // Draw the debug string on the screen
+    ebitenutil.DebugPrint(screen, debugStr)
+	vector.FillRect(screen, float32(pX), float32(pY),
+		float32(32), float32(32), color.RGBA{255, 0, 0 , 255}, false)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
