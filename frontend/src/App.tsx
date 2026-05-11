@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-import GameSolo from './pages/GameSolo';
+import Lobby from './pages/Lobby';
+import Game from './pages/Game';
 import MatchHistory from './pages/MatchHistory';
 import Chat from './pages/Chat';
-import Multiplayer from './pages/Multiplayer';
 
 function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -20,19 +20,15 @@ function App() {
   };
 
   return (
-    // NOUVEAU : BrowserRouter enveloppe toute l'application
     <BrowserRouter>
       <div className="min-h-screen bg-gray-900 text-white flex flex-col relative overflow-hidden">
 
-        {/* LE HEADER (Reste affiché sur toutes les pages) */}
         <header className="absolute top-0 w-full p-6 flex justify-between items-center z-10">
 
-          {/* NOUVEAU : La roue dentée ramène maintenant aussi à l'accueil si on clique ailleurs */}
           <div className="flex space-x-4">
             <button onClick={() => setIsSettingsOpen(true)} className="text-gray-400 hover:text-white transition-colors duration-300">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
             </button>
-            {/* Petit bouton Accueil pour revenir en arrière */}
             <Link to="/" className="text-gray-400 hover:text-white font-bold text-xl flex items-center">
               Accueil
             </Link>
@@ -51,17 +47,15 @@ function App() {
 
         </header>
 
-        {/* NOUVEAU : LA ZONE DYNAMIQUE (Le GPS) */}
-	<Routes>
-  		<Route path="/" element={<Home isLoggedIn={isLoggedIn} onLoginClick={() => setIsLoginOpen(true)} />} />
-  		<Route path="/profile" element={<Profile onLogout={() => setIsLoggedIn(false)} />} />
-		<Route path="/play/solo" element={<GameSolo />} />
-		<Route path="/history" element={<MatchHistory />} />
-		<Route path="/chat/:friendName" element={<Chat />} />
-		<Route path="/play/multi" element={<Multiplayer />} />
-	</Routes>
+<Routes>
+  <Route path="/" element={<Home isLoggedIn={isLoggedIn} onLoginClick={() => setIsLoginOpen(true)} />} />
+  <Route path="/profile" element={<Profile onLogout={() => setIsLoggedIn(false)} />} />
+  <Route path="/play" element={<Lobby />} />
+  <Route path="/game" element={<Game />} />
+  <Route path="/history" element={<MatchHistory />} />
+  <Route path="/chat/:friendName" element={<Chat />} />
+</Routes>
 
-        {/* --- MODALES --- */}
         {isSettingsOpen && (
           <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
             <div className="bg-gray-900 border-2 border-gray-700 p-8 rounded-2xl w-96 shadow-2xl relative">
