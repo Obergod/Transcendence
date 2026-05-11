@@ -27,7 +27,7 @@ const Home = ({ isLoggedIn, onLoginClick }: HomeProps) => {
       </h1>
 
       <div className="bg-gray-800/80 p-4 rounded-xl border border-gray-700 flex flex-col items-center gap-2">
-        <button onClick={testBackendConnection} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors text-sm">
+        <button onClick={testBackendConnection} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors text-sm">
           Tester la connexion Backend
         </button>
         {backendMessage && <p className="text-green-400 font-mono text-sm">{backendMessage}</p>}
