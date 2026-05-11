@@ -1,39 +1,61 @@
 package main
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
+    "log"
 
-	"github.com/hajimehoshi/ebiten/v2"
-	"transcendance/internal/game"
-	"transcendance/internal/player"
+    "github.com/gorilla/websocket"
+    "github.com/hajimehoshi/ebiten/v2"
+    "transcendance/internal/game"
+    "transcendance/internal/player"
+    "transcendance/internal/protocol"
 )
 
 func main() {
-	// --- Appel HTTP vers le backend (exemple) ---
-	resp, err := http.Get("/api/hello")
-	if err != nil {
-		log.Println("Erreur HTTP:", err)
-	} else {
-		defer resp.Body.Close()
-		var result map[string]string
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			log.Println("Erreur décodage JSON:", err)
-		} else {
-			log.Printf("Réponse backend: %v", result)
-		}
-	}
+    conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:8080/ws", nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer conn.Close()
 
-	// --- Initialisation du jeu ---
-	startX, startY, baseHP := 400, 300, 100
-	initialPlayer := player.NewPlayer(startX, startY, baseHP)
-	gameInstance := game.NewGame(initialPlayer)
+    var initMsg protocol.Message
+    if err := conn.ReadJSON(&initMsg); err != nil {
+        log.Fatal(err)
+    }
+    if initMsg.Type != protocol.MsgInit {
+        log.Fatal("expected init message")
+    }
+    playerID, ok := initMsg.Data.(string)
+    if !ok {
+        log.Fatal("invalid init data")
+    }
+    log.Printf("Connected as %s", playerID)
 
-	ebiten.SetWindowTitle("Player Movement with Arrow Keys")
-	ebiten.SetWindowSize(800, 600)
+    // Conversion explicite : les coordonnées du joueur sont des entiers (pixels)
+    startX, startY, baseHP := 400, 300, 100
+    initialPlayer := player.NewPlayer(startX, startY, baseHP)
+    gameInstance := game.NewGame(initialPlayer)
+    gameInstance.SetWebSocket(conn, playerID)
 
-	if err := ebiten.RunGame(gameInstance); err != nil {
-		log.Fatal(err)
-	}
+    go func() {
+        for {
+            var msg protocol.Message
+            if err := conn.ReadJSON(&msg); err != nil {
+                log.Println("read error:", err)
+                return
+            }
+            if msg.Type == protocol.MsgState {
+                state, ok := msg.Data.(protocol.StateData)
+                if !ok {
+                    continue
+                }
+                gameInstance.UpdateWorld(state)
+            }
+        }
+    }()
+
+    ebiten.SetWindowTitle("Bullet Heaven Multiplayer")
+    ebiten.SetWindowSize(800, 600)
+    if err := ebiten.RunGame(gameInstance); err != nil {
+        log.Fatal(err)
+    }
 }
