@@ -9,6 +9,7 @@ type Player struct {
     X, Y	fixed.Int26_6
 	HP		int
 	Speed	fixed.Int26_6
+	ID       string
 }
 
 func NewPlayer(startX, startY int, baseHP int) *Player {
