@@ -9,7 +9,7 @@ STATIC_DIR = static
 WASM_OUT = $(STATIC_DIR)/main.wasm
 
 # Versions
-EBITEN_VERSION = v2.5.7
+EBITEN_VERSION = latest
 
 # Commandes Go
 GOCMD = go
