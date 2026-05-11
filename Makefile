@@ -32,10 +32,12 @@ CYAN = \033[36m
 RESET = \033[0m
 CLEAR = \033[2K\r
 
-.PHONY: all clean fclean re ensure-module install-deps tidy server wasm frontend run dev
+.PHONY: all clean fclean re ensure-module install-deps tidy server wasm frontend run dev up down start stop ps
 
 all: server wasm frontend
+	docker compose -f ${SRCS} up
 
+SRCS="docker/docker-compose.yml"
 # --- Module à la racine ---
 ensure-module:
 	@if [ ! -f go.mod ]; then \
@@ -75,6 +77,25 @@ frontend:
 	@cd $(FRONTEND_DIR) && $(NPM_RUN) build
 	@printf "$(CLEAR)$(GREEN)✓ React frontend built$(RESET)\n"
 
+# --- For Dockers ---
+up:
+	@docker compose -f ${SRCS} up -d
+
+build:
+	@docker compose -f ${SRCS} build
+
+down:
+	@docker compose -f ${SRCS} down
+
+start:
+	@docker compose -f ${SRCS} start
+
+stop:
+	@docker compose -f ${SRCS} stop
+
+ps:
+	@docker compose -f ${SRCS} ps
+
 # --- Nettoyage ---
 clean:
 	@printf "$(YELLOW)Cleaning Go cache...$(RESET)"
@@ -94,6 +115,11 @@ fclean: clean
 	@printf "$(YELLOW)Deleting frontend/dist...$(RESET)"
 	@rm -rf $(FRONTEND_DIR)/dist
 	@printf "$(CLEAR)$(GREEN)✓ frontend/dist deleted$(RESET)\n"
+	docker system prune -af
+# 	@ sudo rm -rf $(WORDPRESS_PATH)
+# 	@ sudo rm -rf $(MARIADB_PATH)
+# 	@ docker compose -f ${SRCS} down --rmi 'all'
+# 	@ docker compose -f ${SRCS} rm -f -s -v
 
 re: fclean all
 
