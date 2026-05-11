@@ -7,6 +7,7 @@ BACKEND_DIR = backend
 GAME_DIR = game
 STATIC_DIR = static
 WASM_OUT = $(STATIC_DIR)/main.wasm
+FRONTEND_DIR = frontend
 
 # Versions
 EBITEN_VERSION = v2.5.7
@@ -19,6 +20,10 @@ GOGET = $(GOCMD) get
 GOMOD = $(GOCMD) mod
 GOTIDY = $(GOCMD) mod tidy
 
+# Commandes Node / npm
+NPM = npm
+NPM_RUN = $(NPM) run
+
 # Affichage
 GREEN = \033[32m
 YELLOW = \033[33m
@@ -26,9 +31,9 @@ CYAN = \033[36m
 RESET = \033[0m
 CLEAR = \033[2K\r
 
-.PHONY: all clean fclean re ensure-module install-deps tidy server wasm run
+.PHONY: all clean fclean re ensure-module install-deps tidy server wasm frontend run
 
-all: server wasm
+all: server wasm frontend
 
 # --- Module à la racine ---
 ensure-module:
@@ -49,14 +54,12 @@ tidy: install-deps
 	@printf "$(GREEN)✓ Dependencies tidied$(RESET)\n"
 
 # --- Compilation serveur (binaire natif) ---
-# Le serveur est dans backend/main.go, il importe internal/...
 server: tidy
 	@printf "$(CYAN)Building $(NAME) server...$(RESET)"
 	@cd $(BACKEND_DIR) && $(GOBUILD) -o ../$(NAME) .
 	@printf "$(CLEAR)$(GREEN)✓ $(NAME) server created$(RESET)\n"
 
 # --- Compilation WASM (jeu) ---
-# Le jeu est dans game/main_wasm.go, il importe internal/... également
 wasm: tidy
 	@printf "$(CYAN)Building WASM game...$(RESET)"
 	@mkdir -p $(STATIC_DIR)
@@ -64,6 +67,12 @@ wasm: tidy
 	@printf "$(CLEAR)$(GREEN)✓ WASM created at $(WASM_OUT)$(RESET)"
 	@cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $(STATIC_DIR)/ 2>/dev/null || \
 		printf "$(YELLOW)⚠ wasm_exec.js not copied (Go not found)$(RESET)\n"
+
+# --- Compilation frontend React ---
+frontend:
+	@printf "$(CYAN)Building React frontend...$(RESET)"
+	@cd $(FRONTEND_DIR) && $(NPM_RUN) build
+	@printf "$(CLEAR)$(GREEN)✓ React frontend built$(RESET)\n"
 
 # --- Nettoyage ---
 clean:
@@ -81,8 +90,12 @@ fclean: clean
 	@printf "$(YELLOW)Deleting go.mod and go.sum...$(RESET)"
 	@rm -f go.mod go.sum
 	@printf "$(CLEAR)$(GREEN)✓ go.mod and go.sum deleted$(RESET)\n"
+	@printf "$(YELLOW)Deleting frontend/dist...$(RESET)"
+	@rm -rf $(FRONTEND_DIR)/dist
+	@printf "$(CLEAR)$(GREEN)✓ frontend/dist deleted$(RESET)\n"
 
 re: fclean all
 
-run: server
+# --- Exécution : rebuild tout + lance serveur ---
+run: server wasm frontend
 	@./$(NAME)
