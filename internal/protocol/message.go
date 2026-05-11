@@ -3,9 +3,8 @@ package protocol
 type MessageType string
 
 const (
-    MsgJoin  MessageType = "join"
+    MsgInit  MessageType = "init"
     MsgMove  MessageType = "move"
-    MsgShoot MessageType = "shoot"
     MsgState MessageType = "state"
 )
 
@@ -15,10 +14,11 @@ type Message struct {
 }
 
 type MoveData struct {
-    X, Y float64
+    X, Y float64 `json:"x, y"`
 }
 
 type StateData struct {
+    // Structure à adapter selon vos besoins
     Players map[string]struct{ X, Y float64 } `json:"players"`
-    Enemies map[string]struct{ X, Y float64 } `json:"enemies"`
+    Enemies []struct{ X, Y float64 }          `json:"enemies"`
 }
