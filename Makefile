@@ -65,7 +65,7 @@ wasm: tidy
 	@mkdir -p $(WASM_DIR)
 	@cd $(GAME_DIR) && GOOS=js GOARCH=wasm $(GOBUILD) -o ../$(WASM_OUT) main_wasm.go
 	@printf "$(CLEAR)$(GREEN)✓ WASM created at $(WASM_OUT)$(RESET)\n"
-	@cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $(WASM_DIR)/ 2>/dev/null || \
+	@cp "$$(go env GOROOT)/lib/wasm/wasm_exec.js" $(WASM_DIR)/ 2>/dev/null || \
 		printf "$(YELLOW)⚠ wasm_exec.js not copied (Go not found)$(RESET)\n"
 
 # --- Installer les dépendances React ---
