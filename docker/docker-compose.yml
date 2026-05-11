@@ -1,0 +1,43 @@
+services:
+  database:
+    image:
+      mariadb:stable
+    network:
+      - frontend
+    container-name: mariadb
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: on-failure
+    env_file: ./secrets/.env
+    expose:
+      - "8081"
+
+  nginx:
+    image: nginx:stable
+    networks:
+      - frontend
+    container_name: nginx
+    volumes:
+      - nginx:/var/www/nginx
+    restart: on-failure
+    ports: 
+      - "8081:80"
+    env_file: ./secrets/.env
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/gbakulin/data/mariadb'
+  nginx:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/gbakulin/data/nginx'
+
+networks:
+  frontend:
+    driver: bridge
