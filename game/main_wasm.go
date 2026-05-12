@@ -41,6 +41,12 @@ func main() {
     firstEnemy := enemy.NewEnemy(100, 100, 100)
     w.AddEnemy("first", firstEnemy)
 
+    secondEnemy := enemy.NewEnemy(150, 100, 100)
+    w.AddEnemy("second", secondEnemy)
+
+    thirdEnemy := enemy.NewEnemy(200, 100, 100)
+    w.AddEnemy("third", thirdEnemy)
+
     gameInstance := game.NewGame(w, localID)
 
     ebiten.SetWindowSize(800, 600)

@@ -9,6 +9,7 @@ import (
 
     "transcendance/internal/world"
     "transcendance/internal/utils"
+    "transcendance/internal/player"
 )
 
 type Game struct {
@@ -84,17 +85,74 @@ func (g *Game) MovePlayer() error {
     return nil
 }
 
+func (g *Game) MoveEnemies() {
+    if len(g.world.Players) == 0 {
+        return
+    }
+
+    for _, e := range g.world.Enemies {
+        // Trouver le joueur le plus proche
+        var closestPlayer *player.Player
+        var closestDistSq fixed.Int26_6 = fixed.Int26_6(0x7fffffff) // très grand
+
+        for _, p := range g.world.Players {
+            dx := p.X - e.X
+            dy := p.Y - e.Y
+
+            // on compare les hypothenuses (pythagore takaptew)
+            // (dx*dx + dy*dy) en fixed, attention aux débordements 64-bit
+            // On convertit en int64 pour le produit
+            dx64 := int64(dx)
+            dy64 := int64(dy)
+            distSq := fixed.Int26_6(dx64*dx64 + dy64*dy64)
+
+            if distSq < closestDistSq {
+                closestDistSq = distSq
+                closestPlayer = p
+            }
+        }
+
+        if closestPlayer == nil {
+            continue
+        }
+
+        dx := closestPlayer.X - e.X
+        dy := closestPlayer.Y - e.Y
+
+        // Normalisation approximée en fixed : on veut (dx, dy) * speed / longueur
+        // Longueur = sqrt(dx^2 + dy^2). Éviter division par zéro.
+        if dx == 0 && dy == 0 {
+            continue
+        }
+
+        lenFixed := utils.FixedSqrt(dx*dx + dy*dy)
+        if lenFixed == 0 {
+            continue
+        }
+
+        // On travaille en int64 pour garder la précision
+        speed64 := int64(e.Speed)
+        len64 := int64(lenFixed)
+
+        moveX := fixed.Int26_6((int64(dx) * speed64) / len64)
+        moveY := fixed.Int26_6((int64(dy) * speed64) / len64)
+
+        e.X += moveX
+        e.Y += moveY
+    }
+}
+
 // Update logic runs every tick (1/60 second by default)
 func (g *Game) Update() error {
     g.MovePlayer()
-
+    g.MoveEnemies()
     return nil
 }
 
 func (g *Game) DrawEnemies(screen *ebiten.Image) {
     for _, e := range g.world.Enemies {
-        x := utils.FixedToFloat(e.X)
-        y := utils.FixedToFloat(e.Y)
+        x := utils.FixedToFloat32(e.X)
+        y := utils.FixedToFloat32(e.Y)
 
         var col color.Color
         col = color.RGBA{255, 0, 0, 255} // Ennemis en rouge
@@ -105,8 +163,8 @@ func (g *Game) DrawEnemies(screen *ebiten.Image) {
 
 func (g *Game) DrawPlayers(screen *ebiten.Image) {
     for id, p := range g.world.Players {
-        x := utils.FixedToFloat(p.X)
-        y := utils.FixedToFloat(p.Y)
+        x := utils.FixedToFloat32(p.X)
+        y := utils.FixedToFloat32(p.Y)
 
         var col color.Color
         if id == g.localID {
