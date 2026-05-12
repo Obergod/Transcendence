@@ -7,4 +7,4 @@ RUN apt-get update && \
 
 # COPY ./tools/script.sh script.sh
 
-ENTRYPOINT [ "tail", "-f",  "/dev/null" ]
+# ENTRYPOINT [ "tail", "-f",  "/dev/null" ]
