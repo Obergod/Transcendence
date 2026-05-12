@@ -20,9 +20,8 @@ func NewWorld() *World {
     }
 }
 
-// Mise à jour du monde à chaque tick (ex: 60 fois par seconde)
-func (w *World) Update() {
+func (w *World) AddPlayer(id string, p *player.Player) {
     w.Lock()
     defer w.Unlock()
-    // Déplacement des ennemis, collisions, spawn, etc.
+    w.Players[id] = p
 }

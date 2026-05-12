@@ -6,8 +6,10 @@ import (
     "net/http"
 
     "github.com/hajimehoshi/ebiten/v2"
+
     "transcendance/internal/game"
     "transcendance/internal/player"
+    "transcendance/internal/world"
 )
 
 func main() {
@@ -26,13 +28,19 @@ func main() {
     }
 
     // --- Initialisation du jeu ---
-    startX, startY, baseHP := 400, 300, 100
-    initialPlayer := player.NewPlayer(startX, startY, baseHP)
-    gameInstance := game.NewGame(initialPlayer)
+    w := world.NewWorld()
+    localID := "local_player"
 
-    ebiten.SetWindowTitle("Player Movement with Arrow Keys")
+    initialPlayer := player.NewPlayer(400, 300, 100)
+    w.AddPlayer(localID, initialPlayer)
+
+    extraPlayer := player.NewPlayer(600, 600, 100)
+    w.AddPlayer("other", extraPlayer)
+
+    gameInstance := game.NewGame(w, localID)
+
     ebiten.SetWindowSize(800, 600)
-
+    ebiten.SetWindowTitle("Multiplayer Test")
     if err := ebiten.RunGame(gameInstance); err != nil {
         log.Fatal(err)
     }

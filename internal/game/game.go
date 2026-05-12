@@ -1,66 +1,117 @@
 package game
 
 import (
-    "fmt"
     "image/color"
-    //"golang.org/x/image/math/fixed"
 
     "github.com/hajimehoshi/ebiten/v2"
-    "github.com/hajimehoshi/ebiten/v2/ebitenutil"
-
-    "transcendance/internal/player"
-    "transcendance/internal/utils"
     "github.com/hajimehoshi/ebiten/v2/vector"
+    "golang.org/x/image/math/fixed"
+
+    "transcendance/internal/world"
+    "transcendance/internal/utils"
 )
 
 type Game struct {
-    player *player.Player
+    world   *world.World
+    localID string
 }
 
-func NewGame(p *player.Player) *Game {
-    return &Game{player: p}
+func NewGame(w *world.World, ID string) *Game {
+    return &Game{world: w, localID: ID}
 }
 
 // Update logic runs every tick (1/60 second by default)
 func (g *Game) Update() error {
-    // Handle arrow key input
-    if ebiten.IsKeyPressed(ebiten.KeyEscape) {
-        return ebiten.Termination
-    }
+    dx := fixed.Int26_6(0)
+    dy := fixed.Int26_6(0)
+
     if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
-        g.player.MoveUp()
+        dy = -1
     }
     if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
-        g.player.MoveDown()
+        dy = 1
     }
     if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
-        g.player.MoveLeft()
+        dx = -1
     }
     if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
-        g.player.MoveRight()
+        dx = 1
     }
+
+    g.world.Lock()
+    defer g.world.Unlock()
+
+    localPlayer, exists := g.world.Players[g.localID] 
+    // seul le joueur local bouge quand on input des touches
+    if !exists {
+        return nil
+    }
+
+    // Application de la vitesse (propre au joueur)
+
+    var moveX, moveY fixed.Int26_6
+    
+    if (dx != 0 && dy != 0) {
+        // vitesse diagonale = speed * 707 / 1000 (707 ≈ 1000/√2)
+        moveX = fixed.Int26_6(int64(dx) * int64(localPlayer.Speed) * 707 / 1000)
+        moveY = fixed.Int26_6(int64(dy) * int64(localPlayer.Speed) * 707 / 1000)
+    } else { // else sur la meme ligne que {} sinon ca compile pas (hihi le Go)
+        moveX = fixed.Int26_6(int64(dx) * int64(localPlayer.Speed))
+        moveY = fixed.Int26_6(int64(dy) * int64(localPlayer.Speed))
+    }
+
+    localPlayer.X += moveX
+    localPlayer.Y += moveY
+
+    // Limites de l'écran
+    minX := fixed.I(0)
+    maxX := fixed.I(800)
+    minY := fixed.I(0)
+    maxY := fixed.I(600)
+
+    if localPlayer.X < minX {
+        localPlayer.X = minX
+    }
+    if localPlayer.X > maxX {
+        localPlayer.X = maxX
+    }
+    if localPlayer.Y < minY {
+        localPlayer.Y = minY
+    }
+    if localPlayer.Y > maxY {
+        localPlayer.Y = maxY
+    }
+
     return nil
 }
 
-// Draw renders the screen every frame
+func (g *Game) DrawPlayers(screen *ebiten.Image) {
+    for id, p := range g.world.Players {
+        x := utils.FixedToFloat(p.X)
+        y := utils.FixedToFloat(p.Y)
+
+        var col color.Color
+        if id == g.localID {
+            col = color.RGBA{0, 255, 0, 255} // Vert pour le joueur local
+        } else {
+            col = color.RGBA{255, 0, 0, 255} // Rouge pour les autres
+        }
+
+        // Dessiner un carré de 40x40 centré sur (x, y)
+        vector.FillRect(screen, x-20, y-20, 40, 40, col, false)
+    }
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
-    // Clear the screen with a dark background
     screen.Fill(color.Black)
 
-    pX := utils.FixedToFloat(g.player.X)
-    pY := utils.FixedToFloat(g.player.Y)
+    g.world.RLock()
+    defer g.world.RUnlock()
 
-    // Prepare a debug string with the player's coordinates
-    debugStr := fmt.Sprintf("Player Position: (%d, %d), HP: %d", pX, pY, g.player.HP)
-
-    // Draw the debug string on the screen
-    ebitenutil.DebugPrint(screen, debugStr)
-    vector.FillRect(screen, float32(pX), float32(pY),
-        float32(32), float32(32), color.RGBA{255, 0, 0 , 255}, false)
+    g.DrawPlayers(screen)
 }
 
 // Layout defines the game's logical screen size
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-    // Set the game window size to 800x600 logical pixels
     return 800, 600
 }

@@ -1,9 +1,10 @@
 package player
 
 import (
-	"math"
-	"golang.org/x/image/math/fixed"
-	"github.com/hajimehoshi/ebiten/v2"
+    "math"
+
+    "github.com/hajimehoshi/ebiten/v2"
+    "golang.org/x/image/math/fixed"
 )
 
 type Player struct {
@@ -22,8 +23,3 @@ func NewPlayer(startX, startY int, baseHP int) *Player {
 		Speed: fixed.Int26_6(math.Round(1 * 64)),
 	}
 }
-
-func (p *Player) MoveUp()    { p.Y-= p.Speed }
-func (p *Player) MoveDown()  { p.Y+= p.Speed }
-func (p *Player) MoveLeft()  { p.X-= p.Speed }
-func (p *Player) MoveRight() { p.X+= p.Speed }
