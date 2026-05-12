@@ -3,12 +3,15 @@ package player
 import (
 	"math"
 	"golang.org/x/image/math/fixed"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Player struct {
     X, Y	fixed.Int26_6
 	HP		int
 	Speed	fixed.Int26_6
+	ID       string
+	Image	*ebiten.Image
 }
 
 func NewPlayer(startX, startY int, baseHP int) *Player {
@@ -20,7 +23,7 @@ func NewPlayer(startX, startY int, baseHP int) *Player {
 	}
 }
 
-func (p *Player) MoveUp()    { p.Y+= p.Speed }
-func (p *Player) MoveDown()  { p.Y-= p.Speed }
+func (p *Player) MoveUp()    { p.Y-= p.Speed }
+func (p *Player) MoveDown()  { p.Y+= p.Speed }
 func (p *Player) MoveLeft()  { p.X-= p.Speed }
 func (p *Player) MoveRight() { p.X+= p.Speed }
