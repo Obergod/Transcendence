@@ -20,8 +20,7 @@ func NewGame(w *world.World, ID string) *Game {
     return &Game{world: w, localID: ID}
 }
 
-// Update logic runs every tick (1/60 second by default)
-func (g *Game) Update() error {
+func (g *Game) MovePlayer() error {
     dx := fixed.Int26_6(0)
     dy := fixed.Int26_6(0)
 
@@ -85,6 +84,25 @@ func (g *Game) Update() error {
     return nil
 }
 
+// Update logic runs every tick (1/60 second by default)
+func (g *Game) Update() error {
+    g.MovePlayer()
+
+    return nil
+}
+
+func (g *Game) DrawEnemies(screen *ebiten.Image) {
+    for _, e := range g.world.Enemies {
+        x := utils.FixedToFloat(e.X)
+        y := utils.FixedToFloat(e.Y)
+
+        var col color.Color
+        col = color.RGBA{255, 0, 0, 255} // Ennemis en rouge
+
+        vector.FillRect(screen, x-10, y-10, 20, 20, col, false)
+    }
+}
+
 func (g *Game) DrawPlayers(screen *ebiten.Image) {
     for id, p := range g.world.Players {
         x := utils.FixedToFloat(p.X)
@@ -94,7 +112,7 @@ func (g *Game) DrawPlayers(screen *ebiten.Image) {
         if id == g.localID {
             col = color.RGBA{0, 255, 0, 255} // Vert pour le joueur local
         } else {
-            col = color.RGBA{255, 0, 0, 255} // Rouge pour les autres
+            col = color.RGBA{0, 0, 255, 255} // Bleu pour les autres
         }
 
         // Dessiner un carré de 40x40 centré sur (x, y)
@@ -109,6 +127,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
     defer g.world.RUnlock()
 
     g.DrawPlayers(screen)
+    g.DrawEnemies(screen)
 }
 
 // Layout defines the game's logical screen size

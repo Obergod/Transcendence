@@ -25,3 +25,9 @@ func (w *World) AddPlayer(id string, p *player.Player) {
     defer w.Unlock()
     w.Players[id] = p
 }
+
+func (w *World) AddEnemy(id string, e *enemy.Enemy) {
+    w.Lock()
+    defer w.Unlock()
+    w.Enemies[id] = e
+}

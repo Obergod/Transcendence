@@ -10,6 +10,7 @@ import (
     "transcendance/internal/game"
     "transcendance/internal/player"
     "transcendance/internal/world"
+    "transcendance/internal/enemy"
 )
 
 func main() {
@@ -36,6 +37,9 @@ func main() {
 
     extraPlayer := player.NewPlayer(600, 600, 100)
     w.AddPlayer("other", extraPlayer)
+
+    firstEnemy := enemy.NewEnemy(100, 100, 100)
+    w.AddEnemy("first", firstEnemy)
 
     gameInstance := game.NewGame(w, localID)
 

@@ -17,6 +17,6 @@ func NewEnemy(startX, startY int, baseHP int) *Enemy {
 		X: fixed.I(startX),
 		Y: fixed.I(startY),
 		HP: baseHP,
-		Speed: fixed.Int26_6(1 * 64),
+		Speed: fixed.Int26_6(1 * 32),
 	}
 }
