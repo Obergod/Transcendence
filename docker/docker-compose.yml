@@ -1,16 +1,33 @@
 services:
-  # database:
-  #   image:
-  #     mariadb:10.8.2
-  #   networks:
-  #     - frontend
-  #   container_name: mariadb
-  #   # volumes:
-  #   #   - db_data:/var/lib/mysql
-  #   restart: on-failure
-  #   env_file: ./secrets/.env
-  #   expose:
-  #     - "8081"
+  database:
+    image:
+      postgres:14.22
+    networks:
+      - appnet
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: on-failure
+    env_file: ./secrets/.env
+    expose:
+      - "5432"
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "8081:8081"
+    depends_on:
+      - database
+    networks:
+      - appnet
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - appnet
 
   # nginx:
   #   image: nginx:stable
@@ -65,13 +82,13 @@ services:
     container_name: npm
     build: ./src/npm
 
-# volumes:
-#   db_data:
-#     driver: local
-#     driver_opts:
-#       type: 'none'
-#       o: 'bind'
-#       device: '/home/gbakulin/data/mariadb'
+volumes:
+  postgres_data:
+    driver: local
+    # driver_opts:
+    #   type: 'none'
+    #   o: 'bind'
+    #   device: '/home'
 #   nginx:
 #     driver: local
 #     driver_opts:
@@ -80,5 +97,5 @@ services:
 #       device: '/home/gbakulin/data/nginx'
 
 networks:
-  frontend:
+  appnet:
     driver: bridge
