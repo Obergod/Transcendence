@@ -16,15 +16,15 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Pour afficher des erreurs (ex: mots de passe différents)
+  // Pour afficher des erreurs
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); // Empêche la page de se recharger
+const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError(null);
 
-    // VÉRIFICATIONS FRONTEND (Sécurité de base)
     if (isRegistering) {
+      // VÉRIFICATIONS FRONTEND
       if (password !== confirmPassword) {
         setError("Les mots de passe ne correspondent pas !");
         return;
@@ -33,16 +33,52 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
         setError("Le mot de passe doit faire au moins 6 caractères.");
         return;
       }
-      console.log("Tentative d'inscription avec :", pseudo, email, password);
-      // TODO: Plus tard, on fera le fetch('/api/register') ici
-    } else {
-      console.log("Tentative de connexion avec :", email, password);
-      // TODO: Plus tard, on fera le fetch('/api/login') ici
-    }
 
-    // Pour l'instant, on simule une réussite immédiate
-    onLoginSuccess();
-    onClose();
+      // --- REQUÊTE D'INSCRIPTION ---
+      try {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // On envoie les données au format JSON
+          body: JSON.stringify({ pseudo, email, password })
+        });
+
+        if (!response.ok) {
+          // Si le backend renvoie une erreur (ex: Email déjà utilisé)
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "Erreur lors de l'inscription.");
+        }
+
+        // Si succès : tu peux choisir de le connecter direct ou de lui demander de se log.
+        // Ici, on valide la connexion direct :
+        onLoginSuccess();
+        onClose();
+
+      } catch (err: any) {
+        setError(err.message);
+      }
+
+    } else {
+      // --- REQUÊTE DE CONNEXION ---
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "Email ou mot de passe incorrect.");
+        }
+		
+        onLoginSuccess();
+        onClose();
+
+      } catch (err: any) {
+        setError(err.message);
+      }
+    }
   };
 
   return (
