@@ -19,11 +19,13 @@ type Game struct {
 }
 
 func NewGame(w *world.World, ID string) *Game {
-    return &Game{world: w, localID: ID}
+    return &Game{
+        world:   w,
+        localID: ID,
+    }
 }
 
-// pushOutCollisionFixed déplace exclusivement e1 hors de e2 si intersection.
-// Retourne true si déplacement effectué. 
+// pushOutCollisionFixed déplace uniquement e1 hors de e2 (corCircleion totale).
 func pushOutCollisionFixed(e1, e2 *hitbox.Hitbox) bool {
     dx := int64(e2.X - e1.X)
     dy := int64(e2.Y - e1.Y)
@@ -41,8 +43,9 @@ func pushOutCollisionFixed(e1, e2 *hitbox.Hitbox) bool {
         return false
     }
     overlap := rsum - dist
-    moveX := (overlap * dx) / dist
-    moveY := (overlap * dy) / dist
+    // Déplacement total (coefficient 1/3) pour sortir complètement
+    moveX := (overlap * dx) / dist / 3
+    moveY := (overlap * dy) / dist / 3
     e1.X += fixed.Int26_6(moveX)
     e1.Y += fixed.Int26_6(moveY)
     return true
@@ -85,6 +88,7 @@ func (g *Game) MovePlayer() error {
     localPlayer.Hitbox.X += moveX
     localPlayer.Hitbox.Y += moveY
 
+    // Limites écran
     minX := fixed.I(0)
     maxX := fixed.I(800)
     minY := fixed.I(0)
@@ -101,7 +105,6 @@ func (g *Game) MovePlayer() error {
     if localPlayer.Hitbox.Y > maxY {
         localPlayer.Hitbox.Y = maxY
     }
-
     return nil
 }
 
@@ -109,6 +112,8 @@ func (g *Game) MoveEnemies() {
     if len(g.world.Players) == 0 {
         return
     }
+    g.world.Lock()
+    defer g.world.Unlock()
 
     for _, e := range g.world.Enemies {
         // Trouver le joueur le plus proche
@@ -143,22 +148,19 @@ func (g *Game) MoveEnemies() {
         moveX := fixed.Int26_6((dx * speed) / dist)
         moveY := fixed.Int26_6((dy * speed) / dist)
 
-        // Déplacer l'ennemi
         e.Hitbox.X += moveX
         e.Hitbox.Y += moveY
 
-        // Résoudre collisions avec les joueurs (pousse l'ennemi)
         for _, p := range g.world.Players {
             pushOutCollisionFixed(e.Hitbox, p.Hitbox)
         }
-        // Résoudre collisions avec les autres ennemis
         for _, other := range g.world.Enemies {
             if e.ID != other.ID {
                 pushOutCollisionFixed(e.Hitbox, other.Hitbox)
             }
         }
 
-        // Limites écran pour les ennemis
+        // Limites écran
         minX := fixed.I(0)
         maxX := fixed.I(800)
         minY := fixed.I(0)
@@ -178,10 +180,69 @@ func (g *Game) MoveEnemies() {
     }
 }
 
+func (g *Game) HandleEnemyShooting() {
+    g.world.Lock()
+    defer g.world.Unlock()
+
+    for _, e := range g.world.Enemies {
+        if e.Weapon == nil {
+            continue
+        }
+        var closestPlayer *player.Player
+        var closestDistSq int64 = 1 << 62
+        for _, p := range g.world.Players {
+            dx := int64(p.Hitbox.X - e.Hitbox.X)
+            dy := int64(p.Hitbox.Y - e.Hitbox.Y)
+            distSq := dx*dx + dy*dy
+            if distSq < closestDistSq {
+                closestDistSq = distSq
+                closestPlayer = p
+            }
+        }
+        if closestPlayer == nil {
+            continue
+        }
+
+        dx := closestPlayer.Hitbox.X - e.Hitbox.X
+        dy := closestPlayer.Hitbox.Y - e.Hitbox.Y
+        if dx == 0 && dy == 0 {
+            continue
+        }
+
+        bullet, ok := e.Weapon.Shoot(e.Hitbox.X, e.Hitbox.Y, dx, dy)
+        if ok {
+            g.world.Bullets = append(g.world.Bullets, bullet)
+        }
+    }
+}
+
+func (g *Game) UpdateBullets() {
+    g.world.Lock()
+    defer g.world.Unlock()
+    bullets := &g.world.Bullets
+    for i := 0; i < len(*bullets); i++ {
+        if !(*bullets)[i].Update() {
+            *bullets = append((*bullets)[:i], (*bullets)[i+1:]...)
+            i--
+        }
+    }
+}
+
 func (g *Game) Update() error {
     g.MovePlayer()
     g.MoveEnemies()
+    g.HandleEnemyShooting()
+    g.UpdateBullets()
     return nil
+}
+
+func (g *Game) DrawBullets(screen *ebiten.Image) {
+    for _, b := range g.world.Bullets {
+        x := utils.FixedToFloat32(b.X)
+        y := utils.FixedToFloat32(b.Y)
+        col := color.RGBA{255, 255, 0, 255}
+        vector.FillCircle(screen, x, y, 3, col, true)
+    }
 }
 
 func (g *Game) DrawEnemies(screen *ebiten.Image) {
@@ -189,7 +250,7 @@ func (g *Game) DrawEnemies(screen *ebiten.Image) {
         x := utils.FixedToFloat32(e.Hitbox.X)
         y := utils.FixedToFloat32(e.Hitbox.Y)
         col := color.RGBA{255, 0, 0, 255}
-        vector.FillRect(screen, x-10, y-10, 20, 20, col, false)
+        vector.FillCircle(screen, x, y, 10, col, true)
     }
 }
 
@@ -203,7 +264,7 @@ func (g *Game) DrawPlayers(screen *ebiten.Image) {
         } else {
             col = color.RGBA{0, 0, 255, 255}
         }
-        vector.FillRect(screen, x-20, y-20, 40, 40, col, false)
+        vector.FillCircle(screen, x, y, 20, col, true)
     }
 }
 
@@ -213,6 +274,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
     defer g.world.RUnlock()
     g.DrawPlayers(screen)
     g.DrawEnemies(screen)
+    g.DrawBullets(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
