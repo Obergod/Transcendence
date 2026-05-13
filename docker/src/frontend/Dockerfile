@@ -2,11 +2,17 @@ FROM node
 
 WORKDIR /app
 
-COPY frontend /app
+COPY frontend/package*.json ./
 
 RUN npm install
 
+COPY frontend .
+
 RUN npm run build
+
+# EXPOSE 8081
+
+CMD ["npm", "run", "dev", "--", "--host"]
 
 # FROM nginx
 
