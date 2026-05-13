@@ -6,8 +6,12 @@ import (
     "net/http"
 
     "github.com/hajimehoshi/ebiten/v2"
+    "golang.org/x/image/math/fixed"
+
     "transcendance/internal/game"
     "transcendance/internal/player"
+    "transcendance/internal/world"
+    "transcendance/internal/enemy"
 )
 
 func main() {
@@ -26,13 +30,27 @@ func main() {
     }
 
     // --- Initialisation du jeu ---
-    startX, startY, baseHP := 400, 300, 100
-    initialPlayer := player.NewPlayer(startX, startY, baseHP)
-    gameInstance := game.NewGame(initialPlayer)
+    w := world.NewWorld()
 
-    ebiten.SetWindowTitle("Player Movement with Arrow Keys")
+    initialPlayer := player.NewPlayer(fixed.I(400), fixed.I(300), 100, "local")
+    w.AddPlayer(initialPlayer.ID, initialPlayer)
+
+    extraPlayer := player.NewPlayer(fixed.I(600), fixed.I(600), 100, "extra")
+    w.AddPlayer("other", extraPlayer)
+
+    firstEnemy := enemy.NewEnemy(fixed.I(100), fixed.I(100), 100, "fils")
+    w.AddEnemy("first", firstEnemy)
+
+    secondEnemy := enemy.NewEnemy(fixed.I(150), fixed.I(100), 100, "de")
+    w.AddEnemy("second", secondEnemy)
+
+    thirdEnemy := enemy.NewEnemy(fixed.I(200), fixed.I(100), 100, "con")
+    w.AddEnemy("third", thirdEnemy)
+
+    gameInstance := game.NewGame(w, initialPlayer.ID)
+
     ebiten.SetWindowSize(800, 600)
-
+    ebiten.SetWindowTitle("Multiplayer Test")
     if err := ebiten.RunGame(gameInstance); err != nil {
         log.Fatal(err)
     }
