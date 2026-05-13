@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"transcendance/internal/models"
+	"transcendance/internal/db"
 )
 
 func main() {
@@ -24,4 +27,15 @@ func main() {
 
 	log.Println("Serveur sur http://localhost:8081")
 	log.Fatal(http.ListenAndServe(":8081", nil))
+
+	//Database initialisation
+	db, err := db.ConnectToPostgreSQL()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
