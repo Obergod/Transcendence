@@ -33,10 +33,15 @@ CLEAR = \033[2K\r
 
 .PHONY: all clean fclean re ensure-module install-deps tidy server wasm frontend install-frontend run dev up down start stop ps
 
+SRCS="docker/docker-compose.yml"
+
 all: server wasm frontend
 	docker compose -f ${SRCS} up
 
-SRCS="docker/docker-compose.yml"
+
+all: server wasm frontend
+	docker compose -f ${SRCS} up
+
 # --- Module à la racine ---
 ensure-module:
 	@if [ ! -f go.mod ]; then \

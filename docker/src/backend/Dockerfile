@@ -2,11 +2,16 @@ FROM node
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY backend /app
 
 RUN golang install
 
-COPY . .
+# COPY . .
 
 RUN golang run build
 
+RUN golang
+
+EXPOSE 8081
+
+CMD ["node", "dist/index.js"]

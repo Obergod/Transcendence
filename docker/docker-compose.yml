@@ -1,7 +1,6 @@
 services:
   database:
-    image:
-      postgres:14.22
+    image: postgres:14.22
     networks:
       - appnet
     container_name: postgres
@@ -13,11 +12,11 @@ services:
       - "5432"
   # backend:
   #   build:
-  #     context: ../backend
-  #     dockerfile: ../docker/src/backend/Dockerfile
+  #     context: ..
+  #     dockerfile: docker/src/backend/Dockerfile
   #   container_name: backend
   #   ports:
-  #     - "8081:8081"
+  #     - "5173:5173"
   #   depends_on:
   #     - database
   #   networks:
@@ -25,18 +24,20 @@ services:
 
   frontend:
     build:
-      context: ../frontend
-      dockerfile: ../docker/src/frontend/Dockerfile
+      context: ..
+      dockerfile: docker/src/frontend/Dockerfile
     container_name: frontend
     ports:
-      - "5173:5173"
+      - "8081:8081"
     networks:
       - appnet
+    # depends_on:
+    #   - backend
 
   # nginx:
   #   image: nginx:stable
   #   networks:
-  #     - frontend
+  #     - appnet
   #   container_name: nginx
   #   # volumes:
   #   #   - nginx:/var/www/nginx
@@ -82,9 +83,9 @@ services:
   #   networks:
   #     - frontend
 
-  npm:
-    container_name: npm
-    build: ./src/npm
+  # npm:
+  #   container_name: npm
+  #   build: ./src/npm
 
 volumes:
   postgres_data:
