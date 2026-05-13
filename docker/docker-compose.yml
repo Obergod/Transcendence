@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:14.22
+    image: postgres:14
     networks:
       - appnet
     container_name: postgres
@@ -89,7 +89,6 @@ services:
 
 volumes:
   postgres_data:
-    driver: local
     # driver_opts:
     #   type: 'none'
     #   o: 'bind'

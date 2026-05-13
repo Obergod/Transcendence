@@ -20,11 +20,11 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
   const [error, setError] = useState<string | null>(null);
 
 const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault(); // Empêche le rechargement de la page
+    setError(null);     // On efface les anciennes erreurs à chaque nouvelle tentative
 
+    // 1. SCÉNARIO : INSCRIPTION (REGISTER)
     if (isRegistering) {
-      // VÉRIFICATIONS FRONTEND
       if (password !== confirmPassword) {
         setError("Les mots de passe ne correspondent pas !");
         return;
@@ -34,44 +34,42 @@ const handleSubmit = async (e: React.FormEvent) => {
         return;
       }
 
-      // --- REQUÊTE D'INSCRIPTION ---
       try {
+        // Envoi de la requête au Backend Go
         const response = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // On envoie les données au format JSON
           body: JSON.stringify({ pseudo, email, password })
         });
+        const data = await response.json();
 
         if (!response.ok) {
-          // Si le backend renvoie une erreur (ex: Email déjà utilisé)
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || "Erreur lors de l'inscription.");
+          throw new Error(data.error || data.message || "Erreur lors de l'inscription.");
         }
-
-        // Si succès : tu peux choisir de le connecter direct ou de lui demander de se log.
-        // Ici, on valide la connexion direct :
+        console.log("Succès :", data.message);
         onLoginSuccess();
         onClose();
-
       } catch (err: any) {
         setError(err.message);
       }
 
+    // 2. SCÉNARIO : CONNEXION (LOGIN)
     } else {
-      // --- REQUÊTE DE CONNEXION ---
       try {
         const response = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
+        const data = await response.json();
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || "Email ou mot de passe incorrect.");
+          throw new Error(data.error || data.message || "Email ou mot de passe incorrect.");
         }
-		
+
+        // Plus tard, quand ton backend Go enverra un JWT, tu le stockeras ici :
+
+        console.log("Connexion réussie ! Bienvenue", data.pseudo);
         onLoginSuccess();
         onClose();
 
