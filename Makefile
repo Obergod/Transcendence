@@ -38,10 +38,6 @@ SRCS="docker/docker-compose.yml"
 all: server wasm frontend
 	docker compose -f ${SRCS} up
 
-
-all: server wasm frontend
-	docker compose -f ${SRCS} up
-
 # --- Module à la racine ---
 ensure-module:
 	@if [ ! -f go.mod ]; then \
