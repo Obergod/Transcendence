@@ -1,0 +1,78 @@
+### ⚛️ React (La Bibliothèque UI)
+* **C'est quoi ?** Une bibliothèque JavaScript (ici utilisée avec TypeScript) créée par Facebook.
+* **Pourquoi l'utiliser ?** Au lieu de créer d'immenses pages HTML impossibles à lire, React permet de diviser l'interface en petits morceaux réutilisables appelés **Composants** (ex: un bouton, une barre de navigation, une liste d'amis).
+* **Comment on l'utilise ?** Chaque composant est un fichier `.tsx`. Ils ressemblent à des fonctions qui renvoient du HTML.
+
+### ⚡ Vite (Le Moteur de Construction)
+* **C'est quoi ?** L'outil qui fait tourner notre serveur de développement (sur le port `5173`) et qui assemble nos fichiers.
+* **Pourquoi l'utiliser ?** Il est incroyablement rapide. Quand tu modifies un fichier `.tsx` et que tu sauvegardes, la page web se met à jour en 1 milliseconde sans jamais recharger (on appelle ça le HMR : *Hot Module Replacement*).
+* **Comment on l'utilise ?** Toute la configuration se trouve dans le fichier `vite.config.ts`.
+
+### 🎨 Tailwind CSS (Le Style)
+* **C'est quoi ?** Un framework CSS utilitaire.
+* **Pourquoi l'utiliser ?** Au lieu d'avoir des fichiers `.css` séparés de 10 000 lignes où on se perd, on applique le style directement sur les balises HTML avec des mots-clés simples.
+* **Comment on l'utilise ?** `className="bg-red-500 text-white font-bold rounded-xl"` va créer un bloc rouge, texte blanc, gras, avec des bords arrondis.
+
+### 🗺️ React Router (Le Navigateur)
+* **C'est quoi ?** Le système qui gère nos pages web (`/`, `/profile`, `/play`).
+* **Pourquoi l'utiliser ?** Nous créons une SPA (*Single Page Application*). Cela signifie que le site ne "recharge" jamais vraiment. React Router détruit simplement l'ancienne page et dessine la nouvelle instantanément, ce qui donne une impression de fluidité absolue.
+* **Comment on l'utilise ?** On utilise la balise `<Routes>` dans `App.tsx` pour définir la carte du site, et `<Link to="/profil">` au lieu du classique `<a href="...">` pour créer des boutons de navigation.
+
+---
+
+## 🧠 2. Les Concepts Clés de React à maîtriser
+
+Si tu dois modifier le code, voici les deux mécanismes fondamentaux de React que tu vas croiser partout :
+
+### A. Les "States" (L'état avec `useState`)
+En React, si une variable doit changer visuellement sur l'écran, on ne fait pas `score = score + 1`. On utilise un State.
+const [score, setScore] = useState(0);
+
+// Pour changer le score, on appelle la fonction setScore :
+<button onClick={() => setScore(score + 1)}>Gagner un point</button>
+*Dès que `setScore` est appelé, React redessine automatiquement cette partie de l'écran avec le nouveau score.*
+
+### B. Les "Effects" (Le cycle de vie avec `useEffect`)
+C'est une fonction qui dit à React : *"Fais cette action uniquement à un moment précis (par exemple, quand la page vient de s'afficher)"*.
+Nous l'utilisons dans `Game.tsx` pour charger le jeu WebAssembly **une seule fois** quand l'utilisateur arrive sur la page.
+
+---
+
+## 🎮 3. L'Intégration du Jeu (L'Architecture Magique)
+
+C'est ici que notre projet est unique. Le jeu en lui-même n'est pas codé en JavaScript/React, mais en **Go** (avec Ebitengine).
+
+1. **La Compilation Wasm :** Le Makefile transforme le code Go du dossier `game/` en un fichier binaire compréhensible par le navigateur : `main.wasm`.
+2. **Le Traducteur :** Ce fichier `.wasm` est placé dans le dossier `frontend/public/` avec un fichier magique appelé `wasm_exec.js`. Ce script agit comme un pont linguistique entre le navigateur web et notre jeu en Go.
+3. **L'Affichage :** Sur la page `Game.tsx`, React télécharge le `.wasm` et l'exécute dans une balise `<canvas>` (un rectangle de dessin noir). À partir de ce moment-là, c'est le code Go qui prend le contrôle des pixels et du clavier !
+
+---
+
+## 🚧 4. Le Piège des Ports : Frontend vs Backend
+
+Pour des raisons de sécurité et de performances, notre application tourne sur **deux serveurs différents** en mode développement :
+
+* 🎨 **Le Frontend tourne sur le port `5173` (Vite)** : C'est ici que tu dois aller (`http://localhost:5173`) pour coder et voir le site s'actualiser en direct.
+* ⚙️ **Le Backend tourne sur le port `8081` (Go)** : C'est lui qui gère la base de données, la logique multijoueur, etc.
+
+**Le problème du CORS :** Le navigateur web interdit par défaut au port 5173 de parler au port 8081 (pour éviter le piratage).
+**Notre solution (Le Proxy) :** Dans `vite.config.ts`, nous avons dit à React : *"Dès qu'on envoie une requête vers `/api`, fais-la passer en cachette vers le port 8081"*. Le navigateur n'y voit que du feu !
+
+---
+
+## ⚙️ 5. Guide de Survie (Commandes utiles)
+
+### Comment lancer le projet sur ton ordi ?
+Si c'est ta première fois sur le projet (ou si un collègue a ajouté un nouvel outil), tu dois installer les bibliothèques React :
+cd frontend
+npm install
+cd ..
+
+### La commande magique du quotidien
+Pour lancer à la fois le serveur Go (Backend) ET le serveur React (Frontend) en mode développement :
+make dev
+👉 Va sur `http://localhost:5173` dans ton navigateur pour travailler.
+
+### En cas de port bloqué (Serveur Fantôme)
+Si `make run` ou `make dev` crashe en te disant `bind: address already in use` (le port 8081 est coincé), utilise cette commande pour libérer la place :
+fuser -k 8081/tcp

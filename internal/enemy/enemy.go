@@ -2,21 +2,23 @@ package enemy
 
 import (
 	"golang.org/x/image/math/fixed"
+	
+	"transcendance/internal/hitbox"
 )
 
 type Enemy struct {
-    X, Y	fixed.Int26_6
+    Hitbox	*hitbox.Hitbox
 	HP		int
 	Speed	fixed.Int26_6
-	Type     int
-    ID       string
+	Type    int
+    ID      string
 }
 
-func NewEnemy(startX, startY int, baseHP int) *Enemy {
+func NewEnemy(startX, startY fixed.Int26_6, baseHP int, id string) *Enemy {
     return &Enemy{
-		X: fixed.I(startX),
-		Y: fixed.I(startY),
+		Hitbox: hitbox.NewHitbox(startX, startY, fixed.I(10)),
 		HP: baseHP,
-		Speed: fixed.Int26_6(1 * 64),
+		Speed: fixed.Int26_6(5 * 64),
+		ID: id,
 	}
 }

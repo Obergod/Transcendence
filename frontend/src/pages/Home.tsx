@@ -23,7 +23,7 @@ const Home = ({ isLoggedIn, onLoginClick }: HomeProps) => {
   return (
     <main className="flex-1 flex flex-col items-center justify-center space-y-12">
       <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-400 to-red-800 tracking-widest drop-shadow-lg text-center">
-        42<br />SURVIVOR
+        67<br />SURVIVOR
       </h1>
 
       <div className="bg-gray-800/80 p-4 rounded-xl border border-gray-700 flex flex-col items-center gap-2">

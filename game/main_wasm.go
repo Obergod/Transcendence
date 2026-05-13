@@ -6,10 +6,12 @@ import (
     "net/http"
 
     "github.com/hajimehoshi/ebiten/v2"
+    "golang.org/x/image/math/fixed"
 
     "transcendance/internal/game"
     "transcendance/internal/player"
     "transcendance/internal/world"
+    "transcendance/internal/enemy"
 )
 
 func main() {
@@ -29,15 +31,23 @@ func main() {
 
     // --- Initialisation du jeu ---
     w := world.NewWorld()
-    localID := "local_player"
 
-    initialPlayer := player.NewPlayer(400, 300, 100)
-    w.AddPlayer(localID, initialPlayer)
+    initialPlayer := player.NewPlayer(fixed.I(400), fixed.I(300), 100, "local")
+    w.AddPlayer(initialPlayer.ID, initialPlayer)
 
-    extraPlayer := player.NewPlayer(600, 600, 100)
+    extraPlayer := player.NewPlayer(fixed.I(600), fixed.I(600), 100, "extra")
     w.AddPlayer("other", extraPlayer)
 
-    gameInstance := game.NewGame(w, localID)
+    firstEnemy := enemy.NewEnemy(fixed.I(100), fixed.I(100), 100, "fils")
+    w.AddEnemy("first", firstEnemy)
+
+    secondEnemy := enemy.NewEnemy(fixed.I(150), fixed.I(100), 100, "de")
+    w.AddEnemy("second", secondEnemy)
+
+    thirdEnemy := enemy.NewEnemy(fixed.I(200), fixed.I(100), 100, "con")
+    w.AddEnemy("third", thirdEnemy)
+
+    gameInstance := game.NewGame(w, initialPlayer.ID)
 
     ebiten.SetWindowSize(800, 600)
     ebiten.SetWindowTitle("Multiplayer Test")
