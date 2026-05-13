@@ -33,13 +33,21 @@ var upgrader = websocket.Upgrader {
 	ReadBufferSize: 1024,
 	WriteBufferSize: 1024,
 }
-
+:
 type Client struct {
 	hub *Hub
 	conn *websocket.Conn
 
 	//buffered channel of outbound msg
 	send chan []byte
+}
+
+func NewClient(hub *Hub, conn *websocket.Conn) *Client {
+	return &Client {
+		hub: hub,
+		conn: conn,
+		send: make(chan []byte, 256),
+	}
 }
 
 // readPump pumps messages from the websocket connection to the hub
@@ -67,4 +75,51 @@ func (c *Client) readPump() {
 	}
 }
 
+// writePump pumps messages from the hub to the websocket connection.[27;5;106~
+func (c *Client) writePump() {
+	ticker := time.NewTicker(pingPeriod)
+	defer func() {
+		ticker.Stop()
+		c.conn.Close()
+	}()
+	for {
+		select {
+		case message, ok := <-c.send:
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if !ok {
+				//hub closed channel
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+			// maybe not necessary if no batching (just writeMessage)
+			w, err := c.conn.NextWriter(websocket.TextMessage)
+			if err != nil {
+				return
+			}
+			w.Write(message)
 
+			if err := w.Close(); err != nil {
+					return
+				}
+		case <-ticker.C:
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
+		}
+	}	
+}
+
+	//serveWs handles websocket request from peer
+func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil) // upgrades to websocket
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	client := NewClient(hub, conn)
+	client.hub.register <- client
+
+	go client.writePump()
+	go client.readPump()
+}
