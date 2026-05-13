@@ -36,11 +36,7 @@ CLEAR = \033[2K\r
 SRCS="docker/docker-compose.yml"
 
 all: server wasm frontend
-	docker compose -f ${SRCS} up
-
-
-all: server wasm frontend
-	docker compose -f ${SRCS} up
+	docker compose -f ${SRCS} up -d
 
 # --- Module à la racine ---
 ensure-module:
