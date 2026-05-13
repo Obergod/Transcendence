@@ -1,8 +1,6 @@
 package player
 
 import (
-    "math"
-
     "github.com/hajimehoshi/ebiten/v2"
     "golang.org/x/image/math/fixed"
 
@@ -21,7 +19,7 @@ func NewPlayer(startX, startY fixed.Int26_6, baseHP int, id string) *Player {
     return &Player{
 		Hitbox: hitbox.NewHitbox(startX, startY, fixed.I(20)),
 		HP: baseHP,
-		Speed: fixed.Int26_6(math.Round(1 * 64)),
+		Speed: fixed.I(1),
 		ID: id,
 	}
 }

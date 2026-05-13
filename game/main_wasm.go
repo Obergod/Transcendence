@@ -8,14 +8,14 @@ import (
     "github.com/hajimehoshi/ebiten/v2"
     "golang.org/x/image/math/fixed"
 
+    "transcendance/internal/enemy"
     "transcendance/internal/game"
     "transcendance/internal/player"
     "transcendance/internal/world"
-    "transcendance/internal/enemy"
 )
 
 func main() {
-    // --- Appel HTTP vers le backend (exemple) ---
+    // Appel HTTP exemple (backend)
     resp, err := http.Get("/api/hello")
     if err != nil {
         log.Println("Erreur HTTP:", err)
@@ -29,28 +29,32 @@ func main() {
         }
     }
 
-    // --- Initialisation du jeu ---
+    // --- Initialisation du monde ---
     w := world.NewWorld()
 
+    // Joueur local
     initialPlayer := player.NewPlayer(fixed.I(400), fixed.I(300), 100, "local")
     w.AddPlayer(initialPlayer.ID, initialPlayer)
 
+    // Second joueur (autre)
     extraPlayer := player.NewPlayer(fixed.I(600), fixed.I(600), 100, "extra")
-    w.AddPlayer("other", extraPlayer)
+    w.AddPlayer(extraPlayer.ID, extraPlayer)
 
-    firstEnemy := enemy.NewEnemy(fixed.I(100), fixed.I(100), 100, "fils")
-    w.AddEnemy("first", firstEnemy)
+    // Trois ennemis "ranged"
+    firstEnemy := enemy.NewRanged(fixed.I(100), fixed.I(100), "ranger1")
+    w.AddEnemy(firstEnemy.ID, firstEnemy)
 
-    secondEnemy := enemy.NewEnemy(fixed.I(150), fixed.I(100), 100, "de")
-    w.AddEnemy("second", secondEnemy)
+    secondEnemy := enemy.NewRanged(fixed.I(150), fixed.I(100), "ranger2")
+    w.AddEnemy(secondEnemy.ID, secondEnemy)
 
-    thirdEnemy := enemy.NewEnemy(fixed.I(200), fixed.I(100), 100, "con")
-    w.AddEnemy("third", thirdEnemy)
+    thirdEnemy := enemy.NewRanged(fixed.I(200), fixed.I(100), "ranger3")
+    w.AddEnemy(thirdEnemy.ID, thirdEnemy)
 
     gameInstance := game.NewGame(w, initialPlayer.ID)
 
+    ebiten.SetTPS(60) // force 60 ticks par seconde
     ebiten.SetWindowSize(800, 600)
-    ebiten.SetWindowTitle("Multiplayer Test")
+    ebiten.SetWindowTitle("Multiplayer with Ranged Enemies")
     if err := ebiten.RunGame(gameInstance); err != nil {
         log.Fatal(err)
     }
