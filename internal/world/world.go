@@ -4,12 +4,14 @@ import (
     "sync"
     "transcendance/internal/player"
     "transcendance/internal/enemy"
+    "transcendance/internal/weapon"
 )
 
 type World struct {
     sync.RWMutex
     Players map[string]*player.Player
     Enemies map[string]*enemy.Enemy
+    Bullets []*weapon.Bullet
     // Ajoutez projectiles, etc.
 }
 
