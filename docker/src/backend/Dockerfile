@@ -1,10 +1,12 @@
 FROM node
 
-RUN apt-get update && \
-    apt-get install -y nodejs\
-    npm \
-    golang
+WORKDIR /app
 
-# COPY ./tools/script.sh script.sh
+COPY package*.json ./
 
-# ENTRYPOINT [ "tail", "-f",  "/dev/null" ]
+RUN golang install
+
+COPY . .
+
+RUN golang run build
+
