@@ -4,7 +4,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"../models" // Vérifie que ce chemin correspond à ton go.mod
+	"transcendance/internal/models" // Vérifie que ce chemin correspond à ton go.mod
 	"golang.org/x/crypto/bcrypt"
 )
 

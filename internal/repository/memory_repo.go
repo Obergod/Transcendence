@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 	"sync"
-	"../models"
+	"transcendance/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
