@@ -52,13 +52,13 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
  
-# =========================================
-# Docker-related files
-# =========================================
-Dockerfile
-.dockerignore
-docker-compose.yml
-docker-compose.override.yml
+# # =========================================
+# # Docker-related files
+# # =========================================
+# Dockerfile
+# .dockerignore
+# docker-compose.yml
+# docker-compose.override.yml
  
 # =========================================
 # AI / LLM-related files
