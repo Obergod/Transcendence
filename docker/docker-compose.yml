@@ -59,19 +59,31 @@ services:
       - prometheus_data:/prometheus
       # - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
-  # elasticsearch:
-  #   container_name: elasticsearch
-  #   image: elasticsearch:9.4.0
-  #   restart: on-failure
-  #   networks:
-  #     - frontend
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:9.4.0
+    restart: on-failure
+    networks:
+      - appnet
+    env_file: ./secrets/.env
+    ports:
+      - 9200:9200
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
-  # logstash:
-  #   container_name: logstash
-  #   image: logstash:9.4.0
-  #   restart: on-failure
-  #   networks:
-  #     - frontend
+  logstash:
+    container_name: logstash
+    image: logstash:9.4.0
+    restart: on-failure
+    networks:
+      - appnet
+    env_file: ./secrets/.env
+    ports:
+      - 5000:5000
+    volumes:
+      - esdata:/usr/share/logstash/data
+    depends_on:
+      - elasticsearch
 
   grafana:
     container_name: grafana
@@ -100,6 +112,7 @@ volumes:
   postgres_data:
   grafana-storage:
   prometheus_data:
+  esdata:
     # driver: local
     # driver_opts:
     #   type: 'none'
