@@ -25,32 +25,6 @@ func NewGame(w *world.World, ID string) *Game {
     }
 }
 
-// pushOutCollisionFixed déplace uniquement e1 hors de e2 (corCircleion totale).
-func pushOutCollisionFixed(e1, e2 *hitbox.Hitbox) bool {
-    dx := int64(e2.X - e1.X)
-    dy := int64(e2.Y - e1.Y)
-    rsum := int64(e1.R + e2.R)
-    distSq := dx*dx + dy*dy
-    if distSq >= rsum*rsum {
-        return false
-    }
-    if distSq == 0 {
-        e1.X += fixed.I(1)
-        return true
-    }
-    dist := int64(utils.FixedSqrt(fixed.Int26_6(distSq)))
-    if dist == 0 {
-        return false
-    }
-    overlap := rsum - dist
-    // Déplacement total (coefficient 1/3) pour sortir complètement
-    moveX := (overlap * dx) / dist / 3
-    moveY := (overlap * dy) / dist / 3
-    e1.X += fixed.Int26_6(moveX)
-    e1.Y += fixed.Int26_6(moveY)
-    return true
-}
-
 func (g *Game) MovePlayer() error {
     dx := fixed.Int26_6(0)
     dy := fixed.Int26_6(0)
@@ -152,11 +126,11 @@ func (g *Game) MoveEnemies() {
         e.Hitbox.Y += moveY
 
         for _, p := range g.world.Players {
-            pushOutCollisionFixed(e.Hitbox, p.Hitbox)
+            hitbox.pushOutCollisionFixed(e.Hitbox, p.Hitbox)
         }
         for _, other := range g.world.Enemies {
             if e.ID != other.ID {
-                pushOutCollisionFixed(e.Hitbox, other.Hitbox)
+                hitbox.pushOutCollisionFixed(e.Hitbox, other.Hitbox)
             }
         }
 
