@@ -126,11 +126,11 @@ func (g *Game) MoveEnemies() {
         e.Hitbox.Y += moveY
 
         for _, p := range g.world.Players {
-            hitbox.pushOutCollisionFixed(e.Hitbox, p.Hitbox)
+            hitbox.PushOutCollisionFixed(e.Hitbox, p.Hitbox)
         }
         for _, other := range g.world.Enemies {
             if e.ID != other.ID {
-                hitbox.pushOutCollisionFixed(e.Hitbox, other.Hitbox)
+                hitbox.PushOutCollisionFixed(e.Hitbox, other.Hitbox)
             }
         }
 
