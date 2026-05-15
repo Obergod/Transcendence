@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:14.22
+    image: postgres:14
     networks:
       - appnet
     container_name: postgres
@@ -8,19 +8,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: on-failure
     env_file: ./secrets/.env
-    expose:
-      - "5432"
-  # backend:
-  #   build:
-  #     context: ..
-  #     dockerfile: docker/src/backend/Dockerfile
-  #   container_name: backend
-  #   ports:
-  #     - "5173:5173"
-  #   depends_on:
-  #     - database
-  #   networks:
-  #     - appnet
+    ports:
+      - "5432:5432"
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/src/backend/Dockerfile
+    container_name: backend
+    ports:
+      - "8081:8081"
+    depends_on:
+      - database
+    networks:
+      - appnet
 
   frontend:
     build:
@@ -28,11 +28,11 @@ services:
       dockerfile: docker/src/frontend/Dockerfile
     container_name: frontend
     ports:
-      - "8081:8081"
+      - "5173:5173"
     networks:
       - appnet
-    # depends_on:
-    #   - backend
+    depends_on:
+      - backend
 
   # nginx:
   #   image: nginx:stable
@@ -46,12 +46,18 @@ services:
   #     - "8081:80"
   #   env_file: ./secrets/.env
 
-  # prometheus:
-  #   container_name: prometheus
-  #   image: prom/prometheus
-  #   restart: on-failure
-  #   networks:
-  #     - frontend
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    restart: on-failure
+    networks:
+      - appnet
+    env_file: ./secrets/.env
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      # - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
   # elasticsearch:
   #   container_name: elasticsearch
@@ -67,14 +73,17 @@ services:
   #   networks:
   #     - frontend
 
-  # grafana:
-  #   container_name: grafana
-  #   image: grafana/grafana
-  #   restart: on-failure
-  #   networks:
-  #     - frontend
-  #   ports:
-  #     - "3000:3000"
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: on-failure
+    networks:
+      - appnet
+    env_file: ./secrets/.env
+    ports:
+      - "3000:3000"
 
   # kibana:
   #   container_name: kibana
@@ -89,7 +98,9 @@ services:
 
 volumes:
   postgres_data:
-    driver: local
+  grafana-storage:
+  prometheus_data:
+    # driver: local
     # driver_opts:
     #   type: 'none'
     #   o: 'bind'

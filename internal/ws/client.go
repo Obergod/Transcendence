@@ -87,7 +87,7 @@ func (c *Client) writePump() {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				//hub closed channel
+				//hub closed channell
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
@@ -107,11 +107,11 @@ func (c *Client) writePump() {
 				return
 			}
 		}
-	}	
+	}
 }
 
 	//serveWs handles websocket request from peer
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil) // upgrades to websocket
 	if err != nil {
 		log.Println(err)
