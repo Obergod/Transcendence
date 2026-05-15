@@ -2,9 +2,6 @@ package hitbox
 
 import (
     "golang.org/x/image/math/fixed"
-
-	"transcendance/internal/utils"
-
 )
 
 type Hitbox struct {
@@ -15,7 +12,7 @@ func NewHitbox(x, y, r fixed.Int26_6) *Hitbox {
 	return &Hitbox{X: x, Y: y, R: r}
 }
 
-func PushOutCollisionFixed(e1, e2 *Hitbox) bool {
+func pushOutCollisionFixed(e1, e2 *hitbox.Hitbox) bool {
     dx := int64(e2.X - e1.X)
     dy := int64(e2.Y - e1.Y)
     rsum := int64(e1.R + e2.R)
