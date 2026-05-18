@@ -24,4 +24,3 @@ RUN cp $(go env GOROOT)/lib/wasm/wasm_exec.js frontend/public/
 # EXPOSE 5173
 
 CMD ["./transcendance"]
-

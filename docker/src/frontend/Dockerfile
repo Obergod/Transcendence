@@ -1,26 +1,53 @@
-FROM node
+# FROM node
+
+# WORKDIR /app
+
+# COPY frontend/package*.json ./
+
+# RUN npm install
+
+# COPY frontend .
+
+# RUN npm run build
+
+# # EXPOSE 8081
+
+# CMD ["npm", "run", "dev", "--", "--host"]
+
+# # FROM nginx
+
+# # # WORKDIR /app
+
+# # # RUN npm install -g serve
+
+# # COPY --from=builder /app/dist /usr/share/nginx/html
+
+# # EXPOSE 80
+# # CMD ["nginx", "-g", "daemon off;"]
+
+
+FROM node:20
 
 WORKDIR /app
 
-COPY frontend/package*.json ./
+COPY . .
 
-RUN npm install
+# install frontend deps
+RUN cd frontend && npm install
 
-COPY frontend .
+# install Go temporarily
+RUN apt-get update && apt-get install -y golang
 
-RUN npm run build
+# build wasm
+RUN mkdir -p /app/frontend/public && \
+    cd /app/game && \
+    GOOS=js GOARCH=wasm go build \
+    -o /app/frontend/public/main.wasm main_wasm.go
 
-# EXPOSE 8081
+# copy wasm_exec.js
+RUN cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" \
+    /app/frontend/public/
+
+WORKDIR /app/frontend
 
 CMD ["npm", "run", "dev", "--", "--host"]
-
-# FROM nginx
-
-# # WORKDIR /app
-
-# # RUN npm install -g serve
-
-# COPY --from=builder /app/dist /usr/share/nginx/html
-
-# EXPOSE 80
-# CMD ["nginx", "-g", "daemon off;"]
