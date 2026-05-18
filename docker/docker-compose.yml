@@ -7,9 +7,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: on-failure
-    env_file: ./secrets/.env
-    expose:
-      - "5432"
+    environment:
+      POSTGRES_PASSWORD: goodPassword123
+      POSTGRES_USER: admin
+      POSTGRES_DB: myapp
+    ports:
+      - "5432:5432"
   backend:
     build:
       context: ..
@@ -21,6 +24,8 @@ services:
       - database
     networks:
       - appnet
+    environment:
+      DATABASE_URL: postgres://admin:secret@database:5432/myapp
 
   frontend:
     build:
@@ -46,42 +51,78 @@ services:
   #     - "8081:80"
   #   env_file: ./secrets/.env
 
-  # prometheus:
-  #   container_name: prometheus
-  #   image: prom/prometheus
-  #   restart: on-failure
-  #   networks:
-  #     - frontend
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    restart: on-failure
+    networks:
+      - appnet
+    # env_file: ./secrets/.env
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      # - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
-  # elasticsearch:
-  #   container_name: elasticsearch
-  #   image: elasticsearch:9.4.0
-  #   restart: on-failure
-  #   networks:
-  #     - frontend
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:9.4.0
+    restart: on-failure
+    networks:
+      - appnet
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+    ports:
+      - 9200:9200
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
   # logstash:
   #   container_name: logstash
   #   image: logstash:9.4.0
   #   restart: on-failure
   #   networks:
-  #     - frontend
-
-  # grafana:
-  #   container_name: grafana
-  #   image: grafana/grafana
-  #   restart: on-failure
-  #   networks:
-  #     - frontend
+  #     - appnet
+  #   environment:
+        # - LS_JAVA_OPTS=-Xms1g -Xmx1g
   #   ports:
-  #     - "3000:3000"
+  #     - 5000:5000
+  #   volumes:
+  #     - esdata:/usr/share/logstash/data
+  #   depends_on:
+  #     - elasticsearch
 
-  # kibana:
-  #   container_name: kibana
-  #   image: kibana:9.4.0
-  #   restart: on-failure
-  #   networks:
-  #     - frontend
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: on-failure
+    networks:
+      - appnet
+    environment:
+      GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: secret
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    ports:
+      - "3000:3000"
+
+  kibana:
+    container_name: kibana
+    image: kibana:9.4.0
+    restart: on-failure
+    networks:
+      - appnet
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: elastic
+    # volumes:
+    #   - ./kibana.yml:/usr/share/kibana
 
   # npm:
   #   container_name: npm
@@ -89,6 +130,10 @@ services:
 
 volumes:
   postgres_data:
+  grafana-storage:
+  prometheus_data:
+  esdata:
+  kibana:
     # driver: local
     # driver_opts:
     #   type: 'none'

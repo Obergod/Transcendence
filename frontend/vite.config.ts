@@ -10,7 +10,7 @@ export default defineConfig({
     proxy: {
 		// Toutes les requêtes qui commencent par /api seront redirigées vers le backend Go
 		'/api': {
-        target: 'http://localhost:8081',
+        target: 'http://backend:8081',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, '') // Décommente si ton backend n'a pas le préfixe /api dans ses routes
       }
