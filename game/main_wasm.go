@@ -4,6 +4,8 @@ import (
     "encoding/json"
     "log"
     "net/http"
+    "fmt"
+    "math"
 
     "github.com/hajimehoshi/ebiten/v2"
     "golang.org/x/image/math/fixed"
@@ -40,15 +42,17 @@ func main() {
     extraPlayer := player.NewPlayer(fixed.I(600), fixed.I(600), 100, "extra")
     w.AddPlayer(extraPlayer.ID, extraPlayer)
 
-    // Trois ennemis "ranged"
-    firstEnemy := enemy.NewRanged(fixed.I(100), fixed.I(100), "ranger1")
-    w.AddEnemy(firstEnemy.ID, firstEnemy)
+    centerX, centerY := 400, 300
+    radius := 250.0
+    numEnemies := 30
 
-    secondEnemy := enemy.NewRanged(fixed.I(150), fixed.I(100), "ranger2")
-    w.AddEnemy(secondEnemy.ID, secondEnemy)
-
-    thirdEnemy := enemy.NewRanged(fixed.I(200), fixed.I(100), "ranger3")
-    w.AddEnemy(thirdEnemy.ID, thirdEnemy)
+    for i := 0; i < numEnemies; i++ {
+        angle := 2 * math.Pi * float64(i) / float64(numEnemies)
+        x := centerX + int(math.Round(radius*math.Cos(angle)))
+        y := centerY + int(math.Round(radius*math.Sin(angle)))
+        s := fmt.Sprintf("enemy_%d", i)
+        w.AddEnemy(s, enemy.NewRanged(fixed.I(x), fixed.I(y), s))
+    }
 
     gameInstance := game.NewGame(w, initialPlayer.ID)
 
