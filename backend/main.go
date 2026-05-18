@@ -12,8 +12,11 @@ import (
 
 func main() {
 	// 1. Initialisation de la DB et des Handlers
-	db := repository.NewMemoryRepo()
-	authHandler := handlers.NewAuthHandler(db)
+	dsn := "host=postgres user=postgres password=goodPassword123 dbname=postgres port=5432 sslmode=disable TimeZone=Europe/Paris"
+
+	//db := repository.NewMemoryRepo()
+	db := repository.NewPostgresRepo(dsn)
+	authHandler := handlers.NewAuthHandler(db) //Maati: je donne la vraie db au handler
 
 	// 2. WEBSOCKETS
 	hub := ws.NewHub()
