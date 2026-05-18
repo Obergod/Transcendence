@@ -32,6 +32,7 @@ var (
 var upgrader = websocket.Upgrader {
 	ReadBufferSize: 1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool { return true }, // Maati: on autorise React a se connecter
 }
 
 type Client struct {
@@ -111,7 +112,7 @@ func (c *Client) writePump() {
 }
 
 	//serveWs handles websocket request from peer
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) { // Maati: jai mis le s de server en maj sinon c'est priv
 	conn, err := upgrader.Upgrade(w, r, nil) // upgrades to websocket
 	if err != nil {
 		log.Println(err)
