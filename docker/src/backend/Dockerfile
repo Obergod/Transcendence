@@ -1,17 +1,27 @@
-FROM node
+FROM golang:1.25
 
 WORKDIR /app
 
-COPY backend /app
+COPY . .
 
-RUN golang install
+RUN [ -f go.mod ] || go mod init transcendance
 
-# COPY . .
+# COPY go.mod go.sum ./
+RUN go mod tidy
 
-RUN golang run build
+RUN go mod download
 
-RUN golang
+RUN go build -o transcendance ./backend
 
-EXPOSE 8081
+# RUN mkdir -p frontend/public && cd game && GOARCH=wasm GOOS=js go build -o ../frontend/public/main.wasm main_wasm.go
 
-CMD ["node", "dist/index.js"]
+RUN mkdir -p frontend/public && \
+    cd game && \
+    GOARCH=wasm GOOS=js go build -x -v \
+    -o ../frontend/public/main.wasm main_wasm.go
+
+RUN cp $(go env GOROOT)/lib/wasm/wasm_exec.js frontend/public/
+# EXPOSE 5173
+
+CMD ["./transcendance"]
+

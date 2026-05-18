@@ -13,16 +13,16 @@ WASM_OUT = $(WASM_DIR)/main.wasm
 EBITEN_VERSION = latest
 
 # Commandes Go
-GOCMD = go
-GOBUILD = $(GOCMD) build
-GOCLEAN = $(GOCMD) clean
-GOGET = $(GOCMD) get
-GOMOD = $(GOCMD) mod
-GOTIDY = $(GOCMD) mod tidy
+# GOCMD = go
+# GOBUILD = $(GOCMD) build
+# GOCLEAN = $(GOCMD) clean
+# GOGET = $(GOCMD) get
+# GOMOD = $(GOCMD) mod
+# GOTIDY = $(GOCMD) mod tidy
 
 # Commandes Node / npm
-NPM = npm
-NPM_RUN = $(NPM) run
+# NPM = npm
+# NPM_RUN = $(NPM) run
 
 # Affichage
 GREEN = \033[32m
@@ -35,57 +35,57 @@ CLEAR = \033[2K\r
 
 SRCS="docker/docker-compose.yml"
 
-all: server wasm frontend
-# 	docker compose -f ${SRCS} up -d
+all:
+	docker compose -f ${SRCS} up -d
 
 # --- Module à la racine ---
-ensure-module:
-	@if [ ! -f go.mod ]; then \
-		printf "$(YELLOW)go.mod not found at root. Running 'go mod init $(MODULE_NAME)'...$(RESET)\n"; \
-		$(GOCMD) mod init $(MODULE_NAME); \
-		printf "$(GREEN)✓ go.mod created at root$(RESET)\n"; \
-	fi
+# ensure-module:
+# 	@if [ ! -f go.mod ]; then
+# 		printf "$(YELLOW)go.mod not found at root. Running 'go mod init $(MODULE_NAME)'...$(RESET)\n";
+# 		$(GOCMD) mod init $(MODULE_NAME);
+# 		printf "$(GREEN)✓ go.mod created at root$(RESET)\n";
+# 	fi
 
-install-deps: ensure-module
-	@printf "$(YELLOW)Installing Ebitengine $(EBITEN_VERSION)...$(RESET)\n"
-	@$(GOGET) github.com/hajimehoshi/ebiten/v2@$(EBITEN_VERSION)
-	@printf "$(GREEN)✓ Ebitengine installed$(RESET)\n"
+# install-deps: ensure-module
+# 	@printf "$(YELLOW)Installing Ebitengine $(EBITEN_VERSION)...$(RESET)\n"
+# 	@$(GOGET) github.com/hajimehoshi/ebiten/v2@$(EBITEN_VERSION)
+# 	@printf "$(GREEN)✓ Ebitengine installed$(RESET)\n"
 
-tidy: install-deps
-	@printf "$(YELLOW)Running go mod tidy...$(RESET)\n"
-	@$(GOTIDY)
-	@printf "$(GREEN)✓ Dependencies tidied$(RESET)\n"
+# tidy: install-deps
+# 	@printf "$(YELLOW)Running go mod tidy...$(RESET)\n"
+# 	@$(GOTIDY)
+# 	@printf "$(GREEN)✓ Dependencies tidied$(RESET)\n"
 
-# --- Compilation serveur (binaire natif) ---
-server: tidy
-	@printf "$(CYAN)Building $(NAME) server...$(RESET)"
-	@cd $(BACKEND_DIR) && $(GOBUILD) -o ../$(NAME) .
-	@printf "$(CLEAR)$(GREEN)✓ $(NAME) server created$(RESET)\n"
+# # --- Compilation serveur (binaire natif) ---
+# server: tidy
+# 	@printf "$(CYAN)Building $(NAME) server...$(RESET)"
+# 	@cd $(BACKEND_DIR) && $(GOBUILD) -o ../$(NAME) .
+# 	@printf "$(CLEAR)$(GREEN)✓ $(NAME) server created$(RESET)\n"
 
-# --- Compilation WASM (jeu) ---
-wasm: tidy
-	@printf "$(CYAN)Building WASM game...$(RESET)"
-	@mkdir -p $(WASM_DIR)
-	@cd $(GAME_DIR) && GOOS=js GOARCH=wasm $(GOBUILD) -o ../$(WASM_OUT) main_wasm.go
-	@printf "$(CLEAR)$(GREEN)✓ WASM created at $(WASM_OUT)$(RESET)\n"
-	@cp "$$(go env GOROOT)/lib/wasm/wasm_exec.js" $(WASM_DIR)/ 2>/dev/null || \
-		printf "$(YELLOW)⚠ wasm_exec.js not copied (Go not found)$(RESET)\n"
+# # --- Compilation WASM (jeu) ---
+# wasm: tidy
+# 	@printf "$(CYAN)Building WASM game...$(RESET)"
+# 	@mkdir -p $(WASM_DIR)
+# 	@cd $(GAME_DIR) && GOOS=js GOARCH=wasm $(GOBUILD) -o ../$(WASM_OUT) main_wasm.go
+# 	@printf "$(CLEAR)$(GREEN)✓ WASM created at $(WASM_OUT)$(RESET)\n"
+# 	@cp "$$(go env GOROOT)/lib/wasm/wasm_exec.js" $(WASM_DIR)/ 2>/dev/null ||
+# 		printf "$(YELLOW)⚠ wasm_exec.js not copied (Go not found)$(RESET)\n"
 
-# --- Installer les dépendances React ---
-install-frontend:
-	@if [ ! -d "$(FRONTEND_DIR)/node_modules" ]; then \
-		printf "$(YELLOW)Installing React dependencies (this may take a while)...$(RESET)\n"; \
-		cd $(FRONTEND_DIR) && $(NPM) install; \
-		printf "$(GREEN)✓ React dependencies installed$(RESET)\n"; \
-	else \
-		printf "$(GREEN)✓ React dependencies already installed$(RESET)\n"; \
-	fi
+# # --- Installer les dépendances React ---
+# install-frontend:
+# 	@if [ ! -d "$(FRONTEND_DIR)/node_modules" ]; then
+# 		printf "$(YELLOW)Installing React dependencies (this may take a while)...$(RESET)\n";
+# 		cd $(FRONTEND_DIR) && $(NPM) install;
+# 		printf "$(GREEN)✓ React dependencies installed$(RESET)\n";
+# 	else
+# 		printf "$(GREEN)✓ React dependencies already installed$(RESET)\n";
+# 	fi
 
-# --- Compilation frontend React ---
-frontend: install-frontend
-	@printf "$(CYAN)Building React frontend...$(RESET)"
-	@cd $(FRONTEND_DIR) && $(NPM_RUN) build
-	@printf "$(CLEAR)$(GREEN)✓ React frontend built$(RESET)\n"
+# # --- Compilation frontend React ---
+# frontend: install-frontend
+# 	@printf "$(CYAN)Building React frontend...$(RESET)"
+# 	@cd $(FRONTEND_DIR) && $(NPM_RUN) build
+# 	@printf "$(CLEAR)$(GREEN)✓ React frontend built$(RESET)\n"
 
 # --- For Dockers ---
 up:
@@ -132,11 +132,11 @@ fclean: clean
 re: fclean all
 
 # --- Mode développement (backend + frontend vite) ---
-dev: wasm install-frontend
-	@printf "$(CYAN)Starting Backend and Frontend in DEV mode...$(RESET)\n"
-	@trap 'kill 0' SIGINT; \
-	$(GOCMD) run $(BACKEND_DIR)/main.go & \
-	cd $(FRONTEND_DIR) && $(NPM_RUN) dev
+# dev: wasm install-frontend
+# 	@printf "$(CYAN)Starting Backend and Frontend in DEV mode...$(RESET)\n"
+# 	@trap 'kill 0' SIGINT;
+# 	$(GOCMD) run $(BACKEND_DIR)/main.go &
+# 	cd $(FRONTEND_DIR) && $(NPM_RUN) dev
 
 # --- Mode production (backend seul, frontend déjà construit) ---
 run: server wasm frontend
