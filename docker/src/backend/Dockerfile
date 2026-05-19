@@ -1,4 +1,4 @@
-FROM golang:1.25
+FROM golang:1.25 AS backend-builder
 
 WORKDIR /app
 
@@ -24,4 +24,3 @@ RUN cp $(go env GOROOT)/lib/wasm/wasm_exec.js frontend/public/
 # EXPOSE 5173
 
 CMD ["./transcendance"]
-
