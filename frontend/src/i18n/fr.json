@@ -1,0 +1,88 @@
+{
+  "nav": {
+    "home": "Accueil"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "music_volume": "Volume de la musique",
+    "sfx_volume": "Volume des effets (SFX)"
+  },
+  "home": {
+    "title_line1": "42",
+    "title_line2": "SURVIVOR",
+    "play": "JOUER",
+    "match_history": "Historique des parties",
+    "login_to_play": "Se connecter pour jouer",
+    "test_backend": "Tester la connexion Backend"
+  },
+  "auth": {
+    "login_title": "CONNEXION",
+    "register_title": "REJOINDRE LA SURVIE",
+    "pseudo": "Pseudo",
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "submit_login": "JOUER",
+    "submit_register": "CRÉER MON COMPTE",
+    "or": "OU",
+    "google": "Continuer avec Google",
+    "already_account": "J'ai déjà un compte",
+    "no_account": "Je n'ai pas encore de compte",
+    "error_password_mismatch": "Les mots de passe ne correspondent pas !",
+    "error_password_short": "Le mot de passe doit faire au moins 6 caractères.",
+    "error_register": "Erreur lors de l'inscription.",
+    "error_login": "Email ou mot de passe incorrect."
+  },
+  "profile": {
+    "title": "PARAMÈTRES DU",
+    "title_highlight": "PROFIL",
+    "pseudo": "Pseudo",
+    "email": "Email",
+    "save": "Sauvegarder",
+    "edit": "Modifier",
+    "logout": "Se déconnecter",
+    "friends": "Amis"
+  },
+  "lobby": {
+    "title": "SALLE D'",
+    "title_highlight": "ATTENTE",
+    "create": "CRÉER UNE PARTIE",
+    "join_with_code": "REJOINDRE AVEC UN CODE",
+    "back_to_menu": "Retour au menu",
+    "lobby_code_label": "Code du Salon",
+    "share_code_hint": "Donne ce code à tes amis, ou lance directement pour jouer seul !",
+    "invite_friends": "Inviter des amis",
+    "invite": "INVITER",
+    "cancel": "Annuler",
+    "start_game": "LANCER LE JEU",
+    "join_title": "REJOINDRE",
+    "code_input_label": "Entrez le code à 5 caractères",
+    "back": "Retour",
+    "join": "REJOINDRE"
+  },
+  "history": {
+    "title": "HISTORIQUE DES",
+    "title_highlight": "SURVIES",
+    "back": "Retour au Salon",
+    "col_date": "Date",
+    "col_duration": "Durée",
+    "col_kills": "Monstres Tués",
+    "col_result": "Résultat",
+    "victory": "Victoire",
+    "defeat": "Défaite"
+  },
+  "chat": {
+    "online": "En ligne",
+    "close": "Fermer le chat",
+    "send": "Envoyer",
+    "placeholder": "Envoyer un message à {{name}}..."
+  },
+  "game": {
+    "in_progress": "SURVIE EN COURS...",
+    "loading": "Chargement du moteur Ebitengine...",
+    "quit": "Abandonner la partie",
+    "error_prefix": "Erreur :",
+    "error_wasm": "Impossible de charger le jeu. Vérifiez la console.",
+    "error_script": "Impossible de charger wasm_exec.js"
+  }
+}

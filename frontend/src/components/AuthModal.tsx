@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // On définit les options que la modale attend
 interface AuthModalProps {
@@ -16,21 +17,23 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const { t } = useTranslation();
+
   // Pour afficher des erreurs
   const [error, setError] = useState<string | null>(null);
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Empêche le rechargement de la page
     setError(null);     // On efface les anciennes erreurs à chaque nouvelle tentative
 
     // 1. SCÉNARIO : INSCRIPTION (REGISTER)
     if (isRegistering) {
       if (password !== confirmPassword) {
-        setError("Les mots de passe ne correspondent pas !");
+        setError(t('auth.error_password_mismatch'));
         return;
       }
       if (password.length < 6) {
-        setError("Le mot de passe doit faire au moins 6 caractères.");
+        setError(t('auth.error_password_short'));
         return;
       }
 
@@ -44,7 +47,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || data.message || "Erreur lors de l'inscription.");
+          throw new Error(data.error || data.message || t('auth.error_register'));
         }
         console.log("Succès :", data.message);
         onLoginSuccess();
@@ -64,7 +67,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || data.message || "Email ou mot de passe incorrect.");
+          throw new Error(data.error || data.message || t('auth.error_login'));
         }
 
         // Plus tard, quand ton backend Go enverra un JWT, tu le stockeras ici :
@@ -96,7 +99,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
         <div className="p-8">
           <h2 className="text-3xl font-black text-white text-center mb-8 tracking-widest">
-            {isRegistering ? "REJOINDRE LA SURVIE" : "CONNEXION"}
+            {isRegistering ? t('auth.register_title') : t('auth.login_title')}
           </h2>
 
           {error && (
@@ -110,7 +113,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             {/* Le champ Pseudo (Uniquement pour l'inscription) */}
             {isRegistering && (
               <div>
-                <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Pseudo</label>
+                <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">{t('auth.pseudo')}</label>
                 <input
                   type="text" required value={pseudo} onChange={(e) => setPseudo(e.target.value)}
                   className="w-full bg-gray-800 border border-gray-700 focus:border-red-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
@@ -120,7 +123,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             )}
 
             <div>
-              <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Email</label>
+              <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">{t('auth.email')}</label>
               <input
                 type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-700 focus:border-red-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
@@ -129,7 +132,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
 
             <div>
-              <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Mot de passe</label>
+              <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">{t('auth.password')}</label>
               <input
                 type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-700 focus:border-red-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
@@ -140,7 +143,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             {/* Le champ Confirmation (Uniquement pour l'inscription) */}
             {isRegistering && (
               <div>
-                <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Confirmer le mot de passe</label>
+                <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">{t('auth.confirm_password')}</label>
                 <input
                   type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full bg-gray-800 border border-gray-700 focus:border-red-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
@@ -150,14 +153,14 @@ const handleSubmit = async (e: React.FormEvent) => {
             )}
 
             <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl mt-4 transition-all tracking-widest">
-              {isRegistering ? "CRÉER MON COMPTE" : "JOUER"}
+              {isRegistering ? t('auth.submit_register') : t('auth.submit_login')}
             </button>
           </form>
 
           {/* Séparateur OU */}
           <div className="my-6 flex items-center">
             <div className="flex-1 border-t border-gray-700"></div>
-            <span className="px-4 text-gray-500 text-xs font-bold uppercase">OU</span>
+            <span className="px-4 text-gray-500 text-xs font-bold uppercase">{t('auth.or')}</span>
             <div className="flex-1 border-t border-gray-700"></div>
           </div>
 
@@ -177,7 +180,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            <span>Continuer avec Google</span>
+            <span>{t('auth.google')}</span>
           </button>
 
           {/* Le bouton pour basculer entre Login et Sign Up (déjà existant) */}
@@ -186,7 +189,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               onClick={() => { setIsRegistering(!isRegistering); setError(null); }}
               className="text-gray-500 hover:text-white text-sm font-bold transition-colors"
             >
-              {isRegistering ? "J'ai déjà un compte" : "Je n'ai pas encore de compte"}
+              {isRegistering ? t('auth.already_account') : t('auth.no_account')}
             </button>
           </div>
 

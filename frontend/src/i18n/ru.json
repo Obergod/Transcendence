@@ -1,0 +1,88 @@
+{
+  "nav": {
+    "home": "Главная"
+  },
+  "settings": {
+    "title": "Настройки",
+    "music_volume": "Громкость музыки",
+    "sfx_volume": "Громкость эффектов"
+  },
+  "home": {
+    "title_line1": "42",
+    "title_line2": "ВЫЖИВШИЙ",
+    "play": "ИГРАТЬ",
+    "match_history": "История матчей",
+    "login_to_play": "Войдите, чтобы играть",
+    "test_backend": "Тест подключения к серверу"
+  },
+  "auth": {
+    "login_title": "ВХОД",
+    "register_title": "ПРИСОЕДИНИТЬСЯ",
+    "pseudo": "Никнейм",
+    "email": "Эл. почта",
+    "password": "Пароль",
+    "confirm_password": "Подтвердить пароль",
+    "submit_login": "ИГРАТЬ",
+    "submit_register": "СОЗДАТЬ АККАУНТ",
+    "or": "ИЛИ",
+    "google": "Войти через Google",
+    "already_account": "У меня уже есть аккаунт",
+    "no_account": "У меня ещё нет аккаунта",
+    "error_password_mismatch": "Пароли не совпадают!",
+    "error_password_short": "Пароль должен содержать не менее 6 символов.",
+    "error_register": "Ошибка при регистрации.",
+    "error_login": "Неверный адрес почты или пароль."
+  },
+  "profile": {
+    "title": "НАСТРОЙКИ",
+    "title_highlight": "ПРОФИЛЯ",
+    "pseudo": "Никнейм",
+    "email": "Эл. почта",
+    "save": "Сохранить",
+    "edit": "Изменить",
+    "logout": "Выйти",
+    "friends": "Друзья"
+  },
+  "lobby": {
+    "title": "ЗАЛ",
+    "title_highlight": " ОЖИДАНИЯ",
+    "create": "СОЗДАТЬ ПАРТИЮ",
+    "join_with_code": "ПРИСОЕДИНИТЬСЯ ПО КОДУ",
+    "back_to_menu": "Вернуться в меню",
+    "lobby_code_label": "Код лобби",
+    "share_code_hint": "Поделитесь этим кодом с друзьями или начните игру в одиночку!",
+    "invite_friends": "Пригласить друзей",
+    "invite": "ПРИГЛАСИТЬ",
+    "cancel": "Отмена",
+    "start_game": "НАЧАТЬ ИГРУ",
+    "join_title": "ВОЙТИ",
+    "code_input_label": "Введите код из 5 символов",
+    "back": "Назад",
+    "join": "ВОЙТИ"
+  },
+  "history": {
+    "title": "ИСТОРИЯ",
+    "title_highlight": "ВЫЖИВАНИЯ",
+    "back": "Назад в лобби",
+    "col_date": "Дата",
+    "col_duration": "Длительность",
+    "col_kills": "Убито монстров",
+    "col_result": "Результат",
+    "victory": "Победа",
+    "defeat": "Поражение"
+  },
+  "chat": {
+    "online": "В сети",
+    "close": "Закрыть чат",
+    "send": "Отправить",
+    "placeholder": "Написать сообщение {{name}}..."
+  },
+  "game": {
+    "in_progress": "ВЫЖИВАНИЕ В ПРОЦЕССЕ...",
+    "loading": "Загрузка движка Ebitengine...",
+    "quit": "Покинуть игру",
+    "error_prefix": "Ошибка:",
+    "error_wasm": "Не удалось загрузить игру. Проверьте консоль.",
+    "error_script": "Не удалось загрузить wasm_exec.js"
+  }
+}
