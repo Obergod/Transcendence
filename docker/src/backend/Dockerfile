@@ -2,7 +2,7 @@ FROM golang:1.25 AS backend-builder
 
 WORKDIR /app
 
-COPY . .
+COPY backend /app
 
 RUN [ -f go.mod ] || go mod init transcendance
 
@@ -11,7 +11,7 @@ RUN go mod tidy
 
 RUN go mod download
 
-RUN go build -o transcendance ./backend
+RUN golang run build
 
 # RUN mkdir -p frontend/public && cd game && GOARCH=wasm GOOS=js go build -o ../frontend/public/main.wasm main_wasm.go
 

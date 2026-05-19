@@ -2,11 +2,9 @@ FROM node
 
 WORKDIR /app
 
-COPY frontend/package*.json ./
+COPY frontend /app
 
 RUN npm install
-
-COPY frontend .
 
 RUN npm run build
 
