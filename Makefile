@@ -35,8 +35,8 @@ CLEAR = \033[2K\r
 
 SRCS=docker/docker-compose.yml
 
-all:
-	docker compose -f ${SRCS} up -d
+all: build up
+# 	docker compose -f ${SRCS} up -d
 
 # --- Module à la racine ---
 # ensure-module:
@@ -92,7 +92,7 @@ up:
 	@docker compose -f ${SRCS} up -d
 
 build:
-	@docker compose -f ${SRCS} build
+	@docker compose -f ${SRCS} build backend && docker compose -f ${SRCS} build
 
 down:
 	@docker compose -f ${SRCS} down
