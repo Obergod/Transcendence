@@ -33,7 +33,7 @@ CLEAR = \033[2K\r
 
 .PHONY: all clean fclean re ensure-module install-deps tidy server wasm frontend install-frontend run dev up down start stop ps
 
-SRCS="docker/docker-compose.yml"
+SRCS=docker/docker-compose.yml
 
 all:
 	docker compose -f ${SRCS} up -d
