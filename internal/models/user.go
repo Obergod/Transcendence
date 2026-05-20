@@ -48,7 +48,7 @@ func GetUserByEmail(db *gorm.DB, email string) (*User, error) {
 
 func GetUserByLogin(db *gorm.DB, login string) (*User, error) {
 	var user User
-	result := db.Where("email = ? OR username = ?", login).First(&user)
+	result := db.Where("email = ? OR username = ?", login, login).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

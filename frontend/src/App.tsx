@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useUser } from './context/UserContext'; // <-- L'import manquant est ici !
 
 // IMPORTS DE PAGES
 import Home from './pages/Home';
@@ -39,7 +40,8 @@ function App() {
 
           <LanguageSwitcher></LanguageSwitcher>
 
-          {isLoggedIn && (
+          {/* <-- La correction est ici (on utilise 'user' au lieu de 'isLoggedIn') */}
+          {user && (
             <Link to="/profile" className="flex items-center space-x-4 cursor-pointer hover:bg-gray-800 p-2 rounded-lg transition-colors">
               <span className="font-bold text-lg">{user.pseudo}</span>
               <div className="w-12 h-12 bg-gray-700 rounded-full border-2 border-red-500 overflow-hidden">

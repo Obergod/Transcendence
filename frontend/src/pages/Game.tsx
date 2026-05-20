@@ -10,31 +10,41 @@ const Game = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    let script: HTMLScriptElement | null = null;
+    // 1. NETTOYAGE EXTRÊME : On détruit tous les canvas existants (Fix du double écran)
+    document.querySelectorAll('canvas').forEach(c => c.remove());
 
-    // Éviter de recharger le jeu s'il est déjà là
-    if (document.querySelector('canvas')) {
-       setIsGameLoaded(true);
-       return;
+    let script = document.querySelector('script[src="/wasm_exec.js"]') as HTMLScriptElement;
+    if (!script) {
+        script = document.createElement('script');
+        script.src = '/wasm_exec.js';
+        document.body.appendChild(script);
     }
 
-    script = document.createElement('script');
-    script.src = '/wasm_exec.js';
+    // On force le rechargement de la fonction onload
     script.onload = () => {
+      // Sécurité si on a quitté la page très vite
+      if (!document.querySelector('#game-container')) return;
+
       const go = new (window as any).Go();
       WebAssembly.instantiateStreaming(fetch('/main.wasm'), go.importObject)
         .then((result) => {
           setIsGameLoaded(true);
           go.run(result.instance);
 
-          // FORCER LE CANVAS DANS LE CONTENEUR
           const moveCanvas = () => {
-            const canvas = document.querySelector('canvas');
-            if (canvas && containerRef.current) {
+            const canvases = document.querySelectorAll('canvas');
+            if (canvases.length > 0 && containerRef.current) {
+               // On prend le dernier canvas généré
+               const canvas = canvases[canvases.length - 1];
                canvas.style.position = 'relative';
                canvas.style.width = '100%';
                canvas.style.height = '100%';
                containerRef.current.appendChild(canvas);
+
+               // On détruit les clones s'il y en a eu !
+               canvases.forEach((c, index) => {
+                 if (index !== canvases.length - 1) c.remove();
+               });
             }
           };
           setTimeout(moveCanvas, 100);
@@ -44,22 +54,14 @@ const Game = () => {
           setError(t('game.error_wasm'));
         });
     };
-    script.onerror = () => {
-      setError(t('game.error_script'));
-    };
-    document.body.appendChild(script);
+
+    script.onerror = () => setError(t('game.error_script'));
 
     // NETTOYAGE QUAND ON QUITTE LA PAGE
     return () => {
-      if (script && document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-      const canvas = document.querySelector('canvas');
-      if (canvas) {
-          canvas.remove();
-      }
+      document.querySelectorAll('canvas').forEach(c => c.remove());
     };
-  }, []);
+  }, [t]);
 
   return (
     <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-8 w-full">

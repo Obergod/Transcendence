@@ -5,8 +5,7 @@
     "email": "macaruan@student.42.fr",
     "avatarUrl": "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
     "status": "online",
-    "twoFactorEnabled": false,
-	"password": 1234
+    "twoFactorEnabled": false
   },
   "friends": [
     { "friendshipId": 101, "friendId": 84, "pseudo": "gbakulin", "status": "accepted" },

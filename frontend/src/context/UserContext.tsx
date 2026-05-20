@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { createContext, useContext, useState } from 'react';
-import mockData from '../mock.json';
 
-// 1. On définit à quoi ressemble notre utilisateur (TypeScript)
 interface User {
   id: number;
   pseudo: string;
@@ -13,24 +11,31 @@ interface User {
 
 interface UserContextType {
   user: User | null;
+  login: (userData: User) => void;
+  logout: () => void;
 }
 
-// 2. On crée le contexte
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// 3. Le "Provider" qui va englober ton application
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  // On charge directement les fausses données avec la bonne clé "user"
-  const [user] = useState<User>(mockData.user);
+  // On commence à null : l'utilisateur n'est PAS connecté par défaut !
+  const [user, setUser] = useState<User | null>(null);
+
+  const login = (userData: User) => {
+    setUser(userData);
+  };
+
+  const logout = () => {
+    setUser(null);
+  };
 
   return (
-    <UserContext.Provider value={{ user }}>
+    <UserContext.Provider value={{ user, login, logout }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-// 4. Un petit outil pour récupérer l'utilisateur facilement dans tes pages
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {

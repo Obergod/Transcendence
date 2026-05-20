@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"transcendance/internal/models"
 	"transcendance/internal/ws"
@@ -53,10 +52,10 @@ func main() {
 
 	r.Use(cors.Default()) // change to set up cors properly
 
-	r.POST("/signup", auth.SignupHandler(db))
-	r.POST("/signin", auth.SigninHandler(db))
+	r.POST("/api/signup", auth.SignupHandler(db))
+	r.POST("/api/signin", auth.SigninHandler(db))
 	r.Static("/", "./frontend/dist")
 
 	log.Println("Serveur sur http://localhost:8081")
-	log.Fatal(r.Run("localhost:8081"))
+	log.Fatal(r.Run(":8081"))
 }
