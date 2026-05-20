@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Chat = () => {
   // On récupère le nom de l'ami depuis l'URL (ex: /chat/Dracula_xX)
@@ -12,6 +13,8 @@ const Chat = () => {
   ]);
 
   const [currentInput, setCurrentInput] = useState("");
+
+  const { t } = useTranslation();
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +50,14 @@ const Chat = () => {
 
             <div>
               <h2 className="text-xl font-black text-white tracking-widest">{friendName?.toUpperCase()}</h2>
-              <span className="text-green-400 text-xs font-bold">En ligne</span>
+              <span className="text-green-400 text-xs font-bold">{t('chat.online')}</span>
             </div>
 
           </div>
 
           {/* Le bouton fermer te ramène sur ton profil, là où est ta liste d'amis ! */}
           <Link to="/profile" className="text-gray-400 hover:text-white font-bold transition-colors">
-            Fermer le chat
+            {t('chat.close')}
           </Link>
         </div>
 
@@ -73,8 +76,8 @@ const Chat = () => {
 
         <div className="bg-gray-800 p-4 border-t border-gray-700">
           <form onSubmit={handleSendMessage} className="flex gap-3">
-            <input type="text" value={currentInput} onChange={(e) => setCurrentInput(e.target.value)} placeholder={`Envoyer un message à ${friendName}...`} className="flex-1 bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors" />
-            <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-bold px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)]">Envoyer</button>
+            <input type="text" value={currentInput} onChange={(e) => setCurrentInput(e.target.value)} placeholder={t('chat.placeholder', { name: friendName})} className="flex-1 bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors" />
+            <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-bold px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)]">{t('chat.send')}</button>
           </form>
         </div>
 

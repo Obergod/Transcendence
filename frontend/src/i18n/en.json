@@ -1,0 +1,88 @@
+{
+  "nav": {
+    "home": "Home"
+  },
+  "settings": {
+    "title": "Settings",
+    "music_volume": "Music Volume",
+    "sfx_volume": "SFX Volume"
+  },
+  "home": {
+    "title_line1": "42",
+    "title_line2": "SURVIVOR",
+    "play": "PLAY",
+    "match_history": "Match History",
+    "login_to_play": "Log in to play",
+    "test_backend": "Test Backend Connection"
+  },
+  "auth": {
+    "login_title": "LOGIN",
+    "register_title": "JOIN THE SURVIVAL",
+    "pseudo": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm password",
+    "submit_login": "PLAY",
+    "submit_register": "CREATE MY ACCOUNT",
+    "or": "OR",
+    "google": "Continue with Google",
+    "already_account": "I already have an account",
+    "no_account": "I don't have an account yet",
+    "error_password_mismatch": "Passwords do not match!",
+    "error_password_short": "Password must be at least 6 characters.",
+    "error_register": "Error during registration.",
+    "error_login": "Incorrect email or password."
+  },
+  "profile": {
+    "title": "PROFILE",
+    "title_highlight": "SETTINGS",
+    "pseudo": "Username",
+    "email": "Email",
+    "save": "Save",
+    "edit": "Edit",
+    "logout": "Log out",
+    "friends": "Friends"
+  },
+  "lobby": {
+    "title": "WAITING",
+    "title_highlight": " ROOM",
+    "create": "CREATE A GAME",
+    "join_with_code": "JOIN WITH A CODE",
+    "back_to_menu": "Back to menu",
+    "lobby_code_label": "Lobby Code",
+    "share_code_hint": "Share this code with your friends, or start directly to play solo!",
+    "invite_friends": "Invite friends",
+    "invite": "INVITE",
+    "cancel": "Cancel",
+    "start_game": "START GAME",
+    "join_title": "JOIN",
+    "code_input_label": "Enter the 5-character code",
+    "back": "Back",
+    "join": "JOIN"
+  },
+  "history": {
+    "title": "SURVIVAL",
+    "title_highlight": "HISTORY",
+    "back": "Back to Lobby",
+    "col_date": "Date",
+    "col_duration": "Duration",
+    "col_kills": "Monsters Killed",
+    "col_result": "Result",
+    "victory": "Victory",
+    "defeat": "Defeat"
+  },
+  "chat": {
+    "online": "Online",
+    "close": "Close chat",
+    "send": "Send",
+    "placeholder": "Send a message to {{name}}..."
+  },
+  "game": {
+    "in_progress": "SURVIVAL IN PROGRESS...",
+    "loading": "Loading Ebitengine...",
+    "quit": "Abandon the game",
+    "error_prefix": "Error:",
+    "error_wasm": "Failed to load the game. Check the console.",
+    "error_script": "Failed to load wasm_exec.js"
+  }
+}

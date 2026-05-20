@@ -1,10 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Game = () => {
   const [isGameLoaded, setIsGameLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     let script: HTMLScriptElement | null = null;
@@ -37,11 +40,13 @@ const Game = () => {
           setTimeout(moveCanvas, 100);
         })
         .catch((err) => {
-          console.error("Erreur Wasm:", err);
-          setError("Impossible de charger le jeu.");
+          console.error("Erreur de chargement du Wasm:", err);
+          setError(t('game.error_wasm'));
         });
     };
-    script.onerror = () => setError("Impossible de charger wasm_exec.js");
+    script.onerror = () => {
+      setError(t('game.error_script'));
+    };
     document.body.appendChild(script);
 
     // NETTOYAGE QUAND ON QUITTE LA PAGE
@@ -59,7 +64,7 @@ const Game = () => {
   return (
     <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-8 w-full">
       <div className="flex justify-between items-end w-full max-w-4xl mb-4 px-4">
-        <h2 className="text-3xl font-black text-red-500 tracking-widest">SURVIE EN COURS...</h2>
+        <h2 className="text-3xl font-black text-red-500 tracking-widest">{t('game.in_progress')}</h2>
         <div className="text-gray-400 font-mono">Score: 00000</div>
       </div>
 
@@ -69,14 +74,20 @@ const Game = () => {
         className="w-full max-w-4xl aspect-video bg-black border-4 border-gray-700 rounded-xl flex items-center justify-center overflow-hidden"
       >
         {!isGameLoaded && !error && (
-          <div className="text-center animate-pulse z-10 text-white">
-            <p>Chargement du moteur...</p>
+          <div className="text-center animate-pulse z-10">
+            <p className="text-gray-500 font-mono text-lg mb-2">{t('game.loading')}</p>
+            <div className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mt-4"></div>
+          </div>
+        )}
+        {error && (
+          <div className="text-center z-10 text-red-500">
+            <p>{t('game.error_prefix')} {error}</p>
           </div>
         )}
       </div>
 
-      <Link to="/" className="mt-8 px-6 py-3 border-2 border-gray-600 text-gray-400 font-bold rounded-lg z-10">
-        Abandonner la partie
+      <Link to="/" className="mt-8 px-6 py-3 bg-transparent border-2 border-gray-600 text-gray-400 hover:border-red-600 hover:text-red-500 font-bold rounded-lg transition-all z-10">
+        {t('game.quit')}
       </Link>
     </main>
   );

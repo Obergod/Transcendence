@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const navigate = useNavigate();
 
   const [pseudo, setPseudo] = useState("Impots.gouv.fr");
   const [isEditing, setIsEditing] = useState(false);
+
+  const { t } = useTranslation();
 
   // 1. NOTRE FAUSSE BASE DE DONNÉES D'AMIS
   const [friends] = useState([
@@ -31,7 +34,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             ========================================== */}
         <div className="flex-1 bg-gray-800/50 border-2 border-gray-700 rounded-3xl p-8 backdrop-blur-md shadow-2xl">
           <h2 className="text-4xl font-black text-center mb-10 tracking-tight">
-            PARAMÈTRES DU <span className="text-red-500">PROFIL</span>
+            {t('profile.title')} <span className="text-red-500"> {t('profile.title_highlight')}</span>
           </h2>
 
           <div className="flex flex-col md:flex-row items-center md:items-start gap-12">
@@ -53,7 +56,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             {/* INFORMATIONS */}
             <div className="flex-1 w-full space-y-6">
               <div>
-                <label className="block text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Pseudo</label>
+                <label className="block text-gray-400 text-sm font-bold uppercase tracking-wider mb-2"> {t('profile.pseudo')}</label>
                 <div className="flex gap-3">
                   <input
                     type="text"
@@ -66,20 +69,20 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
                     onClick={() => setIsEditing(!isEditing)}
                     className="bg-gray-700 hover:bg-gray-600 px-6 rounded-xl font-bold transition-colors"
                   >
-                    {isEditing ? "Sauver" : "Modifier"}
+                    {isEditing ?  t('profile.save') :  t('profile.edit')}
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Email</label>
+                <label className="block text-gray-400 text-sm font-bold uppercase tracking-wider mb-2"> {t('profile.email')}</label>
                 <input type="text" disabled value="maati@student.42.fr" className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 text-gray-500 cursor-not-allowed" />
               </div>
 
               {/* ACTIONS DANGEREUSES */}
               <div className="pt-6 border-t border-gray-700 mt-8 flex flex-col gap-4">
                 <button onClick={handleLogout} className="w-full bg-transparent border-2 border-gray-600 hover:border-red-600 hover:text-red-500 text-gray-400 font-bold py-3 rounded-xl transition-all">
-                  Se déconnecter
+                   {t('profile.logout')}
                 </button>
               </div>
             </div>
@@ -92,7 +95,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         <div className="w-full lg:w-1/3 bg-gray-800/50 border-2 border-gray-700 rounded-3xl p-6 backdrop-blur-md shadow-2xl flex flex-col">
 
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-white">Amis</h3>
+            <h3 className="text-2xl font-bold text-white"> {t('profile.friends')}</h3>
             {/* Bouton pour ajouter un ami (visuel) */}
             <button className="text-red-500 hover:text-red-400 transition-colors p-2 bg-gray-900 rounded-lg">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
