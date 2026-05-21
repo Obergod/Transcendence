@@ -3,6 +3,7 @@ package weapon
 import (
     "math"
     "time"
+
     "golang.org/x/image/math/fixed"
 )
 
@@ -10,11 +11,12 @@ type Weapon struct {
     Damage      int
     Cooldown    time.Duration
     LastShot    time.Time
-    BulletSpeed float64   // pixels par frame (en flottant pour la précision)
-    BulletRange float64   // pixels
+    BulletSpeed float64
+    BulletRange float64
+    BulletSize  fixed.Int26_6
 }
 
-func NewWeapon(damage int, fireRate float64, bulletSpeed, bulletRange float64) *Weapon {
+func NewWeapon(damage int, fireRate float64, bulletSpeed, bulletRange float64, bulletSize fixed.Int26_6) *Weapon {
     interval := time.Duration(float64(time.Second) / fireRate)
     return &Weapon{
         Damage:      damage,
@@ -22,6 +24,7 @@ func NewWeapon(damage int, fireRate float64, bulletSpeed, bulletRange float64) *
         LastShot:    time.Now(),
         BulletSpeed: bulletSpeed,
         BulletRange: bulletRange,
+        BulletSize:  bulletSize,
     }
 }
 
@@ -29,7 +32,7 @@ func (w *Weapon) CanShoot() bool {
     return time.Since(w.LastShot) >= w.Cooldown
 }
 
-func (w *Weapon) Shoot(x, y, dirX, dirY fixed.Int26_6) (*Bullet, bool) {
+func (w *Weapon) Shoot(x, y, dirX, dirY fixed.Int26_6, ownerID string, ownerIsPlayer bool) (*Bullet, bool) {
     if !w.CanShoot() {
         return nil, false
     }
@@ -51,6 +54,6 @@ func (w *Weapon) Shoot(x, y, dirX, dirY fixed.Int26_6) (*Bullet, bool) {
 
     maxRangeFixed := fixed.Int26_6(int64(w.BulletRange * 64))
 
-    bullet := NewBullet(x, y, moveXFixed, moveYFixed, stepLengthFixed, w.Damage, maxRangeFixed)
+    bullet := NewBullet(x, y, w.BulletSize, moveXFixed, moveYFixed, stepLengthFixed, w.Damage, maxRangeFixed, ownerID, ownerIsPlayer)
     return bullet, true
 }
