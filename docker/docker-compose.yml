@@ -15,6 +15,7 @@ services:
       - "5432:5432"
 
   backend:
+    image: backend-builder:latest
     build:
       context: ..
       dockerfile: docker/src/backend/Dockerfile
@@ -26,14 +27,16 @@ services:
     networks:
       - appnet
     environment:
-      DATABASE_URL: postgres://admin:secret@database:5432/myapp
+      DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
+    volumes:
+      - shared:/shared
 
   frontend:
     build:
       context: ..
       dockerfile: docker/src/frontend/Dockerfile
-      additional_contexts:
-        backend: service:backend
+      # additional_contexts:
+      #   backend: service:backend
     container_name: frontend
     ports:
       - "5173:5173"
@@ -41,6 +44,8 @@ services:
       - appnet
     depends_on:
       - backend
+    volumes:
+      - shared:/shared
     
 
   # nginx:
@@ -92,9 +97,11 @@ services:
   #     - "5601:5601"
   #   environment:
   #     ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-  #     ELASTICSEARCH_USERNAME: elastic
+  #     # ELASTICSEARCH_USERNAME: elastic
   #   volumes:
   #     - kibana:/usr/share/kibana
+  #   depends_on:
+  #     - elasticsearch
 
   # logstash:
   #   container_name: logstash
@@ -103,9 +110,10 @@ services:
   #   networks:
   #     - appnet
   #   environment:
-        # - LS_JAVA_OPTS=-Xms1g -Xmx1g
+  #       - LS_JAVA_OPTS=-Xms1g -Xmx1g
   #   ports:
-  #     - 5000:5000
+  #     - "5000:5000"
+  #     - "9600:9600"
   #   volumes:
   #     - esdata:/usr/share/logstash/data
   #   depends_on:
@@ -138,6 +146,7 @@ volumes:
   prometheus_data:
   esdata:
   kibana:
+  shared:
     # driver: local
     # driver_opts:
     #   type: 'none'
