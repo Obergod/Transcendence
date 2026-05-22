@@ -9,20 +9,8 @@ FRONTEND_DIR = frontend
 WASM_DIR = $(FRONTEND_DIR)/public
 WASM_OUT = $(WASM_DIR)/main.wasm
 
-# Versions
-EBITEN_VERSION = latest
-
-# Commandes Go
-# GOCMD = go
-# GOBUILD = $(GOCMD) build
-# GOCLEAN = $(GOCMD) clean
-# GOGET = $(GOCMD) get
-# GOMOD = $(GOCMD) mod
-# GOTIDY = $(GOCMD) mod tidy
-
-# Commandes Node / npm
-# NPM = npm
-# NPM_RUN = $(NPM) run
+# Le vrai Goinfre local (SSD rapide !)
+GOINFRE_DIR = /goinfre/$(USER)
 
 # Affichage
 GREEN = \033[32m
@@ -31,68 +19,26 @@ CYAN = \033[36m
 RESET = \033[0m
 CLEAR = \033[2K\r
 
-.PHONY: all clean fclean re ensure-module install-deps tidy server wasm frontend install-frontend run dev up down start stop ps
+.PHONY: all clean fclean re up build down start stop ps core setup_goinfre
 
 SRCS=docker/docker-compose.yml
 
-all:
-	docker compose -f ${SRCS} up -d
+all: setup_goinfre build up
 
-# --- Module à la racine ---
-# ensure-module:
-# 	@if [ ! -f go.mod ]; then
-# 		printf "$(YELLOW)go.mod not found at root. Running 'go mod init $(MODULE_NAME)'...$(RESET)\n";
-# 		$(GOCMD) mod init $(MODULE_NAME);
-# 		printf "$(GREEN)✓ go.mod created at root$(RESET)\n";
-# 	fi
-
-# install-deps: ensure-module
-# 	@printf "$(YELLOW)Installing Ebitengine $(EBITEN_VERSION)...$(RESET)\n"
-# 	@$(GOGET) github.com/hajimehoshi/ebiten/v2@$(EBITEN_VERSION)
-# 	@printf "$(GREEN)✓ Ebitengine installed$(RESET)\n"
-
-# tidy: install-deps
-# 	@printf "$(YELLOW)Running go mod tidy...$(RESET)\n"
-# 	@$(GOTIDY)
-# 	@printf "$(GREEN)✓ Dependencies tidied$(RESET)\n"
-
-# # --- Compilation serveur (binaire natif) ---
-# server: tidy
-# 	@printf "$(CYAN)Building $(NAME) server...$(RESET)"
-# 	@cd $(BACKEND_DIR) && $(GOBUILD) -o ../$(NAME) .
-# 	@printf "$(CLEAR)$(GREEN)✓ $(NAME) server created$(RESET)\n"
-
-# # --- Compilation WASM (jeu) ---
-# wasm: tidy
-# 	@printf "$(CYAN)Building WASM game...$(RESET)"
-# 	@mkdir -p $(WASM_DIR)
-# 	@cd $(GAME_DIR) && GOOS=js GOARCH=wasm $(GOBUILD) -o ../$(WASM_OUT) main_wasm.go
-# 	@printf "$(CLEAR)$(GREEN)✓ WASM created at $(WASM_OUT)$(RESET)\n"
-# 	@cp "$$(go env GOROOT)/lib/wasm/wasm_exec.js" $(WASM_DIR)/ 2>/dev/null ||
-# 		printf "$(YELLOW)⚠ wasm_exec.js not copied (Go not found)$(RESET)\n"
-
-# # --- Installer les dépendances React ---
-# install-frontend:
-# 	@if [ ! -d "$(FRONTEND_DIR)/node_modules" ]; then
-# 		printf "$(YELLOW)Installing React dependencies (this may take a while)...$(RESET)\n";
-# 		cd $(FRONTEND_DIR) && $(NPM) install;
-# 		printf "$(GREEN)✓ React dependencies installed$(RESET)\n";
-# 	else
-# 		printf "$(GREEN)✓ React dependencies already installed$(RESET)\n";
-# 	fi
-
-# # --- Compilation frontend React ---
-# frontend: install-frontend
-# 	@printf "$(CYAN)Building React frontend...$(RESET)"
-# 	@cd $(FRONTEND_DIR) && $(NPM_RUN) build
-# 	@printf "$(CLEAR)$(GREEN)✓ React frontend built$(RESET)\n"
+# --- MAGIE POUR 42 : Prépare le VRAI Goinfre local automatiquement ---
+setup_goinfre:
+	@printf "$(CYAN)Verifying local Goinfre configuration for Podman...$(RESET)\n"
+	@mkdir -p $(GOINFRE_DIR)/containers
+	@mkdir -p $(HOME)/.config/containers
+	@printf "[storage]\ndriver = \"overlay\"\ngraphroot = \"$(GOINFRE_DIR)/containers\"\n\n[storage.options.overlay]\nignore_chown_errors = \"true\"\n" > $(HOME)/.config/containers/storage.conf
+	@podman system migrate 2>/dev/null || true
 
 # --- For Dockers ---
-up:
+up: setup_goinfre
 	@docker compose -f ${SRCS} up -d
 
-build:
-	@docker compose -f ${SRCS} build
+build: setup_goinfre
+	@docker compose -f ${SRCS} build backend && docker compose -f ${SRCS} build frontend
 
 down:
 	@docker compose -f ${SRCS} down
@@ -109,7 +55,7 @@ ps:
 # --- Nettoyage ---
 clean:
 	@printf "$(YELLOW)Cleaning Go cache...$(RESET)"
-	@$(GOCLEAN) -cache
+	@go clean -cache
 	@printf "$(CLEAR)$(GREEN)✓ Go cache cleaned$(RESET)\n"
 
 fclean: clean
@@ -119,26 +65,14 @@ fclean: clean
 	@printf "$(YELLOW)Deleting WASM files...$(RESET)"
 	@rm -f $(WASM_OUT) $(WASM_DIR)/wasm_exec.js
 	@printf "$(CLEAR)$(GREEN)✓ WASM files deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting go.mod and go.sum...$(RESET)"
-	@rm -f go.mod go.sum
-	@printf "$(CLEAR)$(GREEN)✓ go.mod and go.sum deleted$(RESET)\n"
 	@printf "$(YELLOW)Deleting frontend/dist and frontend/node_modules...$(RESET)"
 	@rm -rf $(FRONTEND_DIR)/dist $(FRONTEND_DIR)/node_modules
 	@printf "$(CLEAR)$(GREEN)✓ frontend/dist and node_modules deleted$(RESET)\n"
-	docker system prune -af
-	@ docker compose -f ${SRCS} down --rmi 'all'
-# 	@ docker compose -f ${SRCS} rm -f -s -v
+	@printf "$(CYAN)Purging Podman cache on local Goinfre...$(RESET)\n"
+	@podman system prune -af 2>/dev/null || true
+	@docker compose -f ${SRCS} down --rmi 'all' 2>/dev/null || true
 
 re: fclean all
 
-# --- Mode développement (backend + frontend vite) ---
-# dev: wasm install-frontend
-# 	@printf "$(CYAN)Starting Backend and Frontend in DEV mode...$(RESET)\n"
-# 	@trap 'kill 0' SIGINT;
-# 	$(GOCMD) run $(BACKEND_DIR)/main.go &
-# 	cd $(FRONTEND_DIR) && $(NPM_RUN) dev
-
-# --- Mode production (backend seul, frontend déjà construit) ---
-run: server wasm frontend
-	@printf "$(CYAN)Starting Production Server...$(RESET)\n"
-	@./$(NAME)
+core: setup_goinfre build
+	@docker compose -f ${SRCS} up backend frontend database -d
