@@ -1,16 +1,12 @@
 package auth 
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
     "golang.org/x/crypto/bcrypt"
 
 	"transcendance/internal/models"
 
     "github.com/gin-gonic/gin"
-    "github.com/gin-contrib/cors"
 	"gorm.io/gorm"
 )
 

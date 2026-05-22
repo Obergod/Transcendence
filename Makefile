@@ -125,7 +125,7 @@ fclean: clean
 	@printf "$(YELLOW)Deleting frontend/dist and frontend/node_modules...$(RESET)"
 	@rm -rf $(FRONTEND_DIR)/dist $(FRONTEND_DIR)/node_modules
 	@printf "$(CLEAR)$(GREEN)✓ frontend/dist and node_modules deleted$(RESET)\n"
-	docker system prune -af
+	-docker system prune -af
 	@ docker compose -f ${SRCS} down --rmi 'all'
 # 	@ docker compose -f ${SRCS} rm -f -s -v
 
