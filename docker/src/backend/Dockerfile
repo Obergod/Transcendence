@@ -39,6 +39,9 @@ COPY game ./game
 
 RUN [ -f go.mod ] || go mod init transcendance
 
+ENV GOPROXY=https://proxy.golang.org,direct
+ENV GOSUMDB=off
+
 RUN --mount=type=cache,target=/go/pkg/mod \
     go mod tidy
 
