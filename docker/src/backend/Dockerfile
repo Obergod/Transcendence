@@ -1,4 +1,4 @@
-FROM golang:1.25 AS backend-builder
+FROM docker.io/library/golang:1.25 AS backend-builder
 
 WORKDIR /app
 
@@ -21,6 +21,10 @@ RUN mkdir -p frontend/public && \
     -o ../frontend/public/main.wasm main_wasm.go
 
 RUN cp $(go env GOROOT)/lib/wasm/wasm_exec.js frontend/public/
+
+# RUN cp /app/frontend/public/main.wasm /shared/main.wasm
+# RUN cp /usr/local/go/lib/wasm/wasm_exec.js /shared/wasm_exec.js
+
 # EXPOSE 5173
 
 CMD ["./transcendance"]

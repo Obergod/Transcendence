@@ -16,6 +16,7 @@ services:
       - "5432:5432"
 
   backend:
+    image: backend-builder:latest
     build:
       context: ..
       dockerfile: docker/src/backend/Dockerfile
@@ -28,6 +29,8 @@ services:
       - appnet
     environment:
       DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
+    volumes:
+      - shared:/shared
 
   frontend:
     build:
@@ -42,6 +45,8 @@ services:
       - appnet
     depends_on:
       - backend
+    volumes:
+      - shared:/shared
     
 
   # nginx:
@@ -142,6 +147,7 @@ volumes:
   prometheus_data:
   esdata:
   kibana:
+  shared:
     # driver: local
     # driver_opts:
     #   type: 'none'
