@@ -58,17 +58,35 @@ services:
       - "9090:9090"
     volumes:
       - prometheus_data:/prometheus
-      # - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - appnet
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://admin:goodPassword123@postgres:5432/myapp?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - appnet
 
   elasticsearch:
     container_name: elasticsearch
-    image: elasticsearch:9.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.0
     restart: on-failure
     networks:
       - appnet
     environment:
       discovery.type: single-node
-      xpack.security.enabled: "false"
+      xpack.security.enabled: "true"
+      ELASTIC_PASSWORD: strongElasticPassword
+      # xpack.security.enabled: "false"
     ports:
       - 9200:9200
     volumes:
@@ -76,7 +94,7 @@ services:
 
   kibana:
     container_name: kibana
-    image: kibana:9.4.0
+    image: docker.elastic.co/kibana/kibana:9.4.0
     restart: on-failure
     networks:
       - appnet
@@ -84,6 +102,8 @@ services:
       - "5601:5601"
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: strongElasticPassword
       # ELASTICSEARCH_USERNAME: elastic
     volumes:
       - kibana:/usr/share/kibana
@@ -115,8 +135,6 @@ services:
     user: root
     volumes:
       - ${PWD}/docker/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      # - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      # host journald
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
@@ -138,8 +156,7 @@ services:
       GF_SERVER_ROOT_URL: http://localhost:3000
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: secret
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
     ports:
       - "3000:3000"
 
