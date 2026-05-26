@@ -4,7 +4,6 @@ import (
     "golang.org/x/image/math/fixed"
 
     "transcendance/internal/entity"
-    "transcendance/internal/hitbox"
     "transcendance/internal/weapon"
 )
 
