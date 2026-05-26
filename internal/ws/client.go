@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+    "github.com/gin-gonic/gin"
 )
 
 const (
@@ -112,14 +113,14 @@ func (c *Client) writePump() {
 }
 
 	//serveWs handles websocket request from peer
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) { // Maati: jai mis le s de server en maj sinon c'est priv
-	conn, err := upgrader.Upgrade(w, r, nil) // upgrades to websocket
+func serveWs(hub *Hub, c *gin.Context) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil) // upgrades to websocket
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	client := NewClient(hub, conn)
-	client.hub.register <- client
+	hub.register <- client
 
 	go client.writePump()
 	go client.readPump()

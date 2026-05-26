@@ -23,7 +23,7 @@ func NewHub() *Hub {
 	}
 }
 
-func (h *Hub) Run() { // Maati: jai mis le R de run en maj sinon c'est priv
+func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
