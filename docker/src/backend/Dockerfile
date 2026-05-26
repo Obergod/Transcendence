@@ -4,7 +4,6 @@ RUN apk add --no-cache git
 
 WORKDIR /app
 
-# Magie anti-crash : on force Go à utiliser le disque
 ENV GOTMPDIR=/app/build-tmp
 RUN mkdir -p /app/build-tmp
 
@@ -19,8 +18,7 @@ RUN go build -o transcendance ./backend
 
 RUN mkdir -p frontend/public && \
     cd game && \
-    GOARCH=wasm GOOS=js go build -x -v \
-    -o ../frontend/public/main.wasm main_wasm.go
+    GOARCH=wasm GOOS=js go build -o ../frontend/public/main.wasm main_wasm.go
 
 RUN cp $(go env GOROOT)/lib/wasm/wasm_exec.js frontend/public/
 

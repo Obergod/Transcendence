@@ -9,7 +9,7 @@ FRONTEND_DIR = frontend
 WASM_DIR = $(FRONTEND_DIR)/public
 WASM_OUT = $(WASM_DIR)/main.wasm
 
-# Le vrai Goinfre local (SSD rapide !)
+# Le vrai Goinfre local
 GOINFRE_DIR = /goinfre/$(USER)
 
 # Affichage
@@ -70,7 +70,7 @@ fclean: clean
 	@printf "$(CLEAR)$(GREEN)✓ frontend/dist and node_modules deleted$(RESET)\n"
 	@printf "$(CYAN)Purging Podman cache on local Goinfre...$(RESET)\n"
 	@podman system prune -af 2>/dev/null || true
-	@docker compose -f ${SRCS} down --rmi 'all' 2>/dev/null || true
+	@docker compose -f ${SRCS} down -v --rmi 'all' 2>/dev/null || true
 
 re: fclean all
 

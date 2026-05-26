@@ -3,58 +3,60 @@ package main
 import (
 	"log"
 
+	"transcendance/internal/auth"
+	"transcendance/internal/db"
 	"transcendance/internal/models"
 	"transcendance/internal/ws"
-	"transcendance/internal/db"
-	"transcendance/internal/auth"
+	"transcendance/internal/social"
 
-    "github.com/gin-gonic/gin"
-    "github.com/gin-contrib/cors"
-
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-//	// Notre route API qui ne peut pas être bloquée
-//	http.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
-//		// Ce message va s'afficher dans ton terminal de gauche !
-//		fmt.Println("➡️ BINGO ! Requête reçue sur /api/hello depuis React !")
-//
-//		w.Header().Set("Content-Type", "application/json")
-//		// On ajoute les autorisations de sécurité (CORS) au cas où
-//		w.Header().Set("Access-Control-Allow-Origin", "*")
-//		json.NewEncoder(w).Encode(map[string]string{"message": "Backend fonctionne"})
-//	})
-//
-//	fs := http.FileServer(http.Dir("./frontend/dist"))
-//	http.Handle("/", fs)
-//
-//	log.Println("Serveur sur http://localhost:8081")
-//	log.Fatal(http.ListenAndServe(":8081", nil))
-
-	//Database initialisation
+	// Initialisation de la base de données
 	db, err := db.ConnectToPostgreSQL()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// auto-migrate models
-	err = db.AutoMigrate(&models.User{})
+	// CORRECTION 1 : On ajoute Friendship et DirectMessage à la création !
+	err = db.AutoMigrate(&models.User{}, &models.Friendship{}, &models.DirectMessage{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//run websockets
+	// Lancement des websockets
 	hub := ws.NewHub()
 	go hub.Run()
 
-	//set up gin
+	// Configuration de Gin
 	r := gin.Default()
 
-	r.Use(cors.Default()) // change to set up cors properly
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true // Permet à Vite d'y accéder
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 
+	r.Use(cors.New(corsConfig))
+
+	// --- ROUTES PUBLIQUES ---
 	r.POST("/api/signup", auth.SignupHandler(db))
 	r.POST("/api/signin", auth.SigninHandler(db))
-	r.Static("/", "./frontend/dist")
+
+	// --- ROUTES PROTÉGÉES ---
+	protected := r.Group("/api")
+	protected.Use(auth.AuthRequired())
+	{
+		protected.PUT("/user/update", auth.UpdateProfileHandler(db))
+
+		// CORRECTION 2 : On utilise les bons Handlers pour chaque route !
+		protected.POST("/friends/request", social.SendFriendRequestHandler(db))
+		protected.PUT("/friends/respond", social.RespondFriendRequestHandler(db))
+		protected.GET("/friends/list", social.ListFriendsHandler(db))
+	}
+
+	//r.Static("/", "./frontend/dist")
 
 	log.Println("Serveur sur http://localhost:8081")
 	log.Fatal(r.Run(":8081"))

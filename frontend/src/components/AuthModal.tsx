@@ -8,11 +8,7 @@ interface AuthModalProps {
 
 const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
   const { login } = useUser();
-
-  // On gère l'état pour savoir si on est sur la page d'inscription ou de connexion
   const [isSignUp, setIsSignUp] = useState(true);
-
-  // Les champs du formulaire
   const [pseudo, setPseudo] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,16 +19,12 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
     e.preventDefault();
     setErrorMsg(null);
 
-    // Vérification basique côté front
     if (isSignUp && password !== confirmPassword) {
       setErrorMsg("Les mots de passe ne correspondent pas.");
       return;
     }
 
-    // On cible la bonne route Go (ATTENTION : pas de /api/ ici !)
     const url = isSignUp ? "http://localhost:8081/api/signup" : "http://localhost:8081/api/signin";
-
-    // On crée le colis exactement comme le Backend l'attend (SignupRequest ou SigninRequest)
     const payload = isSignUp
       ? { username: pseudo, email: email, password: password }
       : { login: email, password: password };
@@ -44,32 +36,34 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
         body: JSON.stringify(payload),
       });
 
-      // On lit la réponse en TEXTE brut d'abord pour éviter de faire crasher JSON.parse !
       const text = await response.text();
       let data;
 
       try {
         data = JSON.parse(text);
       } catch (err) {
-        // Si le serveur renvoie "404 page not found", on l'attrape ici au lieu de crasher
         setErrorMsg(`Erreur inattendue du serveur : ${text}`);
         return;
       }
 
-      // Si le code HTTP est 200 (OK)
       if (response.ok) {
-        // En attendant que ton mate nous renvoie le vrai profil dans son auth.go,
-        // on crée un faux profil pour débloquer l'interface React !
-        login({
-          id: Math.floor(Math.random() * 1000),
-          pseudo: isSignUp ? pseudo : email.split('@')[0],
-          email: email, // En mode connexion, ceci contiendra l'email ou le pseudo tapé
-          avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
-          status: "online"
-        });
-        onLoginSuccess();
+        if (data.token) {
+          localStorage.setItem('jwt_token', data.token);
+        }
+
+        if (data.user) {
+          login({
+            id: data.user.id,
+            pseudo: data.user.username,
+            email: data.user.email,
+            avatarUrl: data.user.avatarUrl,
+            status: data.user.status
+          });
+          onLoginSuccess();
+        } else {
+          setErrorMsg("Erreur: Données utilisateur manquantes dans la réponse.");
+        }
       } else {
-        // Le backend de ton mate utilise c.JSON(..., gin.H{"message": "..."}) ou {"error": "..."}
         setErrorMsg(data.message || data.error || "Identifiants incorrects");
       }
 
@@ -83,7 +77,6 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
     <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm p-4">
       <div className="bg-[#0f1423] border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden flex flex-col">
 
-        {/* Bouton de fermeture */}
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -95,7 +88,6 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
             {isSignUp ? "Rejoindre la survie" : "Connexion"}
           </h2>
 
-          {/* LA BOÎTE D'ERREUR ROUGE */}
           {errorMsg && (
             <div className="bg-red-950/50 border border-red-500 text-red-400 p-4 rounded-xl text-sm font-semibold text-center mb-6">
               {errorMsg}
@@ -118,7 +110,6 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
             )}
 
             <div>
-              {/* MODIFICATION ICI : Le label change dynamiquement selon le mode */}
               <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
                 {isSignUp ? "Email" : "Pseudo ou Email"}
               </label>
@@ -173,7 +164,6 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
 
         </div>
 
-        {/* Le Footer cliquable pour basculer de mode */}
         <div className="bg-[#1a2035] p-4 text-center mt-auto border-t border-gray-800">
           <button
             onClick={() => {

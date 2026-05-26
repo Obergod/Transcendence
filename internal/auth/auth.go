@@ -2,37 +2,67 @@ package auth
 
 import (
 	"net/http"
-    "golang.org/x/crypto/bcrypt"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 
 	"transcendance/internal/models"
-
-    "github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
+
+type UpdateProfileRequest struct {
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	AvatarURL string `json:"avatarUrl"`
+}
+
+// Clé secrète pour signer les JWT (À mettre dans un .env plus tard pour la sécurité)
+var jwtSecretKey = []byte("super_secret_key_transcendence_42")
 
 type SignupRequest struct {
 	Username string `json:"username"`
-	Email string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type SigninRequest struct {
-	Login string `json:"login" binding:"required"`
+	Login    string `json:"login" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
+// Claims personnalisés pour le JWT
+type JWTClaims struct {
+	UserID uint `json:"user_id"`
+	jwt.RegisteredClaims
+}
+
 func PasswordEncrypt(password string) (string, error) {
-	hash, err :=bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(hash), err
 }
 
 func CompareHashAndPassword(hash, password string) error {
-    return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-func	SignupHandler(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
+// Fonction pour générer le Token JWT
+func GenerateJWT(userID uint) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour) // Le token expire dans 24h
+	claims := &JWTClaims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecretKey)
+}
+
+func SignupHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		var req SignupRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -50,22 +80,43 @@ func	SignupHandler(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusConflict, gin.H{"message": "Email already registered"})
 			return
 		}
-		// need to check if real error
 
 		encryptPw, err := PasswordEncrypt(req.Password)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message" : "Pswd encryption error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Pswd encryption error"})
 			return
 		}
 
 		user := models.User{
-			Username: req.Username,
-			Email: req.Email,
+			Username:     req.Username,
+			Email:        req.Email,
 			PasswordHash: encryptPw,
+			AvatarURL:    "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
 		}
-		models.CreateUser(db, &user)
 
-		c.JSON(http.StatusOK, gin.H{"message" : "User signed up"})
+		if err := models.CreateUser(db, &user); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create user"})
+			return
+		}
+
+		// Auto-login après l'inscription
+		token, err := GenerateJWT(user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create token"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User signed up and logged in",
+			"token":   token,
+			"user": gin.H{
+				"id":        user.ID,
+				"username":  user.Username,
+				"email":     user.Email,
+				"avatarUrl": user.AvatarURL,
+				"status":    "online",
+			},
+		})
 	}
 }
 
@@ -76,6 +127,7 @@ func SigninHandler(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
 		user, err := models.GetUserByLogin(db, req.Login)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
@@ -87,14 +139,73 @@ func SigninHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// !!! Need to implement JWT (maybe use gin-jwt)
+		// Génération du Token JWT
+		token, err := GenerateJWT(user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create token"})
+			return
+		}
 
-	//	_, err = auth.GenerateJWT(user.ID)
-	//	if err != nil {
-	//		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create token"})
-	//		return
-	//	}
+		// On renvoie le token ET les infos de l'utilisateur
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User logged in",
+			"token":   token,
+			"user": gin.H{
+				"id":        user.ID,
+				"username":  user.Username,
+				"email":     user.Email,
+				"avatarUrl": user.AvatarURL,
+				"status":    "online",
+			},
+		})
+	}
+}
 
-		c.JSON(http.StatusOK, gin.H{"message": "User logged in"})
+func UpdateProfileHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 1. On récupère l'ID validé par notre "videur" JWT
+		userIDInterface, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur interne du serveur"})
+			return
+		}
+		userID := userIDInterface.(uint)
+
+		// 2. On lit les nouvelles données envoyées par React
+		var req UpdateProfileRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// 3. On récupère l'utilisateur en base de données
+		user, err := models.GetUserByID(db, userID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Utilisateur introuvable"})
+			return
+		}
+
+		// 4. On met à jour les champs
+		user.Username = req.Username
+		user.Email = req.Email
+		user.AvatarURL = req.AvatarURL
+
+		// 5. On sauvegarde en BDD
+		if err := models.UpdateUser(db, user); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible de mettre à jour le profil (pseudo ou email peut-être déjà pris ?)"})
+			return
+		}
+
+		// 6. On renvoie le profil mis à jour au Frontend
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Profil mis à jour avec succès",
+			"user": gin.H{
+				"id":        user.ID,
+				"username":  user.Username,
+				"email":     user.Email,
+				"avatarUrl": user.AvatarURL,
+				"status":    "online",
+			},
+		})
 	}
 }

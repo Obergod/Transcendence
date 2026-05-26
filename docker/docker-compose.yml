@@ -6,7 +6,7 @@ services:
     container_name: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: on-failure
+    restart: always
     environment:
       POSTGRES_PASSWORD: goodPassword123
       POSTGRES_USER: admin
@@ -20,6 +20,7 @@ services:
       context: ..
       dockerfile: docker/src/backend/Dockerfile
     container_name: backend
+    restart: always
     ports:
       - "8081:8081"
     depends_on:
@@ -35,9 +36,8 @@ services:
     build:
       context: ..
       dockerfile: docker/src/frontend/Dockerfile
-      # additional_contexts:
-      #   backend: service:backend
     container_name: frontend
+    restart: always
     ports:
       - "5173:5173"
     networks:
@@ -46,6 +46,7 @@ services:
       - backend
     volumes:
       - shared:/shared
+
 volumes:
   postgres_data:
   grafana-storage:
@@ -53,7 +54,6 @@ volumes:
   esdata:
   kibana:
   shared:
-
 
 networks:
   appnet:
