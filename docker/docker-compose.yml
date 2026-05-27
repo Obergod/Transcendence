@@ -28,8 +28,8 @@ services:
       - appnet
     environment:
       DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
-    volumes:
-      - shared:/shared
+    # volumes:
+    #   - shared:/shared
 
   frontend:
     build:
@@ -44,8 +44,8 @@ services:
       - appnet
     depends_on:
       - backend
-    volumes:
-      - shared:/shared
+    # volumes:
+    #   - shared:/shared
 
   prometheus:
     container_name: prometheus
@@ -83,11 +83,13 @@ services:
     networks:
       - appnet
     environment:
+      bootstrap.memory_lock: "true"
       discovery.type: single-node
       xpack.security.enabled: "true"
-      ELASTICSEARCH_USERNAME: elastic
-      ELASTIC_PASSWORD: strongElasticPassword
-      # xpack.security.enabled: "false"
+      xpack.security.authc.api_key.enabled: "true"
+      # ELASTICSEARCH_USERNAME: elastic
+      # ELASTIC_PASSWORD: strongElasticPassword
+      ELASTIC_PASSWORD: M3qsxSIqhcA2VK-*q-f0
     ports:
       - 9200:9200
     volumes:
@@ -103,17 +105,19 @@ services:
       - "5601:5601"
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_SERVICEACCOUNTTOKEN:
+      # ELASTICSEARCH_USERNAME: elastic
+      # ELASTICSEARCH_PASSWORD: strongElasticPassword
       ELASTICSEARCH_USERNAME: kibana_system
-      ELASTICSEARCH_PASSWORD: qBoQAzm20rYbnJU59=mq
+      ELASTICSEARCH_PASSWORD: kibana123
+      # ELASTICSEARCH_PASSWORD: kibana123
       XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: 20111da4d0ff42535e594b5dd71b0cff48d37e5c9ce14242669401d6dedca966
       XPACK_REPORTING_ENCRYPTIONKEY: cbe56f164bbbd0ee30ee4247bc151432657fedf8f01ab355534c72eb8a22f8fc
       XPACK_SECURITY_ENCRYPTIONKEY: 442966bd3331b66edcb8e85692a1b314955715acba79fa3bfd56a0bad882508c
       # ELASTICSEARCH_USERNAME: elastic
     volumes:
       - kibana:/usr/share/kibana
-    depends_on:
-      - elasticsearch
+    # depends_on:
+    #   - elasticsearch
 
   logstash:
     container_name: logstash
@@ -131,6 +135,8 @@ services:
       - "9600:9600"
     volumes:
       - esdata:/usr/share/logstash/data
+      - ./logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      # - ./pipeline:/usr/share/logstash/pipeline:ro
     depends_on:
       - elasticsearch
 
@@ -171,7 +177,7 @@ volumes:
   prometheus_data:
   esdata:
   kibana:
-  shared:
+  # shared:
 
 networks:
   appnet:

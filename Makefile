@@ -16,11 +16,11 @@ CYAN = \033[36m
 RESET = \033[0m
 CLEAR = \033[2K\r
 
-.PHONY: all clean fclean re up down start stop ps core
+.PHONY: all clean fclean re up down start stop ps core launch_core
 
 SRCS=docker/docker-compose.yml
 
-all: build up
+all: build up clean
 
 # --- For Dockers ---
 up:
@@ -28,6 +28,11 @@ up:
 
 build:
 	@docker compose -f ${SRCS} build backend && docker compose -f ${SRCS} build
+
+launch_core:
+	@docker compose -f ${SRCS} up -d database backend frontend
+
+core: build launch_core
 
 down:
 	@docker compose -f ${SRCS} down
@@ -43,9 +48,11 @@ ps:
 
 # --- Nettoyage ---
 clean:
-	@printf "$(YELLOW)Cleaning Go cache...$(RESET)"
-	@$(GOCLEAN) -cache
-	@printf "$(CLEAR)$(GREEN)✓ Go cache cleaned$(RESET)\n"
+# 	@printf "$(YELLOW)Cleaning Go cache...$(RESET)"
+# 	@$(GOCLEAN) -cache
+	@yes | docker system prune -a
+
+# 	@printf "$(CLEAR)$(GREEN)✓ Go cache cleaned$(RESET)\n"
 
 fclean: clean
 	@printf "$(YELLOW)Deleting $(NAME)...$(RESET)"
@@ -60,12 +67,8 @@ fclean: clean
 	@printf "$(YELLOW)Deleting frontend/dist and frontend/node_modules...$(RESET)"
 	@rm -rf $(FRONTEND_DIR)/dist $(FRONTEND_DIR)/node_modules
 	@printf "$(CLEAR)$(GREEN)✓ frontend/dist and node_modules deleted$(RESET)\n"
-	docker system prune -af
-	@ docker compose -f ${SRCS} down --rmi 'all'
+	@ docker system prune -af
+	@ docker image prune -af
+# 	@ docker compose -f ${SRCS} down --rmi 'all'
 
 re: fclean all
-
-# --- To launch without reinstalling dockers ---
-
-core: build
-	@docker compose -f ${SRCS} up -d backend frontend database
