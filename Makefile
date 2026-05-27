@@ -68,4 +68,4 @@ re: fclean all
 # --- To launch without reinstalling dockers ---
 
 core: build
-	@docker compose -f ${SRCS} up backend frontend database -d
+	@docker compose -f ${SRCS} up -d backend frontend database
