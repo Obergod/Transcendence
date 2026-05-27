@@ -63,7 +63,7 @@ services:
   node-exporter:
     image: prom/node-exporter
     ports:
-      - "9100:9100"
+      - "9101:9101"
     networks:
       - appnet
 
@@ -85,6 +85,7 @@ services:
     environment:
       discovery.type: single-node
       xpack.security.enabled: "true"
+      ELASTICSEARCH_USERNAME: elastic
       ELASTIC_PASSWORD: strongElasticPassword
       # xpack.security.enabled: "false"
     ports:
@@ -102,8 +103,12 @@ services:
       - "5601:5601"
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: elastic
-      ELASTICSEARCH_PASSWORD: strongElasticPassword
+      ELASTICSEARCH_SERVICEACCOUNTTOKEN:
+      ELASTICSEARCH_USERNAME: kibana_system
+      ELASTICSEARCH_PASSWORD: qBoQAzm20rYbnJU59=mq
+      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: 20111da4d0ff42535e594b5dd71b0cff48d37e5c9ce14242669401d6dedca966
+      XPACK_REPORTING_ENCRYPTIONKEY: cbe56f164bbbd0ee30ee4247bc151432657fedf8f01ab355534c72eb8a22f8fc
+      XPACK_SECURITY_ENCRYPTIONKEY: 442966bd3331b66edcb8e85692a1b314955715acba79fa3bfd56a0bad882508c
       # ELASTICSEARCH_USERNAME: elastic
     volumes:
       - kibana:/usr/share/kibana
