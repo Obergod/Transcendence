@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 interface User {
   id: number;
@@ -13,24 +13,50 @@ interface UserContextType {
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
+  isReady: boolean; // Pour éviter les clignotements d'écran pendant la vérification
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  // On commence à null : l'utilisateur n'est PAS connecté par défaut !
   const [user, setUser] = useState<User | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
-  const login = (userData: User) => {
-    setUser(userData);
-  };
+  // VÉRIFICATION AUTOMATIQUE AU DÉMARRAGE
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem('jwt_token');
+      if (token) {
+        try {
+          const response = await fetch("http://localhost:8081/api/user/me", {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData); // On restaure l'utilisateur !
+          } else {
+            localStorage.removeItem('jwt_token'); // Le token est expiré ou faux
+          }
+        } catch (error) {
+          console.error("Erreur de restauration de session", error);
+        }
+      }
+      setIsReady(true); // L'application peut s'afficher
+    };
 
-  const logout = () => {
-    setUser(null);
-  };
+    checkToken();
+  }, []);
+
+  const login = (userData: User) => setUser(userData);
+  const logout = () => setUser(null);
+
+  // On n'affiche rien tant qu'on ne sait pas si l'utilisateur est connecté ou non
+  if (!isReady) {
+    return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Chargement...</div>;
+  }
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={{ user, login, logout, isReady }}>
       {children}
     </UserContext.Provider>
   );
@@ -38,8 +64,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser doit être utilisé à l'intérieur d'un UserProvider");
-  }
+  if (!context) throw new Error("useUser doit être utilisé dans un UserProvider");
   return context;
 };

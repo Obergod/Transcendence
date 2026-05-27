@@ -6,11 +6,12 @@ import (
 	"transcendance/internal/auth"
 	"transcendance/internal/db"
 	"transcendance/internal/models"
-	"transcendance/internal/ws"
 	"transcendance/internal/social"
+	"transcendance/internal/ws"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	//"go.mongodb.org/mongo-driver/v2/x/mongo/driver/auth"
 )
 
 func main() {
@@ -46,6 +47,11 @@ func main() {
 
 	// --- ROUTES PROTÉGÉES ---
 	protected := r.Group("/api")
+
+	r.GET("/ws", func(c *gin.Context) {
+		ws.ServeWs(hub, c)
+	})
+
 	protected.Use(auth.AuthRequired())
 	{
 		protected.PUT("/user/update", auth.UpdateProfileHandler(db))
@@ -54,6 +60,7 @@ func main() {
 		protected.POST("/friends/request", social.SendFriendRequestHandler(db))
 		protected.PUT("/friends/respond", social.RespondFriendRequestHandler(db))
 		protected.GET("/friends/list", social.ListFriendsHandler(db))
+		protected.GET("/user/me", auth.GetMeHandler(db))
 	}
 
 	//r.Static("/", "./frontend/dist")

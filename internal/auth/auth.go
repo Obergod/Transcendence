@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 	"time"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 	"github.com/gin-gonic/gin"
@@ -208,4 +209,50 @@ func UpdateProfileHandler(db *gorm.DB) gin.HandlerFunc {
 			},
 		})
 	}
+}
+
+func GetMeHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Le middleware a déjà vérifié le token et extrait l'ID
+		userIDInterface, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Non autorisé"})
+			return
+		}
+		userID := userIDInterface.(uint)
+
+		// On cherche l'utilisateur dans la base
+		user, err := models.GetUserByID(db, userID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Utilisateur introuvable"})
+			return
+		}
+
+		// On renvoie son profil
+		c.JSON(http.StatusOK, gin.H{
+			"id":        user.ID,
+			"pseudo":    user.Username,
+			"email":     user.Email,
+			"avatarUrl": user.AvatarURL,
+			"status":    "online",
+		})
+	}
+}
+
+func ValidateToken(tokenString string) (uint, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("méthode de signature inattendue")
+		}
+		return jwtSecretKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return 0, fmt.Errorf("token invalide")
+	}
+
+	if claims, ok := token.Claims.(*JWTClaims); ok {
+		return claims.UserID, nil
+	}
+	return 0, fmt.Errorf("impossible de lire les claims")
 }
