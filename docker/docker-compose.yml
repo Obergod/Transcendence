@@ -11,6 +11,7 @@ services:
       POSTGRES_PASSWORD: goodPassword123
       POSTGRES_USER: admin
       POSTGRES_DB: myapp
+      JWT_SECRET: jwt_secret
     ports:
       - "5432:5432"
 
