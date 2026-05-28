@@ -68,33 +68,3 @@ func	SignupHandler(db *gorm.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"message" : "User signed up"})
 	}
 }
-
-func SigninHandler(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var req SigninRequest
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		user, err := models.GetUserByLogin(db, req.Login)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-			return 
-		}
-
-		if err := CompareHashAndPassword(user.PasswordHash, req.Password); err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-			return 
-		}
-
-		// !!! Need to implement JWT (maybe use gin-jwt)
-
-	//	_, err = auth.GenerateJWT(user.ID)
-	//	if err != nil {
-	//		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create token"})
-	//		return
-	//	}
-	
-		c.JSON(http.StatusOK, gin.H{"message": "User logged in"})
-	}
-}
