@@ -14,6 +14,13 @@ func NewHitbox(x, y, r fixed.Int26_6) *Hitbox {
 	return &Hitbox{X: x, Y: y, R: r}
 }
 
+func CheckCollision(h1, h2 *Hitbox) bool {
+    dx := h2.X - h1.X
+    dy := h2.Y - h1.Y
+    rsum := h1.R + h2.R
+    return dx*dx+dy*dy <= rsum*rsum
+}
+
 func PushOutCollisionFixed(e1, e2 *Hitbox) bool {
     dx := int64(e2.X - e1.X)
     dy := int64(e2.Y - e1.Y)

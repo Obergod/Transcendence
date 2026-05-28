@@ -11,10 +11,12 @@ services:
       POSTGRES_PASSWORD: goodPassword123
       POSTGRES_USER: admin
       POSTGRES_DB: myapp
+      JWT_SECRET: jwt_secret
     ports:
       - "5432:5432"
 
   backend:
+    image: backend-builder:latest
     image: backend-builder:latest
     build:
       context: ..
@@ -29,6 +31,8 @@ services:
       - appnet
     environment:
       DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
+    volumes:
+      - shared:/shared
     volumes:
       - shared:/shared
 
