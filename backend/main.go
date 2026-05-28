@@ -20,10 +20,10 @@ func registerRoute(r *gin.Engine, handle *jwt.GinJWTMiddleware, db *gorm.DB) {
 	public := r.Group("/api")
 	{
 		public.POST("/signup", auth.SignupHandler(db))
-		public.POST("/signin", handle.LoginHandler())
+		public.POST("/signin", handle.LoginHandler)
 	}
 
-	auth := r.Group
+//	auth := r.Group
 }
 
 func main() {
