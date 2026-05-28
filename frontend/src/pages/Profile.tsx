@@ -221,7 +221,12 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
                       </div>
                       <span className="font-bold text-lg">{friendData.Username}</span>
                     </div>
-                    <button className="text-gray-400 hover:text-white px-4 py-2 bg-gray-800 rounded-lg">💬 Chat</button>
+                    <button
+                      onClick={() => navigate(`/chat/${friendData.ID}/${friendData.Username}`)}
+                      className="text-gray-400 hover:text-white px-4 py-2 bg-gray-800 hover:bg-red-600 transition-colors rounded-lg"
+                    >
+                      💬 Chat
+                    </button>
                   </div>
                 )
               })}

@@ -1,11 +1,12 @@
 package ws
 
 import (
-	"bytes"
+	//"bytes"
 	"log"
 	"net/http"
 	"time"
 
+	"encoding/json"
 	"github.com/gorilla/websocket"
     "github.com/gin-gonic/gin"
 	"transcendance/internal/auth"
@@ -77,8 +78,21 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- message
+
+		// NOUVEAU : On décode le JSON envoyé par React
+		var payload MessagePayload
+		if err := json.Unmarshal(message, &payload); err == nil {
+
+			// Si c'est un message de chat :
+			if payload.Type == "chat" {
+				// SÉCURITÉ ABSOLUE : Même si le frontend a essayé de tricher sur l'expéditeur,
+				// on écrase le SenderID avec le VRAI ID du client connecté !
+				payload.SenderID = c.UserID
+
+				// On l'envoie au cerveau (le Hub)
+				c.hub.directMsg <- payload
+			}
+		}
 	}
 }
 

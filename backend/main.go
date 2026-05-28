@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// Lancement des websockets
-	hub := ws.NewHub()
+	hub := ws.NewHub(db)
 	go hub.Run()
 
 	// Configuration de Gin
