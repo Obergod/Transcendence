@@ -16,14 +16,17 @@ CYAN = \033[36m
 RESET = \033[0m
 CLEAR = \033[2K\r
 
-.PHONY: all clean fclean re up down start stop ps core launch_core
+.PHONY: all clean fclean re up down start stop ps core launch_core reset
 
 SRCS=docker/docker-compose.yml
 
 all: build up clean
 
 # --- For Dockers ---
-up:
+
+bootstrap:
+	./docker/start_elastic.sh
+up: bootstrap
 	@docker compose -f ${SRCS} up -d
 
 build:
@@ -67,6 +70,7 @@ fclean: clean
 	@printf "$(YELLOW)Deleting frontend/dist and frontend/node_modules...$(RESET)"
 	@rm -rf $(FRONTEND_DIR)/dist $(FRONTEND_DIR)/node_modules
 	@printf "$(CLEAR)$(GREEN)✓ frontend/dist and node_modules deleted$(RESET)\n"
+	@rm -rf docker/.env docker/.secrets .env .secrets
 	@ docker system prune -af
 	@ docker image prune -af
 # 	@ docker compose -f ${SRCS} down --rmi 'all'

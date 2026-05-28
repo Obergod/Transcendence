@@ -83,17 +83,50 @@ services:
     networks:
       - appnet
     environment:
-      bootstrap.memory_lock: "true"
-      discovery.type: single-node
-      xpack.security.enabled: "true"
-      xpack.security.authc.api_key.enabled: "true"
-      # ELASTICSEARCH_USERNAME: elastic
-      # ELASTIC_PASSWORD: strongElasticPassword
-      ELASTIC_PASSWORD: M3qsxSIqhcA2VK-*q-f0
+      # - node.roles=data_content
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - xpack.security.enabled=true
+      # - xpack.security.authc.api_key.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     ports:
       - 9200:9200
     volumes:
       - esdata:/usr/share/elasticsearch/data
+      # - ./docker/src/elasticsearch:/usr/share/elasticsearch
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  elastic-init:
+    image: curlimages/curl:latest
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./.secrets:/secrets
+    entrypoint: >
+      sh -c '
+      until curl -s -u elastic:${ELASTIC_PASSWORD}
+      http://elasticsearch:9200 >/dev/null; do
+        echo "Waiting for Elasticsearch...";
+        sleep 5;
+      done;
+
+      KIBANA_PASS=$$(openssl rand -base64 32)
+
+      curl -X POST \
+      -u elastic:${ELASTIC_PASSWORD} \
+      -H "Content-Type: application/json" \
+      http://elasticsearch:9200/_security/user/kibana_system/_password \
+      -d "{\"password\":\"$$KIBANA_PASS\"}"
+
+      echo "ELASTICSEARCH_USERNAME=kibana_system" > /secrets/kibana.env
+      echo "ELASTICSEARCH_PASSWORD=$$KIBANA_PASS" >> /secrets/kibana.env
+
+      echo "Kibana password generated."
+      '
 
   kibana:
     container_name: kibana
@@ -104,20 +137,13 @@ services:
     ports:
       - "5601:5601"
     environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      # ELASTICSEARCH_USERNAME: elastic
-      # ELASTICSEARCH_PASSWORD: strongElasticPassword
-      ELASTICSEARCH_USERNAME: kibana_system
-      ELASTICSEARCH_PASSWORD: kibana123
-      # ELASTICSEARCH_PASSWORD: kibana123
-      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: 20111da4d0ff42535e594b5dd71b0cff48d37e5c9ce14242669401d6dedca966
-      XPACK_REPORTING_ENCRYPTIONKEY: cbe56f164bbbd0ee30ee4247bc151432657fedf8f01ab355534c72eb8a22f8fc
-      XPACK_SECURITY_ENCRYPTIONKEY: 442966bd3331b66edcb8e85692a1b314955715acba79fa3bfd56a0bad882508c
-      # ELASTICSEARCH_USERNAME: elastic
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
     volumes:
       - kibana:/usr/share/kibana
-    # depends_on:
-    #   - elasticsearch
+    depends_on:
+      - elastic-init
 
   logstash:
     container_name: logstash
@@ -177,6 +203,7 @@ volumes:
   prometheus_data:
   esdata:
   kibana:
+  # certs:
   # shared:
 
 networks:
