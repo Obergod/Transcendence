@@ -1,153 +1,236 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useState, useEffect, useCallback } from 'react';
+import { useUser } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = ({ onLogout }: { onLogout: () => void }) => {
+  const { user, login, logout } = useUser();
   const navigate = useNavigate();
 
-  const [pseudo, setPseudo] = useState("Impots.gouv.fr");
-  const [isEditing, setIsEditing] = useState(false);
+  // États pour le profil
+  const [pseudo, setPseudo] = useState(user?.pseudo || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
+  const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
-  const { t } = useTranslation();
+  // États pour le social
+  const [friendships, setFriendships] = useState<any[]>([]);
+  const [targetUsername, setTargetUsername] = useState("");
+  const [socialMsg, setSocialMsg] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
-  // 1. NOTRE FAUSSE BASE DE DONNÉES D'AMIS
-  const [friends] = useState([
-    { id: 1, pseudo: "Rillettes de conde", isOnline: true },
-    { id: 2, pseudo: "Obergod", isOnline: false },
-    { id: 3, pseudo: "Arthur", isOnline: true },
-    { id: 4, pseudo: "Jackysuma", isOnline: false },
-  ]);
+  // Redirection sécurité
+  useEffect(() => {
+    if (!user) navigate('/');
+  }, [user, navigate]);
 
-  const handleLogout = () => {
-    onLogout();
-    navigate("/");
+  // --- LOGIQUE PROFIL ---
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    const token = localStorage.getItem('jwt_token');
+
+    try {
+      const response = await fetch("http://localhost:8081/api/user/update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ username: pseudo, email, avatarUrl }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ text: "Profil mis à jour !", type: 'success' });
+        login({ ...user!, pseudo: data.user.username, email: data.user.email, avatarUrl });
+      } else {
+        setMessage({ text: data.error || "Erreur de mise à jour", type: 'error' });
+      }
+    } catch (error) {
+      setMessage({ text: "Erreur serveur", type: 'error' });
+    }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('jwt_token');
+    logout();
+    onLogout();
+    navigate('/');
+  };
+
+  // --- LOGIQUE SOCIALE ---
+  const fetchFriends = useCallback(async () => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch("http://localhost:8081/api/friends/list", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) setFriendships(data.data);
+    } catch (error) {
+      console.error("Erreur récupération amis", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) fetchFriends();
+  }, [user, fetchFriends]);
+
+  const sendFriendRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSocialMsg(null);
+    const token = localStorage.getItem('jwt_token');
+
+    try {
+      const response = await fetch("http://localhost:8081/api/friends/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ username: targetUsername }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setSocialMsg({ text: data.message, type: 'success' });
+        setTargetUsername("");
+        fetchFriends(); // Rafraîchir la liste
+      } else {
+        setSocialMsg({ text: data.error, type: 'error' });
+      }
+    } catch (error) {
+      setSocialMsg({ text: "Erreur réseau", type: 'error' });
+    }
+  };
+
+  const respondToRequest = async (friendshipId: number, action: 'accept' | 'reject') => {
+    const token = localStorage.getItem('jwt_token');
+    try {
+      await fetch("http://localhost:8081/api/friends/respond", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ friendship_id: friendshipId, action }),
+      });
+      fetchFriends(); // Rafraîchir l'UI
+    } catch (error) {
+      console.error("Erreur lors de la réponse", error);
+    }
+  };
+
+  if (!user) return null;
+
+  // Filtrer les affichages
+  const pendingRequests = friendships.filter(f => f.Status === 'pending' && f.FriendID === user.id);
+  const acceptedFriends = friendships.filter(f => f.Status === 'accepted');
+
   return (
-    <main className="flex-1 flex flex-col items-center pt-32 px-4 pb-12 w-full">
+    <div className="min-h-screen pt-32 pb-12 px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
 
-      {/* Le conteneur principal qui va gérer les 2 colonnes sur grand écran (lg:flex-row) */}
-      <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8">
+      {/* COLONNE GAUCHE : MON PROFIL (Code existant) */}
+      <div className="bg-[#0f1423] border border-gray-700 p-8 rounded-2xl shadow-2xl h-fit">
+        <h2 className="text-3xl font-black text-white mb-8 text-center uppercase tracking-widest">Mon Profil</h2>
 
-        {/* ==========================================
-            COLONNE GAUCHE : PARAMÈTRES DU PROFIL
-            ========================================== */}
-        <div className="flex-1 bg-gray-800/50 border-2 border-gray-700 rounded-3xl p-8 backdrop-blur-md shadow-2xl">
-          <h2 className="text-4xl font-black text-center mb-10 tracking-tight">
-            {t('profile.title')} <span className="text-red-500"> {t('profile.title_highlight')}</span>
-          </h2>
-
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-12">
-
-            {/* PHOTO DE PROFIL */}
-            <div className="relative group">
-              <div className="w-40 h-40 bg-gray-700 rounded-full border-4 border-red-600 overflow-hidden shadow-[0_0_20px_rgba(220,38,38,0.3)]">
-                <svg className="w-full h-full text-gray-500 mt-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <button className="absolute bottom-1 right-1 bg-red-600 p-2 rounded-full hover:bg-red-700 transition-colors border-2 border-gray-900">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-              </button>
-            </div>
-
-            {/* INFORMATIONS */}
-            <div className="flex-1 w-full space-y-6">
-              <div>
-                <label className="block text-gray-400 text-sm font-bold uppercase tracking-wider mb-2"> {t('profile.pseudo')}</label>
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={pseudo}
-                    disabled={!isEditing}
-                    onChange={(e) => setPseudo(e.target.value)}
-                    className={`flex-1 bg-gray-900 border ${isEditing ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-600'} rounded-xl px-4 py-3 focus:outline-none transition-all`}
-                  />
-                  <button
-                    onClick={() => setIsEditing(!isEditing)}
-                    className="bg-gray-700 hover:bg-gray-600 px-6 rounded-xl font-bold transition-colors"
-                  >
-                    {isEditing ?  t('profile.save') :  t('profile.edit')}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-gray-400 text-sm font-bold uppercase tracking-wider mb-2"> {t('profile.email')}</label>
-                <input type="text" disabled value="maati@student.42.fr" className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 text-gray-500 cursor-not-allowed" />
-              </div>
-
-              {/* ACTIONS DANGEREUSES */}
-              <div className="pt-6 border-t border-gray-700 mt-8 flex flex-col gap-4">
-                <button onClick={handleLogout} className="w-full bg-transparent border-2 border-gray-600 hover:border-red-600 hover:text-red-500 text-gray-400 font-bold py-3 rounded-xl transition-all">
-                   {t('profile.logout')}
-                </button>
-              </div>
-            </div>
+        {message && (
+          <div className={`p-4 mb-6 rounded-xl text-center font-bold ${message.type === 'success' ? 'bg-green-900/50 text-green-400 border-green-500' : 'bg-red-900/50 text-red-400 border-red-500'} border`}>
+            {message.text}
           </div>
+        )}
+
+        <div className="flex justify-center mb-8">
+          <img src={avatarUrl} alt="Avatar" className="w-32 h-32 rounded-full object-cover border-4 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
         </div>
 
-        {/* ==========================================
-            COLONNE DROITE : LISTE D'AMIS
-            ========================================== */}
-        <div className="w-full lg:w-1/3 bg-gray-800/50 border-2 border-gray-700 rounded-3xl p-6 backdrop-blur-md shadow-2xl flex flex-col">
-
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-white"> {t('profile.friends')}</h3>
-            {/* Bouton pour ajouter un ami (visuel) */}
-            <button className="text-red-500 hover:text-red-400 transition-colors p-2 bg-gray-900 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
-            </button>
+        <form onSubmit={handleUpdate} className="space-y-6">
+          <div>
+            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Pseudo</label>
+            <input type="text" value={pseudo} onChange={(e) => setPseudo(e.target.value)} className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors" />
           </div>
+          <div>
+            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors" />
+          </div>
+          <div>
+            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">URL de l'Avatar</label>
+            <input type="text" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors" />
+          </div>
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl mt-4 uppercase tracking-widest shadow-lg">Sauvegarder</button>
+        </form>
 
-          {/* LA LISTE */}
-          <div className="flex-1 space-y-3 overflow-y-auto pr-2">
+        <button onClick={handleLogout} className="w-full mt-6 bg-red-950/50 border border-red-500 hover:bg-red-600 text-red-400 hover:text-white font-bold py-3 rounded-xl transition-colors">Se déconnecter</button>
+      </div>
 
-            {/* 2. LA BOUCLE MAP : On parcourt notre liste d'amis pour générer l'affichage */}
-            {friends.map((friend) => (
-              <div key={friend.id} className="flex items-center justify-between p-3 bg-gray-900/80 rounded-xl border border-gray-700 hover:border-gray-500 transition-colors">
+      {/* COLONNE DROITE : SOCIAL & AMIS */}
+      <div className="bg-[#0f1423] border border-gray-700 p-8 rounded-2xl shadow-2xl h-fit flex flex-col gap-8">
+        <h2 className="text-3xl font-black text-white text-center uppercase tracking-widest">Social</h2>
 
-                <div className="flex items-center space-x-4">
-                  {/* Avatar de l'ami */}
-                  <div className="relative">
-                    <div className="w-10 h-10 bg-gray-700 rounded-full overflow-hidden">
-                      <svg className="w-full h-full text-gray-500 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    {/* Le point de statut (Vert = En ligne, Gris = Hors ligne) */}
-                    <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-gray-900 ${friend.isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+        {/* Formulaire d'ajout */}
+        <form onSubmit={sendFriendRequest} className="flex flex-col gap-2">
+          <label className="text-gray-400 text-xs font-bold uppercase">Ajouter un joueur</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Pseudo de ton ami..."
+              value={targetUsername}
+              onChange={(e) => setTargetUsername(e.target.value)}
+              className="flex-1 bg-[#1a2035] border border-gray-700 rounded-xl px-4 text-white focus:border-red-500 outline-none"
+              required
+            />
+            <button type="submit" className="bg-green-600 hover:bg-green-500 text-white font-bold px-6 py-3 rounded-xl transition-colors">Ajouter</button>
+          </div>
+          {socialMsg && <span className={`text-sm ${socialMsg.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>{socialMsg.text}</span>}
+        </form>
+
+        <hr className="border-gray-700" />
+
+        {/* Demandes reçues en attente */}
+        {pendingRequests.length > 0 && (
+          <div>
+            <h3 className="text-xl font-bold text-yellow-500 mb-4">Demandes reçues</h3>
+            <div className="space-y-3">
+              {pendingRequests.map(req => (
+                <div key={req.ID} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700">
+                  <div className="flex items-center gap-3">
+                    <img src={req.User.AvatarURL} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
+                    <span className="font-bold">{req.User.Username}</span>
                   </div>
-
-                  {/* Nom de l'ami */}
-                  <span className={`font-bold ${friend.isOnline ? 'text-white' : 'text-gray-500'}`}>
-                    {friend.pseudo}
-                  </span>
+                  <div className="flex gap-2">
+                    <button onClick={() => respondToRequest(req.ID, 'accept')} className="bg-green-600/20 text-green-500 hover:bg-green-600 hover:text-white p-2 rounded-lg transition-colors">✓</button>
+                    <button onClick={() => respondToRequest(req.ID, 'reject')} className="bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white p-2 rounded-lg transition-colors">✗</button>
+                  </div>
                 </div>
-
-                {/* MODIFICATION ICI : Remplacement du <button> par <Link> */}
-                <Link
-                  to={`/chat/${friend.pseudo}`}
-                  className="text-gray-400 hover:text-red-500 transition-colors p-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
-                </Link>
-
-              </div>
-            ))}
-
+              ))}
+            </div>
           </div>
+        )}
 
+        {/* Liste d'amis */}
+        <div>
+          <h3 className="text-xl font-bold text-white mb-4">Mes Amis</h3>
+          {acceptedFriends.length === 0 ? (
+            <p className="text-gray-500 italic">Looseeeeeeeeeer...</p>
+          ) : (
+            <div className="space-y-3">
+              {acceptedFriends.map(f => {
+                // Déterminer qui est l'ami dans la relation (soit l'expéditeur, soit le destinataire)
+                const isSender = f.UserID === user.id;
+                const friendData = isSender ? f.Friend : f.User;
+
+                return (
+                  <div key={f.ID} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700 hover:border-gray-500 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <img src={friendData.AvatarURL} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-gray-600" />
+                        {/* Bulle de statut statique en attendant les WebSockets */}
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-500 border-2 border-[#1a2035] rounded-full"></span>
+                      </div>
+                      <span className="font-bold text-lg">{friendData.Username}</span>
+                    </div>
+                    <button className="text-gray-400 hover:text-white px-4 py-2 bg-gray-800 rounded-lg">💬 Chat</button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
       </div>
-    </main>
+    </div>
   );
 };
 

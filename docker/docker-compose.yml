@@ -6,7 +6,7 @@ services:
     container_name: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: on-failure
+    restart: always
     environment:
       POSTGRES_PASSWORD: goodPassword123
       POSTGRES_USER: admin
@@ -17,10 +17,12 @@ services:
 
   backend:
     image: backend-builder:latest
+    image: backend-builder:latest
     build:
       context: ..
       dockerfile: docker/src/backend/Dockerfile
     container_name: backend
+    restart: always
     ports:
       - "8081:8081"
     depends_on:
@@ -31,14 +33,15 @@ services:
       DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
     volumes:
       - shared:/shared
+    volumes:
+      - shared:/shared
 
   frontend:
     build:
       context: ..
       dockerfile: docker/src/frontend/Dockerfile
-      # additional_contexts:
-      #   backend: service:backend
     container_name: frontend
+    restart: always
     ports:
       - "5173:5173"
     networks:

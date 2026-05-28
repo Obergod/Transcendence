@@ -23,7 +23,7 @@ SRCS=docker/docker-compose.yml
 all: build up
 
 # --- For Dockers ---
-up:
+up: setup_goinfre
 	@docker compose -f ${SRCS} up -d
 
 build:
@@ -44,7 +44,7 @@ ps:
 # --- Nettoyage ---
 clean:
 	@printf "$(YELLOW)Cleaning Go cache...$(RESET)"
-	@$(GOCLEAN) -cache
+	@go clean -cache
 	@printf "$(CLEAR)$(GREEN)✓ Go cache cleaned$(RESET)\n"
 
 fclean: clean
@@ -54,9 +54,6 @@ fclean: clean
 	@printf "$(YELLOW)Deleting WASM files...$(RESET)"
 	@rm -f $(WASM_OUT) $(WASM_DIR)/wasm_exec.js
 	@printf "$(CLEAR)$(GREEN)✓ WASM files deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting go.mod and go.sum...$(RESET)"
-	@rm -f go.mod go.sum
-	@printf "$(CLEAR)$(GREEN)✓ go.mod and go.sum deleted$(RESET)\n"
 	@printf "$(YELLOW)Deleting frontend/dist and frontend/node_modules...$(RESET)"
 	@rm -rf $(FRONTEND_DIR)/dist $(FRONTEND_DIR)/node_modules
 	@printf "$(CLEAR)$(GREEN)✓ frontend/dist and node_modules deleted$(RESET)\n"

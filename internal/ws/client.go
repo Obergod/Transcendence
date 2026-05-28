@@ -8,7 +8,15 @@ import (
 
 	"github.com/gorilla/websocket"
     "github.com/gin-gonic/gin"
+	"transcendance/internal/auth"
 )
+
+type Client struct {
+	hub    *Hub
+	conn   *websocket.Conn
+	send   chan []byte
+	UserID uint // <-- NOUVEAU : Le client connait son identité
+}
 
 const (
 	// Time allowed to write a message to peer
@@ -30,25 +38,22 @@ var (
 	space	= []byte{' '}
 )
 
-var upgrader = websocket.Upgrader {
-	ReadBufferSize: 1024,
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool { return true }, // Maati: on autorise React a se connecter
+	// CORRECTION : On n'autorise que ton frontend React !
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header.Get("Origin")
+		return origin == "http://localhost:5173"
+	},
 }
 
-type Client struct {
-	hub *Hub
-	conn *websocket.Conn
-
-	//buffered channel of outbound msg
-	send chan []byte
-}
-
-func NewClient(hub *Hub, conn *websocket.Conn) *Client {
-	return &Client {
-		hub: hub,
-		conn: conn,
-		send: make(chan []byte, 256),
+func NewClient(hub *Hub, conn *websocket.Conn, userID uint) *Client {
+	return &Client{
+		hub:    hub,
+		conn:   conn,
+		send:   make(chan []byte, 256),
+		UserID: userID,
 	}
 }
 
@@ -113,13 +118,30 @@ func (c *Client) writePump() {
 }
 
 	//serveWs handles websocket request from peer
-func serveWs(hub *Hub, c *gin.Context) {
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil) // upgrades to websocket
-	if err != nil {
-		log.Println(err)
+func ServeWs(hub *Hub, c *gin.Context) {
+	// 1. On récupère le token JWT passé dans l'URL (ex: ws://localhost:8081/ws?token=XYZ)
+	token := c.Query("token")
+	if token == "" {
+		c.JSON(401, gin.H{"error": "Token manquant"})
 		return
 	}
-	client := NewClient(hub, conn)
+
+	// 2. On vérifie qui est ce joueur
+	userID, err := auth.ValidateToken(token)
+	if err != nil {
+		c.JSON(401, gin.H{"error": "Token invalide"})
+		return
+	}
+
+	// 3. On accepte la connexion WebSocket
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Println("Erreur d'upgrade WS:", err)
+		return
+	}
+
+	// 4. On enregistre le client avec son ID !
+	client := NewClient(hub, conn, userID)
 	hub.register <- client
 
 	go client.writePump()

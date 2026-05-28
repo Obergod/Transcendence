@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useUser } from './context/UserContext'; // <-- L'import manquant est ici !
 
 // IMPORTS DE PAGES
 import Home from './pages/Home';
@@ -16,9 +17,11 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 
 function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { t } = useTranslation();
+
+  // MAGIE : On récupère l'utilisateur depuis notre Contexte !
+  const { user } = useUser();
 
   return (
     <BrowserRouter>
@@ -37,13 +40,12 @@ function App() {
 
           <LanguageSwitcher></LanguageSwitcher>
 
-          {isLoggedIn && (
+          {/* <-- La correction est ici (on utilise 'user' au lieu de 'isLoggedIn') */}
+          {user && (
             <Link to="/profile" className="flex items-center space-x-4 cursor-pointer hover:bg-gray-800 p-2 rounded-lg transition-colors">
-              <span className="font-bold text-lg">Impots.gouv.fr</span>
+              <span className="font-bold text-lg">{user.pseudo}</span>
               <div className="w-12 h-12 bg-gray-700 rounded-full border-2 border-red-500 overflow-hidden">
-                <svg className="w-full h-full text-gray-400 mt-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
+                <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
               </div>
             </Link>
           )}
@@ -51,15 +53,15 @@ function App() {
 
         {/* --- ROUTES --- */}
         <Routes>
-          {/* On dit au bouton de Home d'ouvrir la nouvelle modale */}
-          <Route path="/" element={<Home isLoggedIn={isLoggedIn} onLoginClick={() => setIsAuthModalOpen(true)} />} />
-          <Route path="/profile" element={<Profile onLogout={() => setIsLoggedIn(false)} />} />
+          <Route path="/" element={<Home isLoggedIn={!!user} onLoginClick={() => setIsAuthModalOpen(true)} />} />
+          <Route path="/profile" element={<Profile onLogout={() => console.log("Déconnexion en attente du contexte !")} />} />
           <Route path="/play" element={<Lobby />} />
           <Route path="/game" element={<Game />} />
           <Route path="/history" element={<MatchHistory />} />
           <Route path="/chat/:friendName" element={<Chat />} />
         </Routes>
 
+        {/* --- MODALES --- */}
         {isSettingsOpen && (
           <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
             <div className="bg-gray-900 border-2 border-gray-700 p-8 rounded-2xl w-96 shadow-2xl relative">
@@ -74,13 +76,11 @@ function App() {
             </div>
           </div>
         )}
+
         {isAuthModalOpen && (
           <AuthModal
             onClose={() => setIsAuthModalOpen(false)}
-            onLoginSuccess={() => {
-              setIsLoggedIn(true);
-              setIsAuthModalOpen(false);
-            }}
+            onLoginSuccess={() => setIsAuthModalOpen(false)}
           />
         )}
 
