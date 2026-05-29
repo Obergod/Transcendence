@@ -13,6 +13,10 @@ ELASTIC_PASSWORD=$ELASTIC_PASSWORD
 KIBANA_SYSTEM_PASSWORD=$KIBANA_PASSWORD
 EOF
 
+set -a
+source .env
+set +a
+
 echo "Starting Elasticsearch..."
 
 docker compose up -d elasticsearch

@@ -28,15 +28,11 @@ services:
       - appnet
     environment:
       DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
-    # volumes:
-    #   - shared:/shared
 
   frontend:
     build:
       context: ..
       dockerfile: docker/src/frontend/Dockerfile
-      # additional_contexts:
-      #   backend: service:backend
     container_name: frontend
     ports:
       - "5173:5173"
@@ -44,8 +40,6 @@ services:
       - appnet
     depends_on:
       - backend
-    # volumes:
-    #   - shared:/shared
 
   prometheus:
     container_name: prometheus
@@ -76,110 +70,145 @@ services:
     networks:
       - appnet
 
-  elasticsearch:
-    container_name: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.0
-    restart: on-failure
-    networks:
-      - appnet
-    environment:
-      # - node.roles=data_content
-      - bootstrap.memory_lock=true
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
-      - xpack.security.enabled=true
-      # - xpack.security.authc.api_key.enabled=true
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-    ports:
-      - 9200:9200
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-      # - ./docker/src/elasticsearch:/usr/share/elasticsearch
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+  # elasticsearch:
+  #   container_name: elasticsearch
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:9.4.0
+  #   restart: on-failure
+  #   networks:
+  #     - appnet
+  #   environment:
+  #     - bootstrap.memory_lock=true
+  #     - discovery.type=single-node
+  #     - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+  #     - xpack.security.enabled=true
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #   ports:
+  #     - 9200:9200
+  #   volumes:
+  #     - esdata:/usr/share/elasticsearch/data
+  #     - ./certs:/usr/share/elasticsearch/config/certs
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
 
-  elastic-init:
-    image: curlimages/curl:latest
-    depends_on:
-      - elasticsearch
-    volumes:
-      - ./.secrets:/secrets
-    entrypoint: >
-      sh -c '
-      until curl -s -u elastic:${ELASTIC_PASSWORD}
-      http://elasticsearch:9200 >/dev/null; do
-        echo "Waiting for Elasticsearch...";
-        sleep 5;
-      done;
+  # elastic-init:
+  #   image: curlimages/curl:latest
+  #   depends_on:
+  #     - elasticsearch
+  #   volumes:
+  #     - ./.secrets:/secrets
+  #   entrypoint: >
+  #     sh -c '
+  #     until curl -s -u elastic:${ELASTIC_PASSWORD}
+  #     http://elasticsearch:9200 >/dev/null; do
+  #       echo "Waiting for Elasticsearch...";
+  #       sleep 5;
+  #     done;
 
-      KIBANA_PASS=$$(openssl rand -base64 32)
+  #     KIBANA_PASS=$$(openssl rand -base64 32)
 
-      curl -X POST \
-      -u elastic:${ELASTIC_PASSWORD} \
-      -H "Content-Type: application/json" \
-      http://elasticsearch:9200/_security/user/kibana_system/_password \
-      -d "{\"password\":\"$$KIBANA_PASS\"}"
+  #     curl -X POST \
+  #     -u elastic:${ELASTIC_PASSWORD} \
+  #     -H "Content-Type: application/json" \
+  #     http://elasticsearch:9200/_security/user/kibana_system/_password \
+  #     -d "{\"password\":\"$$KIBANA_PASS\"}"
 
-      echo "ELASTICSEARCH_USERNAME=kibana_system" > /secrets/kibana.env
-      echo "ELASTICSEARCH_PASSWORD=$$KIBANA_PASS" >> /secrets/kibana.env
+  #     echo "ELASTICSEARCH_USERNAME=kibana_system" > /secrets/kibana.env
+  #     echo "ELASTICSEARCH_PASSWORD=$$KIBANA_PASS" >> /secrets/kibana.env
 
-      echo "Kibana password generated."
-      '
+  #     echo "Kibana password generated."
+  #     '
 
-  kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:9.4.0
-    restart: on-failure
-    networks:
-      - appnet
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
-    volumes:
-      - kibana:/usr/share/kibana
-    depends_on:
-      - elastic-init
+  # kibana:
+  #   container_name: kibana
+  #   image: docker.elastic.co/kibana/kibana:9.4.0
+  #   restart: on-failure
+  #   networks:
+  #     - appnet
+  #   ports:
+  #     - "5601:5601"
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  #     - ELASTICSEARCH_USERNAME=kibana_system
+  #     - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+  #   volumes:
+  #     - kibana:/usr/share/kibana
+  #     - ./src/kibana/dashboards:/usr/share/kibana/data/saved_objects
+  #     - esdata:/usr/share/elasticsearch/data
+  #   depends_on:
+  #     - elastic-init
 
-  logstash:
-    container_name: logstash
-    build:
-      context: ..
-      dockerfile: docker/src/logstash/Dockerfile
-    image: custom-logstash:latest
-    restart: on-failure
-    networks:
-      - appnet
-    environment:
-        - LS_JAVA_OPTS=-Xms1g -Xmx1g
-    ports:
-      - "5044:5044"
-      - "9600:9600"
-    volumes:
-      - esdata:/usr/share/logstash/data
-      - ./logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      # - ./pipeline:/usr/share/logstash/pipeline:ro
-    depends_on:
-      - elasticsearch
+  # kibana-init:
+  #   image: curlimages/curl:latest
+  #   depends_on:
+  #     - kibana
+  #   networks:
+  #     - appnet
+  #   volumes:
+  #   - ./src/kibana/dashboards/export.ndjson:/dashboards/dashboards.ndjson:ro
+  #   entrypoint: >
+  #     sh -c '
+  #     until curl -s http://kibana:5601/api/status | grep -q "available"; do
+  #       sleep 3;
+  #     done;
 
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:9.4.0
-    container_name: docker_filebeat_1
-    user: root
-    volumes:
-      - ${PWD}/docker/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/log/journal:/var/log/journal:ro
-      - /run/log/journal:/run/log/journal:ro
-      - /etc/machine-id:/etc/machine-id:ro
-    command: ["filebeat", "-e", "--strict.perms=false"]
-    depends_on:
-      - logstash
-    networks:
-      - appnet
+  #     if [ -f "/dashboards/dashboards.ndjson" ]; then
+  #       curl -X POST http://kibana:5601/api/saved_objects/_import \
+  #         -H "kbn-xsrf: true" \
+  #         --form file=@/dashboards/dashboards.ndjson \
+  #         -u elastic:${ELASTIC_PASSWORD};
+  #     fi
+  #     '
+
+  # logstash:
+  #   container_name: logstash
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/src/logstash/Dockerfile
+  #   image: custom-logstash:latest
+  #   restart: unless-stopped
+  #   networks:
+  #     - appnet
+  #   environment:
+  #       - LS_JAVA_OPTS=-Xms1g -Xmx1g -Dio.netty.allocator.maxOrder=12
+  #       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #       - LOGSTASH_LOG_LEVEL=error
+  #       # - LOGSTASH_LOGS=/usr/share/logstash/logs/
+  #       # - LOGSTASH_LOG=/usr/share/logstash/logs/logstash.log
+  #       - xpack.monitoring.enabled=false
+  #   ports:
+  #     - "5044:5044"
+  #     - "9600:9600"
+  #   volumes:
+  #     - ./src/logstash/logs:/usr/share/logstash/logs  # Your custom logs only
+  #     - ./src/logstash/config:/usr/share/logstash/config:ro  # Config files (read-only)
+  #     - ./src/logstash/config/pipeline:/usr/share/logstash/pipeline:ro  # Pipeline files (read-only)
+  #     - esdata:/usr/share/logstash/data  # Data volume
+  #     # - ./src/logstash/logs:/usr/share/logstash/logs
+  #     # - esdata:/usr/share/logstash/data
+  #     # - ./src/logstash/config:/usr/share/logstash/config
+  #     # - ./src/logstash/config/pipeline:/usr/share/logstash/pipeline
+  #   depends_on:
+  #     - elasticsearch
+
+  # filebeat:
+  #   image: docker.elastic.co/beats/filebeat:9.4.0
+  #   container_name: docker_filebeat_1
+  #   user: root
+  #   volumes:
+  #     - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+  #     - ./sample-logs:/sample-logs:ro
+  #     - /var/log/journal:/var/log/journal:ro
+  #     - /run/log/journal:/run/log/journal:ro
+  #     - /etc/machine-id:/etc/machine-id:ro
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   command: ["filebeat", "-e", "--strict.perms=false"]
+  #   depends_on:
+  #     - logstash
+  #   networks:
+  #     - appnet
 
   grafana:
     container_name: grafana
@@ -203,7 +232,7 @@ volumes:
   prometheus_data:
   esdata:
   kibana:
-  # certs:
+  certs:
   # shared:
 
 networks:

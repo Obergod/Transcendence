@@ -1,6 +1,14 @@
 filebeat.inputs:
   - type: journald
     id: podman-journal
+  - type: filestream
+    id: app-log
+    paths:
+      - /sample-logs/app.log
 
 output.logstash:
   hosts: ["logstash:5044"]
+
+
+# ssl.enabled: true
+# ssl.certificate_authorities: ["/etc/pki/ca.crt"]
