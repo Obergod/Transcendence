@@ -1,8 +1,8 @@
 package main
 
 import (
-    "log"
-    "os"
+	"log"
+	"os"
 
     "transcendance/internal/auth"
     "transcendance/internal/db"
@@ -10,17 +10,17 @@ import (
     "transcendance/internal/social"
     "transcendance/internal/ws"
 
-    "github.com/gin-contrib/cors"
-    "github.com/gin-gonic/gin"
-    //"go.mongodb.org/mongo-driver/v2/x/mongo/driver/auth"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	//"go.mongodb.org/mongo-driver/v2/x/mongo/driver/auth"
 )
 
 func main() {
-    // Initialisation de la base de données
-    db, err := db.ConnectToPostgreSQL()
-    if err != nil {
-        log.Fatal(err)
-    }
+	// Initialisation de la base de données
+	db, err := db.ConnectToPostgreSQL()
+	if err != nil {
+		log.Fatal(err)
+	}
 
     // CORRECTION 1 : On ajoute Friendship et DirectMessage à la création !
     err = db.AutoMigrate(&models.User{}, &models.Friendship{}, &models.DirectMessage{})
@@ -28,21 +28,22 @@ func main() {
         log.Fatal(err)
     }
 
-    os.MkdirAll("uploads/avatars", os.ModePerm)
-    // Lancement des websockets
-    hub := ws.NewHub(db)
-    go hub.Run()
+	os.MkdirAll("uploads/avatars", os.ModePerm)
+	// Lancement des websockets
+	hub := ws.NewHub(db)
+	go hub.Run()
 
-    // Configuration de Gin
-    r := gin.Default()
+	// Configuration de Gin
+	r := gin.Default()
+
 	corsConfig := cors.DefaultConfig()
     corsConfig.AllowAllOrigins = true // Permet à Vite d'y accéder
     corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
     corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 
-    r.Use(cors.New(corsConfig))
+	r.Use(cors.New(corsConfig))
 
-    r.Static("/uploads", "./uploads")
+	r.Static("/uploads", "./uploads")
 
     // --- ROUTES PUBLIQUES ---
     r.POST("/api/signup", auth.SignupHandler(db))
@@ -66,7 +67,7 @@ func main() {
         protected.GET("/user/me", auth.GetMeHandler(db))
     }
 
-    //r.Static("/", "./frontend/dist")
+	//r.Static("/", "./frontend/dist")
 
     log.Println("Serveur sur http://localhost:8081")
     log.Fatal(r.Run(":8081"))

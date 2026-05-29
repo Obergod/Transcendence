@@ -13,7 +13,8 @@ interface UserContextType {
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
-  isReady: boolean; // Pour éviter les clignotements d'écran pendant la vérification
+  isReady: boolean;
+  ws: WebSocket | null; //socket global
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -21,8 +22,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [ws, setWs] = useState<WebSocket | null>(null);
 
-  // VÉRIFICATION AUTOMATIQUE AU DÉMARRAGE
   useEffect(() => {
     const checkToken = async () => {
       const token = localStorage.getItem('jwt_token');
@@ -33,30 +34,60 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           });
           if (response.ok) {
             const userData = await response.json();
-            setUser(userData); // On restaure l'utilisateur !
+            setUser(userData);
           } else {
-            localStorage.removeItem('jwt_token'); // Le token est expiré ou faux
+            localStorage.removeItem('jwt_token');
           }
         } catch (error) {
           console.error("Erreur de restauration de session", error);
         }
       }
-      setIsReady(true); // L'application peut s'afficher
+      setIsReady(true);
     };
-
     checkToken();
   }, []);
 
-  const login = (userData: User) => setUser(userData);
-  const logout = () => setUser(null);
+  // gestion du websoket
+  useEffect(() => {
+    let socket: WebSocket | null = null;
 
-  // On n'affiche rien tant qu'on ne sait pas si l'utilisateur est connecté ou non
+    if (user) {
+      const token = localStorage.getItem('jwt_token');
+      socket = new WebSocket(`ws://localhost:8081/ws?token=${token}`);
+
+      socket.onopen = () => {
+        console.log("🟢 WebSocket Connecté !");
+      };
+
+      socket.onclose = () => {
+        console.log("🔴 WebSocket Déconnecté !");
+      };
+
+      setWs(socket);
+    }
+
+    // nettoyage
+    return () => {
+      if (socket) {
+        socket.close();
+        setWs(null);
+      }
+    };
+  }, [user]);
+
+  const login = (userData: User) => setUser(userData);
+
+  const logout = () => {
+    setUser(null);
+    if (ws) ws.close();
+  };
+
   if (!isReady) {
-    return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Chargement...</div>;
+    return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white font-bold">Chargement du profil...</div>;
   }
 
   return (
-    <UserContext.Provider value={{ user, login, logout, isReady }}>
+    <UserContext.Provider value={{ user, login, logout, isReady, ws }}>
       {children}
     </UserContext.Provider>
   );

@@ -58,6 +58,7 @@ function App() {
           <Route path="/play" element={<Lobby />} />
           <Route path="/game" element={<Game />} />
           <Route path="/history" element={<MatchHistory />} />
+		  <Route path="/chat/:friendId/:friendName" element={<Chat />} />
           <Route path="/chat/:friendName" element={<Chat />} />
         </Routes>
 

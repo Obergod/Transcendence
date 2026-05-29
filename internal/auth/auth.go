@@ -164,7 +164,6 @@ func SigninHandler(db *gorm.DB) gin.HandlerFunc {
 
 func UpdateProfileHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 1. On récupère l'ID validé par notre "videur" JWT
 		userIDInterface, exists := c.Get("userID")
 		if !exists {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur interne du serveur"})
@@ -172,32 +171,42 @@ func UpdateProfileHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 		userID := userIDInterface.(uint)
 
-		// 2. On lit les nouvelles données envoyées par React
-		var req UpdateProfileRequest
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+		// 1. On ne lit plus du JSON, on lit un FormData
+		username := c.PostForm("username")
+		email := c.PostForm("email")
 
-		// 3. On récupère l'utilisateur en base de données
 		user, err := models.GetUserByID(db, userID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Utilisateur introuvable"})
 			return
 		}
 
-		// 4. On met à jour les champs
-		user.Username = req.Username
-		user.Email = req.Email
-		user.AvatarURL = req.AvatarURL
+		user.Username = username
+		user.Email = email
 
-		// 5. On sauvegarde en BDD
+		// 2. Gestion de l'upload de l'image (si fournie)
+		file, err := c.FormFile("avatar")
+		if err == nil { // S'il n'y a pas d'erreur, c'est qu'un fichier a été envoyé
+			// On sécurise le nom du fichier pour éviter les écrasements
+			filename := fmt.Sprintf("avatar_%d_%s", user.ID, file.Filename)
+			savePath := "uploads/avatars/" + filename
+
+			// Sauvegarde physique sur le serveur
+			if err := c.SaveUploadedFile(file, savePath); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible de sauvegarder l'image"})
+				return
+			}
+
+			// On met à jour l'URL pour pointer vers la route statique de Gin
+			user.AvatarURL = "http://localhost:8081/" + savePath
+		}
+
+		// 3. On sauvegarde en BDD
 		if err := models.UpdateUser(db, user); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible de mettre à jour le profil (pseudo ou email peut-être déjà pris ?)"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible de mettre à jour le profil (pseudo ou email déjà pris ?)"})
 			return
 		}
 
-		// 6. On renvoie le profil mis à jour au Frontend
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Profil mis à jour avec succès",
 			"user": gin.H{
