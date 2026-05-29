@@ -20,13 +20,13 @@ CLEAR = \033[2K\r
 
 SRCS=docker/docker-compose.yml
 
-all: build up clean
+all: up clean # TODO add "build" again at the beginning
 
 # --- For Dockers ---
 
 bootstrap:
 	./docker/start_elastic.sh
-up: bootstrap
+up: # TODO add "bootstrap" 
 	@docker compose -f ${SRCS} up -d
 
 build:
