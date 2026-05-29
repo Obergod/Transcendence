@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUser } from '../context/UserContext';
 
 const Chat = () => {
-  // On récupère l'ID et le nom depuis l'URL
   const { friendId, friendName } = useParams();
   const { user, ws } = useUser();
   const { t } = useTranslation();
@@ -12,16 +11,18 @@ const Chat = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [currentInput, setCurrentInput] = useState("");
 
-  // Écoute des messages en provenance de Go
+  // NOUVEAU : État pour afficher l'alerte de spam
+  const [isSpamming, setIsSpamming] = useState(false);
+  // NOUVEAU : Référence pour stocker l'heure du dernier envoi sans re-render le composant
+  const lastMessageTime = useRef<number>(0);
+
   useEffect(() => {
     if (!ws) return;
 
-    // On définit ce qu'il se passe quand un message arrive
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
 
-        // On vérifie que c'est un message de chat et qu'il correspond à la conversation actuelle
         if (data.type === "chat") {
           const isRelevant =
             (data.sender_id === user?.id && data.target_id === Number(friendId)) ||
@@ -35,26 +36,36 @@ const Chat = () => {
         console.error("Erreur lecture message WS", err);
       }
     };
-
-    // Note : Pour l'historique complet, il faudra créer une route Go "GET /api/chat/history/:friendId"
-    // et faire un fetch() ici au chargement du composant !
-
   }, [ws, user, friendId]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (currentInput.trim() === "" || !ws) return;
 
-    // On prépare le colis pour le Hub Go
+    if (currentInput.trim() === "" || currentInput.length > 300 || !ws) return;
+
+    const now = Date.now();
+    const cooldownMs = 1000; // 1 sec
+
+    if (now - lastMessageTime.current < cooldownMs) {
+      setIsSpamming(true);
+      // Fait disparaître le message d'erreur après 1.5s
+      setTimeout(() => setIsSpamming(false), 1500);
+      return;
+    }
+    // ------------------------------------
+
     const payload = {
       type: "chat",
       target_id: Number(friendId),
       content: currentInput
     };
 
-    // On envoie au serveur !
     ws.send(JSON.stringify(payload));
+
+    // Réinitialisation après envoi
     setCurrentInput("");
+    setIsSpamming(false);
+    lastMessageTime.current = now; // On met à jour l'heure du dernier message
   };
 
   return (
@@ -104,21 +115,45 @@ const Chat = () => {
 
         {/* Input */}
         <div className="bg-[#1a2035] p-4 border-t border-gray-700">
-          <form onSubmit={handleSendMessage} className="flex gap-3">
-            <input
-              type="text"
-              value={currentInput}
-              onChange={(e) => setCurrentInput(e.target.value)}
-              placeholder={`Écrire à ${friendName}...`}
-              className="flex-1 bg-[#0a0d17] border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
-            />
-            <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+          <form onSubmit={handleSendMessage} className="flex gap-3 items-start">
+            <div className="flex-1 flex flex-col">
+              <input
+                type="text"
+                maxLength={300}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                placeholder={`Écrire à ${friendName}...`}
+                className={`w-full bg-[#0a0d17] border rounded-xl px-4 py-3 text-white focus:outline-none transition-colors ${
+                  isSpamming ? 'border-orange-500 bg-orange-900/20' : 'border-gray-600 focus:border-red-500'
+                }`}
+              />
+
+              {/* Zone d'infos sous l'input : Alerte de spam + Compteur */}
+              <div className="flex justify-between items-center mt-1 px-1">
+                <div className="text-orange-500 text-xs font-bold h-4">
+                  {isSpamming ? "Doucement ! Tu envoies des messages trop vite." : ""}
+                </div>
+                <div className={`text-right text-xs font-bold ${currentInput.length >= 300 ? 'text-red-500' : 'text-gray-500'}`}>
+                  {currentInput.length}/300
+                </div>
+              </div>
+
+            </div>
+            <button
+              type="submit"
+              disabled={isSpamming}
+              className={`font-black uppercase tracking-widest px-8 py-3 h-[50px] rounded-xl transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)] ${
+                isSpamming
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed shadow-none'
+                  : 'bg-red-600 hover:bg-red-700 text-white'
+              }`}
+            >
               Envoyer
             </button>
           </form>
         </div>
 
-      </div>
+      </div> {/* <-- C'est cette balise qui manquait ! */}
     </main>
   );
 };
