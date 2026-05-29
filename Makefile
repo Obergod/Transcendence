@@ -23,7 +23,7 @@ SRCS=docker/docker-compose.yml
 all: build up
 
 # --- For Dockers ---
-up: setup_goinfre
+up:
 	@docker compose -f ${SRCS} up -d
 
 build:

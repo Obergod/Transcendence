@@ -29,7 +29,7 @@
 
 # CMD ["./transcendance"]
 
-FROM docker.io/library/golang:1.25 AS backend-builder
+FROM golang:1.25 AS builder
 
 WORKDIR /app
 
