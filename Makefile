@@ -30,7 +30,7 @@ setup_goinfre:
 	@printf "$(CYAN)Verifying local Goinfre configuration for Podman...$(RESET)\n"
 	@mkdir -p $(GOINFRE_DIR)/containers
 	@mkdir -p $(HOME)/.config/containers
-	@printf "[storage]\ndriver = \"overlay\"\ngraphroot = \"$(GOINFRE_DIR)/containers\"\n\n[storage.options.overlay]\nignore_chown_errors = \"true\"\n" > $(HOME)/.config/containers/storage.conf
+	@printf "[storage]\ndriver = \"overlay\"\ngraphroot .= \"$(GOINFRE_DIR)/containers\"\n\n[storage.options.overlay]\nignore_chown_errors = \"true\"\n" > $(HOME)/.config/containers/storage.conf
 	@podman system migrate 2>/dev/null || true
 
 # --- For Dockers ---

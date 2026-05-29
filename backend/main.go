@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"transcendance/internal/auth"
 	"transcendance/internal/db"
@@ -27,6 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	os.MkdirAll("uploads/avatars", os.ModePerm)
 	// Lancement des websockets
 	hub := ws.NewHub(db)
 	go hub.Run()
@@ -40,6 +42,8 @@ func main() {
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 
 	r.Use(cors.New(corsConfig))
+
+	r.Static("/uploads", "./uploads")
 
 	// --- ROUTES PUBLIQUES ---
 	r.POST("/api/signup", auth.SignupHandler(db))

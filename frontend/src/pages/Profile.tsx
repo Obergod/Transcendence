@@ -10,6 +10,9 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const [pseudo, setPseudo] = useState(user?.pseudo || "");
   const [email, setEmail] = useState(user?.email || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
+
+  // NOUVEAU : État pour le fichier physique de l'image
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
   // États pour le social
@@ -22,23 +25,40 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
-  // --- LOGIQUE PROFIL ---
+  // --- LOGIQUE PROFIL MODIFIÉE POUR L'UPLOAD ---
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
     const token = localStorage.getItem('jwt_token');
 
+    // On prépare notre colis multipart
+    const formData = new FormData();
+    formData.append("username", pseudo);
+    formData.append("email", email);
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
+    }
+
     try {
       const response = await fetch("http://localhost:8081/api/user/update", {
         method: "PUT",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ username: pseudo, email, avatarUrl }),
+        headers: {
+          "Authorization": `Bearer ${token}`
+          // ATTENTION : On supprime volontairement le Content-Type ici
+        },
+        body: formData, // On envoie le FormData
       });
       const data = await response.json();
 
       if (response.ok) {
         setMessage({ text: "Profil mis à jour !", type: 'success' });
-        login({ ...user!, pseudo: data.user.username, email: data.user.email, avatarUrl });
+
+        // On met à jour l'URL affichée avec celle renvoyée par le serveur
+        setAvatarUrl(data.user.avatarUrl);
+        login({ ...user!, pseudo: data.user.username, email: data.user.email, avatarUrl: data.user.avatarUrl });
+
+        // On vide le fichier en attente
+        setAvatarFile(null);
       } else {
         setMessage({ text: data.error || "Erreur de mise à jour", type: 'error' });
       }
@@ -119,10 +139,13 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const pendingRequests = friendships.filter(f => f.Status === 'pending' && f.FriendID === user.id);
   const acceptedFriends = friendships.filter(f => f.Status === 'accepted');
 
+  // Déterminer l'image à afficher (Aperçu du fichier s'il y en a un, sinon l'URL actuelle)
+  const displayAvatar = avatarFile ? URL.createObjectURL(avatarFile) : avatarUrl;
+
   return (
     <div className="min-h-screen pt-32 pb-12 px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
 
-      {/* COLONNE GAUCHE : MON PROFIL (Code existant) */}
+      {/* COLONNE GAUCHE : MON PROFIL */}
       <div className="bg-[#0f1423] border border-gray-700 p-8 rounded-2xl shadow-2xl h-fit">
         <h2 className="text-3xl font-black text-white mb-8 text-center uppercase tracking-widest">Mon Profil</h2>
 
@@ -133,7 +156,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         )}
 
         <div className="flex justify-center mb-8">
-          <img src={avatarUrl} alt="Avatar" className="w-32 h-32 rounded-full object-cover border-4 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
+          <img src={displayAvatar} alt="Avatar" className="w-32 h-32 rounded-full object-cover border-4 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
         </div>
 
         <form onSubmit={handleUpdate} className="space-y-6">
@@ -145,21 +168,28 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Email</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors" />
           </div>
+
+          {/* NOUVEAU : Champ pour uploader un fichier */}
           <div>
-            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">URL de l'Avatar</label>
-            <input type="text" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors" />
+            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Photo de profil</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+              className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-gray-700 file:text-white hover:file:bg-gray-600 cursor-pointer"
+            />
           </div>
+
           <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl mt-4 uppercase tracking-widest shadow-lg">Sauvegarder</button>
         </form>
 
         <button onClick={handleLogout} className="w-full mt-6 bg-red-950/50 border border-red-500 hover:bg-red-600 text-red-400 hover:text-white font-bold py-3 rounded-xl transition-colors">Se déconnecter</button>
       </div>
 
-      {/* COLONNE DROITE : SOCIAL & AMIS */}
+      {/* COLONNE DROITE : SOCIAL & AMIS (Code inchangé) */}
       <div className="bg-[#0f1423] border border-gray-700 p-8 rounded-2xl shadow-2xl h-fit flex flex-col gap-8">
         <h2 className="text-3xl font-black text-white text-center uppercase tracking-widest">Social</h2>
 
-        {/* Formulaire d'ajout */}
         <form onSubmit={sendFriendRequest} className="flex flex-col gap-2">
           <label className="text-gray-400 text-xs font-bold uppercase">Ajouter un joueur</label>
           <div className="flex gap-2">
@@ -178,7 +208,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
         <hr className="border-gray-700" />
 
-        {/* Demandes reçues en attente */}
         {pendingRequests.length > 0 && (
           <div>
             <h3 className="text-xl font-bold text-yellow-500 mb-4">Demandes reçues</h3>
@@ -199,7 +228,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
           </div>
         )}
 
-        {/* Liste d'amis */}
         <div>
           <h3 className="text-xl font-bold text-white mb-4">Mes Amis</h3>
           {acceptedFriends.length === 0 ? (
@@ -207,7 +235,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
           ) : (
             <div className="space-y-3">
               {acceptedFriends.map(f => {
-                // Déterminer qui est l'ami dans la relation (soit l'expéditeur, soit le destinataire)
                 const isSender = f.UserID === user.id;
                 const friendData = isSender ? f.Friend : f.User;
 
@@ -216,7 +243,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
                     <div className="flex items-center gap-4">
                       <div className="relative">
                         <img src={friendData.AvatarURL} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-gray-600" />
-                        {/* Bulle de statut statique en attendant les WebSockets */}
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-500 border-2 border-[#1a2035] rounded-full"></span>
                       </div>
                       <span className="font-bold text-lg">{friendData.Username}</span>
