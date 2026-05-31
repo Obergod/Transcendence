@@ -4,6 +4,7 @@ import (
 	//"fmt"
 	"log"
 	"net/http"
+	// "crypto/tls"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -44,6 +45,7 @@ func main() {
 
 	log.Println("Serveur sur http://localhost:8081")
 	// log.Fatal(http.ListenAndServe(":8081", metrics.TrackRequests(mux)))
-	log.Fatal(http.ListenAndServe(":8081", handler))
-		// log.Fatal(http.ListenAndServeTLS(":8081", "cert.pem", "key.pem", handler))
+	// log.Fatal(http.ListenAndServe(":8081", handler))
+
+	log.Fatal(http.ListenAndServeTLS(":8081", "/app/ssl/localhost+2.pem", "/app/ssl/localhost+2-key.pem", handler))
 }

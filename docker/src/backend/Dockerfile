@@ -40,6 +40,21 @@ FROM golang:1.25 AS backend-builder
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y openssl curl ca-certificates && \
+    curl -LO https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-linux-amd64 && \
+    mv mkcert-v1.4.4-linux-amd64 mkcert && \
+    chmod +x mkcert && \
+    mv mkcert /usr/local/bin/mkcert && \
+    mkcert -install
+
+# Generate certs first (they will be created in /app)
+RUN mkcert localhost 127.0.0.1 ::1
+
+# Copy certs into ssl/ directory (AFTER generation)
+RUN mkdir -p /app/ssl && \
+    cp /app/localhost+2.pem /app/ssl/localhost+2.pem && \
+    cp /app/localhost+2-key.pem /app/ssl/localhost+2-key.pem
+
 COPY backend ./backend
 COPY internal ./internal
 COPY game ./game

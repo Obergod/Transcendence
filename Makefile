@@ -66,6 +66,7 @@ fclean: stop down clean
 
 death: fclean
 	@rm -rf docker/.env docker/.secrets .env .secrets docker/backups docker/certs docker/src/nginx/logs
-	@docker system prune --volume -af
+	@docker system prune -af
+	@docker volume prune -f
 
 re: fclean all
