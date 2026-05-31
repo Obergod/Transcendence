@@ -1,33 +1,33 @@
 services:
-  # database:
-  #   image: postgres:14
-  #   networks:
-  #     - appnet
-  #   container_name: postgres
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   restart: on-failure
-  #   environment:
-  #     POSTGRES_PASSWORD: goodPassword123
-  #     POSTGRES_USER: admin
-  #     POSTGRES_DB: myapp
-  #   ports:
-  #     - "5432:5432"
+  database:
+    image: postgres:14
+    networks:
+      - appnet
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: on-failure
+    environment:
+      POSTGRES_PASSWORD: goodPassword123
+      POSTGRES_USER: admin
+      POSTGRES_DB: myapp
+    ports:
+      - "5432:5432"
 
-  # backend:
-  #   image: backend-builder:latest
-  #   build:
-  #     context: ..
-  #     dockerfile: docker/src/backend/Dockerfile
-  #   container_name: backend
-  #   ports:
-  #     - "8081:8081"
-  #   depends_on:
-  #     - database
-  #   networks:
-  #     - appnet
-  #   environment:
-  #     DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
+  backend:
+    image: backend-builder:latest
+    build:
+      context: ..
+      dockerfile: docker/src/backend/Dockerfile
+    container_name: backend
+    ports:
+      - "8081:8081"
+    depends_on:
+      - database
+    networks:
+      - appnet
+    environment:
+      DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
 
   # frontend:
   #   build:
@@ -52,7 +52,8 @@ services:
       - "9090:9090"
     volumes:
       - prometheus_data:/prometheus
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./src/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./src/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
 
   node-exporter:
     container_name: node-exporter
@@ -62,14 +63,15 @@ services:
     networks:
       - appnet
 
-  # postgres-exporter:
-  #   image: prometheuscommunity/postgres-exporter
-  #   environment:
-  #     DATA_SOURCE_NAME: "postgresql://admin:goodPassword123@postgres:5432/myapp?sslmode=disable"
-  #   ports:
-  #     - "9187:9187"
-  #   networks:
-  #     - appnet
+  postgres-exporter:
+    container_name: postgres-exporter
+    image: prometheuscommunity/postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://admin:goodPassword123@postgres:5432/myapp?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - appnet
 
   # elasticsearch:
   #   container_name: elasticsearch
@@ -216,6 +218,9 @@ services:
     image: grafana/grafana
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./src/grafana/dashboard.yml:/etc/grafana/provisioning/datasources/prometheus.yml
+      - ./src/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./src/grafana/alerting/alers.yml:/etc/grafana/provisioning/alerting
     restart: on-failure
     networks:
       - appnet
@@ -224,6 +229,8 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: secret
       GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_PROMETHEUS_PROXY_ENABLED: "true"
+      GF_PROMETHEUS_URL: http://prometheus:9090
     ports:
       - "3000:3000"
 
