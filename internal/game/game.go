@@ -14,14 +14,17 @@ import (
 )
 
 type Game struct {
-    world   *world.World
-    localID string
+    world   	*world.World
+    localID 	string
+	isGameover	bool
+	//need to add score
 }
 
 func NewGame(w *world.World, ID string) *Game {
     return &Game{
         world:   w,
         localID: ID,
+		isGameover: false,
     }
 }
 
@@ -51,7 +54,10 @@ func (g *Game) MovePlayer() error {
     }
 
     if !localPlayer.IsAlive {
-        return nil
+		// !!! STP Matti implemet dans le ts du game un popup
+		// js.Global().Call("onGameover")
+		Reset(g)
+      //  return nil
     }
 
     var moveX, moveY fixed.Int26_6
