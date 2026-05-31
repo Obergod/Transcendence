@@ -45,4 +45,5 @@ func main() {
 	log.Println("Serveur sur http://localhost:8081")
 	// log.Fatal(http.ListenAndServe(":8081", metrics.TrackRequests(mux)))
 	log.Fatal(http.ListenAndServe(":8081", handler))
+		// log.Fatal(http.ListenAndServeTLS(":8081", "cert.pem", "key.pem", handler))
 }

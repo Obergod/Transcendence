@@ -20,13 +20,14 @@ CLEAR = \033[2K\r
 
 SRCS=docker/docker-compose.yml
 
-all: up clean # TODO add "build" again at the beginning
+all: build up clean # TODO clean has been deleted from all launch, check if it is needed 
 
 # --- For Dockers ---
 
 bootstrap:
 	./docker/start_elastic.sh
-up: # TODO add "bootstrap" 
+
+up: bootstrap
 	@docker compose -f ${SRCS} up -d
 
 build:
@@ -35,44 +36,36 @@ build:
 launch_core:
 	@docker compose -f ${SRCS} up -d database backend frontend
 
-core: build launch_core
-
-down:
-	@docker compose -f ${SRCS} down
+core: build launch_core clean
 
 start:
 	@docker compose -f ${SRCS} start
 
-stop:
+stop_ng:
+	@docker compose -f ${SRCS} kill nginx
+
+stop: stop_ng
 	@docker compose -f ${SRCS} stop
+
+down:
+	@docker compose -f ${SRCS} down
 
 ps:
 	@docker compose -f ${SRCS} ps
 
 # --- Nettoyage ---
+
 clean:
-# 	@printf "$(YELLOW)Cleaning Go cache...$(RESET)"
-# 	@$(GOCLEAN) -cache
-	@yes | docker system prune -a
+	@docker image rm backend-builder docker_frontend custom-logstash -f
+# 	docker image prune -af
 
-# 	@printf "$(CLEAR)$(GREEN)✓ Go cache cleaned$(RESET)\n"
-
-fclean: clean
-	@printf "$(YELLOW)Deleting $(NAME)...$(RESET)"
-	@rm -f $(NAME)
-	@printf "$(CLEAR)$(GREEN)✓ $(NAME) deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting WASM files...$(RESET)"
-	@rm -f $(WASM_OUT) $(WASM_DIR)/wasm_exec.js
-	@printf "$(CLEAR)$(GREEN)✓ WASM files deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting go.mod and go.sum...$(RESET)"
-	@rm -f go.mod go.sum
-	@printf "$(CLEAR)$(GREEN)✓ go.mod and go.sum deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting frontend/dist and frontend/node_modules...$(RESET)"
-	@rm -rf $(FRONTEND_DIR)/dist $(FRONTEND_DIR)/node_modules
-	@printf "$(CLEAR)$(GREEN)✓ frontend/dist and node_modules deleted$(RESET)\n"
-	@rm -rf docker/.env docker/.secrets .env .secrets
-	@ docker system prune -af
-	@ docker image prune -af
+fclean: stop down clean
+	@docker container prune -f
+# 	@ docker image prune -af
 # 	@ docker compose -f ${SRCS} down --rmi 'all'
+
+death: fclean
+	@rm -rf docker/.env docker/.secrets .env .secrets docker/backups docker/certs docker/src/nginx/logs
+	@docker system prune --volume -af
 
 re: fclean all

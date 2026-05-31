@@ -17,3 +17,22 @@ export default defineConfig({
     }
   }
 })
+
+// export default defineConfig({
+//   plugins: [react(), tailwindcss()],
+//   server: {
+//     port: 5173,
+//     https: {
+//       key: '/etc/nginx/ssl/key.pem',
+//       cert: '/etc/nginx/ssl/cert.pem',
+//     },
+//     proxy: {
+//       '/api': {
+//         target: 'https://backend:8081',
+//         changeOrigin: true,
+//         secure: false,
+//         // rewrite: (path) => path.replace(/^\/api/, '') // Décommente si ton backend n'a pas le préfixe /api dans ses routes
+//       }
+//     }
+//   }
+// })
