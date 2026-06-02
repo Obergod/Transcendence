@@ -2,6 +2,7 @@ package game
 
 import (
     "image/color"
+	"syscall/js"
 
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/vector"
@@ -17,7 +18,7 @@ type Game struct {
     world   	*world.World
     localID 	string
 	isGameover	bool
-	//need to add score
+	ticks		int //compteur de tick
 }
 
 func NewGame(w *world.World, ID string) *Game {
@@ -25,6 +26,7 @@ func NewGame(w *world.World, ID string) *Game {
         world:   w,
         localID: ID,
 		isGameover: false,
+		ticks: 0,
     }
 }
 
@@ -54,10 +56,22 @@ func (g *Game) MovePlayer() error {
     }
 
     if !localPlayer.IsAlive {
-		// !!! STP Matti implemet dans le ts du game un popup
-		// js.Global().Call("onGameover")
-		Reset(g)
-      //  return nil
+        // verifie qu'on na pas deja envoyer le signal pour eviter de spammer react
+        if !g.isGameover {
+            g.isGameover = true
+
+			durationInSeconds := g.ticks / 60 // 1 tick par frame et ebit tourne a 60/sec donc on redivise par 60
+
+            if js.Global().Get("onGameover").Type() == js.TypeFunction {
+                js.Global().Call("onGameover", durationInSeconds)
+            }
+        }
+        return nil
+    } else {
+        if g.isGameover {
+			g.ticks = 0
+		}
+        g.isGameover = false
     }
 
     var moveX, moveY fixed.Int26_6
@@ -285,6 +299,9 @@ func (g *Game) RemoveDeadEnemies() {
 }
 
 func (g *Game) Update() error {
+	if !g.isGameover {
+		g.ticks++ // +1 a chaque frame et apres on fait /60 (moins compliquer faites pas chier)
+	}
     g.MovePlayer()
     g.MoveEnemies()
     g.HandleEnemyShooting()

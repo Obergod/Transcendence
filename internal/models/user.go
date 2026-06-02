@@ -11,7 +11,6 @@ type Friendship struct {
 	FriendID	uint		`gorm:"index"`
 	Status		string		`gorm:"type:varchar(20);default:'pending'"`
 
-	// Utilisation de la syntaxe complète et stricte pour GORM :
 	User		*User		`gorm:"foreignKey:UserID;references:ID"`
 	Friend		*User		`gorm:"foreignKey:FriendID;references:ID"`
 
@@ -33,6 +32,15 @@ type User struct {
 	Email	 string `gorm:"unique"`
 	PasswordHash string `gorm:"not null"`
 	AvatarURL	string
+}
+
+type Match struct {
+	ID			uint	`gorm:"primaryKey"`
+	UserID		uint	`gorm:"index"`
+	Duration	int		`gorm:"not null"` //temps de survie
+	CreatedAt time.Time
+	
+	User	*User	`gorm:"foreignKey:UserID;references:ID"`
 }
 
 func CreateUser(db *gorm.DB, user *User) (error) {

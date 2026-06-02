@@ -16,28 +16,28 @@ import (
 )
 
 func main() {
-	// Initialisation de la base de données
+	// initialisation de la base de données
 	db, err := db.ConnectToPostgreSQL()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-    // CORRECTION 1 : On ajoute Friendship et DirectMessage à la création !
-    err = db.AutoMigrate(&models.User{}, &models.Friendship{}, &models.DirectMessage{})
+    // on ajoute Friendship et DirectMessage à la création !
+	err = db.AutoMigrate(&models.User{}, &models.Friendship{}, &models.DirectMessage{}, &models.Match{})
     if err != nil {
         log.Fatal(err)
     }
 
 	os.MkdirAll("uploads/avatars", os.ModePerm)
-	// Lancement des websockets
+	// lancement des websockets
 	hub := ws.NewHub(db)
 	go hub.Run()
 
-	// Configuration de Gin
+	// configuration de Gin
 	r := gin.Default()
 
 	corsConfig := cors.DefaultConfig()
-    corsConfig.AllowAllOrigins = true // Permet à Vite d'y accéder
+    corsConfig.AllowAllOrigins = true // permet à Vite d'y accéder
     corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
     corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 
@@ -65,6 +65,9 @@ func main() {
         protected.PUT("/friends/respond", social.RespondFriendRequestHandler(db))
         protected.GET("/friends/list", social.ListFriendsHandler(db))
         protected.GET("/user/me", auth.GetMeHandler(db))
+		protected.POST("/match/save", social.SaveMatchHandler(db))
+		protected.GET("/match/history", social.MyHistoryHandler(db))
+		protected.GET("/match/leaderboard", social.LeaderboardHandler(db))
     }
 
 	//r.Static("/", "./frontend/dist")
