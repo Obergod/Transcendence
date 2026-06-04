@@ -1,35 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // <-- NOUVEL IMPORT
 
 const Profile = ({ onLogout }: { onLogout: () => void }) => {
-  // AJOUT : onlineUsers pour les pastilles de présence
   const { user, login, logout, onlineUsers = [] } = useUser() as any;
   const navigate = useNavigate();
+  const { t } = useTranslation(); // <-- INITIALISATION
 
-  // États pour le profil
   const [pseudo, setPseudo] = useState(user?.pseudo || "");
   const [email, setEmail] = useState(user?.email || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
-
-  // NOUVEAU : État pour le fichier physique de l'image
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
-
-  // NOUVEAU : État pour les stats du joueur
   const [stats, setStats] = useState({ best_score: 0, best_duration: 0, total_duration: 0 });
-
-  // États pour le social
   const [friendships, setFriendships] = useState<any[]>([]);
   const [targetUsername, setTargetUsername] = useState("");
   const [socialMsg, setSocialMsg] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
-  // Redirection sécurité
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
-  // NOUVEAU : Charger les stats depuis le serveur
   useEffect(() => {
     const fetchStats = async () => {
       const token = localStorage.getItem('jwt_token');
@@ -42,14 +34,11 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
           const data = await res.json();
           setStats(data);
         }
-      } catch (err) {
-        console.error("Erreur chargement stats", err);
-      }
+      } catch (err) {}
     };
     if (user) fetchStats();
   }, [user]);
 
-  // Fonction pour formater le temps
   const formatStatsTime = (seconds: number) => {
     if (seconds === 0) return "0s";
     const h = Math.floor(seconds / 3600);
@@ -60,26 +49,22 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     return `${s}s`;
   };
 
-  // Valider image pfp
   const validateImage = (file: File): Promise<string | null> => {
     return new Promise((resolve) => {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        resolve("Format non autorisé. Utilise JPG, PNG, GIF ou WEBP.");
+        resolve("Format non autorisé.");
         return;
       }
-
-      const maxSizeBytes = 2 * 1024 * 1024;
-      if (file.size > maxSizeBytes) {
+      if (file.size > 2 * 1024 * 1024) {
         resolve("Image trop lourde. Maximum 2 MB.");
         return;
       }
-
       const img = new Image();
       img.onload = () => {
         URL.revokeObjectURL(img.src);
         if (img.width > 2000 || img.height > 2000) {
-          resolve(`Image trop grande (${img.width}x${img.height}). Maximum 2000x2000 pixels.`);
+          resolve("Image trop grande. Maximum 2000x2000.");
         } else {
           resolve(null);
         }
@@ -89,7 +74,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     });
   };
 
-  // --- LOGIQUE PROFIL MODIFIÉE POUR L'UPLOAD ---
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
@@ -98,16 +82,12 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     const formData = new FormData();
     formData.append("username", pseudo);
     formData.append("email", email);
-    if (avatarFile) {
-      formData.append("avatar", avatarFile);
-    }
+    if (avatarFile) formData.append("avatar", avatarFile);
 
     try {
       const response = await fetch("http://localhost:8081/api/user/update", {
         method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
+        headers: { "Authorization": `Bearer ${token}` },
         body: formData,
       });
       const data = await response.json();
@@ -132,20 +112,16 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     navigate('/');
   };
 
-  // --- LOGIQUE SOCIALE ---
   const fetchFriends = useCallback(async () => {
     const token = localStorage.getItem('jwt_token');
     if (!token) return;
-
     try {
       const response = await fetch("http://localhost:8081/api/friends/list", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await response.json();
       if (response.ok) setFriendships(data.data);
-    } catch (error) {
-      console.error("Erreur récupération amis", error);
-    }
+    } catch (error) {}
   }, []);
 
   useEffect(() => {
@@ -156,7 +132,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     e.preventDefault();
     setSocialMsg(null);
     const token = localStorage.getItem('jwt_token');
-
     try {
       const response = await fetch("http://localhost:8081/api/friends/request", {
         method: "POST",
@@ -164,7 +139,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         body: JSON.stringify({ username: targetUsername }),
       });
       const data = await response.json();
-
       if (response.ok) {
         setSocialMsg({ text: data.message, type: 'success' });
         setTargetUsername("");
@@ -186,9 +160,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         body: JSON.stringify({ friendship_id: friendshipId, action }),
       });
       fetchFriends();
-    } catch (error) {
-      console.error("Erreur lors de la réponse", error);
-    }
+    } catch (error) {}
   };
 
   if (!user) return null;
@@ -202,7 +174,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
       {/* COLONNE GAUCHE : MON PROFIL */}
       <div className="bg-[#0f1423] border border-gray-700 p-8 rounded-2xl shadow-2xl h-fit">
-        <h2 className="text-3xl font-black text-white mb-8 text-center uppercase tracking-widest">Mon Profil</h2>
+        <h2 className="text-3xl font-black text-white mb-8 text-center uppercase tracking-widest">{t('profile.my_profile')}</h2>
 
         {message && (
           <div className={`p-4 mb-6 rounded-xl text-center font-bold ${message.type === 'success' ? 'bg-green-900/50 text-green-400 border-green-500' : 'bg-red-900/50 text-red-400 border-red-500'} border`}>
@@ -210,18 +182,17 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
           </div>
         )}
 
-        {/* AJOUT : LE BLOC DES 3 STATISTIQUES GLOBALES */}
         <div className="grid grid-cols-3 gap-2 bg-[#1a2035] p-4 rounded-xl border border-gray-700 text-center mb-8 shadow-inner">
           <div>
-            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Meilleur Score</div>
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">{t('profile.best_score')}</div>
             <div className="text-lg font-black text-yellow-500 mt-1">{stats.best_score}</div>
           </div>
           <div>
-            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Meilleur Temps</div>
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">{t('profile.best_time')}</div>
             <div className="text-lg font-black text-green-400 mt-1">{formatStatsTime(stats.best_duration)}</div>
           </div>
           <div>
-            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Temps Total</div>
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">{t('profile.total_time')}</div>
             <div className="text-lg font-black text-blue-400 mt-1">{formatStatsTime(stats.total_duration)}</div>
           </div>
         </div>
@@ -232,7 +203,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
         <form onSubmit={handleUpdate} className="space-y-6">
           <div>
-            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Pseudo</label>
+            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">{t('profile.pseudo')}</label>
             <input
               type="text"
               maxLength={15}
@@ -242,7 +213,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Email</label>
+            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">{t('profile.email')}</label>
             <input
               type="email"
               maxLength={50}
@@ -253,7 +224,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
           </div>
 
           <div>
-            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Photo de profil</label>
+            <label className="block text-gray-400 text-xs font-bold uppercase mb-2">{t('profile.avatar')}</label>
             <input
               type="file"
               accept="image/*"
@@ -273,28 +244,28 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             />
           </div>
 
-          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl mt-4 uppercase tracking-widest shadow-lg">Sauvegarder</button>
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl mt-4 uppercase tracking-widest shadow-lg">{t('profile.save')}</button>
         </form>
 
-        <button onClick={handleLogout} className="w-full mt-6 bg-red-950/50 border border-red-500 hover:bg-red-600 text-red-400 hover:text-white font-bold py-3 rounded-xl transition-colors">Se déconnecter</button>
+        <button onClick={handleLogout} className="w-full mt-6 bg-red-950/50 border border-red-500 hover:bg-red-600 text-red-400 hover:text-white font-bold py-3 rounded-xl transition-colors">{t('profile.logout')}</button>
       </div>
 
       {/* COLONNE DROITE : SOCIAL & AMIS */}
       <div className="bg-[#0f1423] border border-gray-700 p-8 rounded-2xl shadow-2xl h-fit flex flex-col gap-8">
-        <h2 className="text-3xl font-black text-white text-center uppercase tracking-widest">Social</h2>
+        <h2 className="text-3xl font-black text-white text-center uppercase tracking-widest">{t('profile.social')}</h2>
 
         <form onSubmit={sendFriendRequest} className="flex flex-col gap-2">
-          <label className="text-gray-400 text-xs font-bold uppercase">Ajouter un joueur</label>
+          <label className="text-gray-400 text-xs font-bold uppercase">{t('profile.add_player')}</label>
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Pseudo de ton ami..."
+              placeholder={t('profile.friend_placeholder')}
               value={targetUsername}
               onChange={(e) => setTargetUsername(e.target.value)}
               className="flex-1 bg-[#1a2035] border border-gray-700 rounded-xl px-4 text-white focus:border-red-500 outline-none"
               required
             />
-            <button type="submit" className="bg-green-600 hover:bg-green-500 text-white font-bold px-6 py-3 rounded-xl transition-colors">Ajouter</button>
+            <button type="submit" className="bg-green-600 hover:bg-green-500 text-white font-bold px-6 py-3 rounded-xl transition-colors">{t('profile.add_btn')}</button>
           </div>
           {socialMsg && <span className={`text-sm ${socialMsg.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>{socialMsg.text}</span>}
         </form>
@@ -303,7 +274,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
         {pendingRequests.length > 0 && (
           <div>
-            <h3 className="text-xl font-bold text-yellow-500 mb-4">Demandes reçues</h3>
+            <h3 className="text-xl font-bold text-yellow-500 mb-4">{t('profile.pending_requests')}</h3>
             <div className="space-y-3">
               {pendingRequests.map(req => (
                 <div key={req.ID} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700">
@@ -322,16 +293,14 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         )}
 
         <div>
-          <h3 className="text-xl font-bold text-white mb-4">Mes Amis</h3>
+          <h3 className="text-xl font-bold text-white mb-4">{t('profile.my_friends')}</h3>
           {acceptedFriends.length === 0 ? (
-            <p className="text-gray-500 italic">Looseeeeeeeeeer...</p>
+            <p className="text-gray-500 italic">{t('profile.no_friends')}</p>
           ) : (
             <div className="space-y-3">
               {acceptedFriends.map(f => {
                 const isSender = f.UserID === user.id;
                 const friendData = isSender ? f.Friend : f.User;
-
-                // Pastille dynamique !
                 const isOnline = onlineUsers.includes(friendData.ID);
 
                 return (
@@ -347,7 +316,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
                       onClick={() => navigate(`/chat/${friendData.ID}/${friendData.Username}`)}
                       className="text-gray-400 hover:text-white px-4 py-2 bg-gray-800 hover:bg-red-600 transition-colors rounded-lg"
                     >
-                      💬 Chat
+                      {t('profile.chat_btn')}
                     </button>
                   </div>
                 )
