@@ -3,7 +3,7 @@ package game
 import (
     "fmt"
     "math"
-	
+
     "golang.org/x/image/math/fixed"
 
     "transcendance/internal/enemy"
@@ -43,4 +43,5 @@ func Reset(g *Game) {
 	g.world = w
 	g.localID = p.ID
 	g.isGameover = false
+	g.ticks = 0
 }

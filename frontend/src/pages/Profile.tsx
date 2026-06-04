@@ -3,7 +3,8 @@ import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = ({ onLogout }: { onLogout: () => void }) => {
-  const { user, login, logout } = useUser();
+  // AJOUT : onlineUsers pour les pastilles de présence
+  const { user, login, logout, onlineUsers = [] } = useUser() as any;
   const navigate = useNavigate();
 
   // États pour le profil
@@ -15,6 +16,9 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
+  // NOUVEAU : État pour les stats du joueur
+  const [stats, setStats] = useState({ best_score: 0, best_duration: 0, total_duration: 0 });
+
   // États pour le social
   const [friendships, setFriendships] = useState<any[]>([]);
   const [targetUsername, setTargetUsername] = useState("");
@@ -25,27 +29,55 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
+  // NOUVEAU : Charger les stats depuis le serveur
+  useEffect(() => {
+    const fetchStats = async () => {
+      const token = localStorage.getItem('jwt_token');
+      if (!token) return;
+      try {
+        const res = await fetch("http://localhost:8081/api/user/stats", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Erreur chargement stats", err);
+      }
+    };
+    if (user) fetchStats();
+  }, [user]);
+
+  // Fonction pour formater le temps
+  const formatStatsTime = (seconds: number) => {
+    if (seconds === 0) return "0s";
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}h ${m}m ${s}s`;
+    if (m > 0) return `${m}m ${s}s`;
+    return `${s}s`;
+  };
+
   // Valider image pfp
   const validateImage = (file: File): Promise<string | null> => {
     return new Promise((resolve) => {
-      // Verification du format (MIME type)
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        resolve("Format non autorise. Utilise JPG, PNG, GIF ou WEBP.");
+        resolve("Format non autorisé. Utilise JPG, PNG, GIF ou WEBP.");
         return;
       }
 
-      // Verification du poids (2 mb max)
       const maxSizeBytes = 2 * 1024 * 1024;
       if (file.size > maxSizeBytes) {
         resolve("Image trop lourde. Maximum 2 MB.");
         return;
       }
 
-      // Verification des dimensions (2000x2000 max)
       const img = new Image();
       img.onload = () => {
-        URL.revokeObjectURL(img.src); // liberer la memoire
+        URL.revokeObjectURL(img.src);
         if (img.width > 2000 || img.height > 2000) {
           resolve(`Image trop grande (${img.width}x${img.height}). Maximum 2000x2000 pixels.`);
         } else {
@@ -63,7 +95,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     setMessage(null);
     const token = localStorage.getItem('jwt_token');
 
-    // On prépare notre colis multipart
     const formData = new FormData();
     formData.append("username", pseudo);
     formData.append("email", email);
@@ -76,20 +107,15 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`
-          // ATTENTION : On supprime volontairement le Content-Type ici
         },
-        body: formData, // On envoie le FormData
+        body: formData,
       });
       const data = await response.json();
 
       if (response.ok) {
         setMessage({ text: "Profil mis à jour !", type: 'success' });
-
-        // On met à jour l'URL affichée avec celle renvoyée par le serveur
         setAvatarUrl(data.user.avatarUrl);
         login({ ...user!, pseudo: data.user.username, email: data.user.email, avatarUrl: data.user.avatarUrl });
-
-        // On vide le fichier en attente
         setAvatarFile(null);
       } else {
         setMessage({ text: data.error || "Erreur de mise à jour", type: 'error' });
@@ -142,7 +168,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
       if (response.ok) {
         setSocialMsg({ text: data.message, type: 'success' });
         setTargetUsername("");
-        fetchFriends(); // Rafraîchir la liste
+        fetchFriends();
       } else {
         setSocialMsg({ text: data.error, type: 'error' });
       }
@@ -159,7 +185,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ friendship_id: friendshipId, action }),
       });
-      fetchFriends(); // Rafraîchir l'UI
+      fetchFriends();
     } catch (error) {
       console.error("Erreur lors de la réponse", error);
     }
@@ -167,11 +193,8 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
   if (!user) return null;
 
-  // Filtrer les affichages
   const pendingRequests = friendships.filter(f => f.Status === 'pending' && f.FriendID === user.id);
   const acceptedFriends = friendships.filter(f => f.Status === 'accepted');
-
-  // Déterminer l'image à afficher (Aperçu du fichier s'il y en a un, sinon l'URL actuelle)
   const displayAvatar = avatarFile ? URL.createObjectURL(avatarFile) : avatarUrl;
 
   return (
@@ -187,6 +210,22 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
           </div>
         )}
 
+        {/* AJOUT : LE BLOC DES 3 STATISTIQUES GLOBALES */}
+        <div className="grid grid-cols-3 gap-2 bg-[#1a2035] p-4 rounded-xl border border-gray-700 text-center mb-8 shadow-inner">
+          <div>
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Meilleur Score</div>
+            <div className="text-lg font-black text-yellow-500 mt-1">{stats.best_score}</div>
+          </div>
+          <div>
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Meilleur Temps</div>
+            <div className="text-lg font-black text-green-400 mt-1">{formatStatsTime(stats.best_duration)}</div>
+          </div>
+          <div>
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Temps Total</div>
+            <div className="text-lg font-black text-blue-400 mt-1">{formatStatsTime(stats.total_duration)}</div>
+          </div>
+        </div>
+
         <div className="flex justify-center mb-8">
           <img src={displayAvatar} alt="Avatar" className="w-32 h-32 rounded-full object-cover border-4 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
         </div>
@@ -201,7 +240,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors" />
           </div>
 
-          {/* NOUVEAU : Champ pour uploader un fichier */}
           <div>
             <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Photo de profil</label>
             <input
@@ -229,7 +267,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         <button onClick={handleLogout} className="w-full mt-6 bg-red-950/50 border border-red-500 hover:bg-red-600 text-red-400 hover:text-white font-bold py-3 rounded-xl transition-colors">Se déconnecter</button>
       </div>
 
-      {/* COLONNE DROITE : SOCIAL & AMIS (Code inchangé) */}
+      {/* COLONNE DROITE : SOCIAL & AMIS */}
       <div className="bg-[#0f1423] border border-gray-700 p-8 rounded-2xl shadow-2xl h-fit flex flex-col gap-8">
         <h2 className="text-3xl font-black text-white text-center uppercase tracking-widest">Social</h2>
 
@@ -281,12 +319,15 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
                 const isSender = f.UserID === user.id;
                 const friendData = isSender ? f.Friend : f.User;
 
+                // Pastille dynamique !
+                const isOnline = onlineUsers.includes(friendData.ID);
+
                 return (
                   <div key={f.ID} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700 hover:border-gray-500 transition-colors cursor-pointer">
                     <div className="flex items-center gap-4">
                       <div className="relative">
                         <img src={friendData.AvatarURL} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-gray-600" />
-                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-500 border-2 border-[#1a2035] rounded-full"></span>
+                        <span className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-[#1a2035] rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></span>
                       </div>
                       <span className="font-bold text-lg">{friendData.Username}</span>
                     </div>

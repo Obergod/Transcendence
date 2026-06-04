@@ -11,8 +11,8 @@ const Game = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // 1. Branchement du signal de mort venant de Go
-    (window as any).onGameover = async (durationInSeconds: number) => {
+    // 1. Branchement du signal de mort venant de Go (Maintenant avec le SCORE !)
+    (window as any).onGameover = async (durationInSeconds: number, score: number) => {
       setIsGameOver(true);
 
       // On sauvegarde le score en BDD !
@@ -21,7 +21,7 @@ const Game = () => {
         await fetch("http://localhost:8081/api/match/save", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-          body: JSON.stringify({ duration: durationInSeconds }),
+          body: JSON.stringify({ duration: durationInSeconds, score: score }), // On envoie les 2 !
         });
       } catch (err) {
         console.error("Erreur de sauvegarde du score", err);
@@ -88,12 +88,12 @@ const Game = () => {
   return (
     <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-8 w-full">
 
-      {/* HEADER DU JEU */}
+      {/* HEADER DU JEU (Avec les IDs pour que Go puisse injecter le texte en temps réel) */}
       <div className="flex justify-between items-end w-full max-w-4xl mb-4 px-4">
-        <h2 className="text-3xl font-black text-red-500 tracking-widest uppercase">
-            {t('game.in_progress')}
+        <h2 id="game-timer" className="text-3xl font-black text-red-500 tracking-widest uppercase">
+            TEMPS: 00:00
         </h2>
-        <div className="text-gray-400 font-mono text-xl">Score: 00000</div>
+        <div id="game-score" className="text-gray-400 font-mono text-xl">SCORE: 00000</div>
       </div>
 
       {/* CONTENEUR DU JEU */}
