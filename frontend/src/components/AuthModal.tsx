@@ -101,6 +101,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
                 <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Pseudo</label>
                 <input
                   type="text"
+                  maxLength={15}
                   value={pseudo}
                   onChange={(e) => setPseudo(e.target.value)}
                   className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
@@ -115,6 +116,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
               </label>
               <input
                 type="text"
+                maxLength={30}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
@@ -126,6 +128,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
               <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Mot de passe</label>
               <input
                 type="password"
+                maxLength={30}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white tracking-widest focus:outline-none focus:border-red-500 transition-colors"
@@ -138,6 +141,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
                 <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Confirmer le mot de passe</label>
                 <input
                   type="password"
+                  maxLength={30}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white tracking-widest focus:outline-none focus:border-red-500 transition-colors"

@@ -233,11 +233,23 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         <form onSubmit={handleUpdate} className="space-y-6">
           <div>
             <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Pseudo</label>
-            <input type="text" value={pseudo} onChange={(e) => setPseudo(e.target.value)} className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors" />
+            <input
+              type="text"
+              maxLength={15}
+              value={pseudo}
+              onChange={(e) => setPseudo(e.target.value)}
+              className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors"
+            />
           </div>
           <div>
             <label className="block text-gray-400 text-xs font-bold uppercase mb-2">Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors" />
+            <input
+              type="email"
+              maxLength={50}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors"
+            />
           </div>
 
           <div>

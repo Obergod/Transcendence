@@ -1,27 +1,28 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom'; // <-- AJOUT DE useLocation
 import { useTranslation } from 'react-i18next';
 
 const Game = () => {
   const [isGameLoaded, setIsGameLoaded] = useState(false);
-  const [isGameOver, setIsGameOver] = useState(false); // État du popup
+  const [isGameOver, setIsGameOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { t } = useTranslation();
 
+  // NOUVEAU : On récupère le mode choisi dans le Lobby (1 ou 2 joueurs). Par défaut 1.
+  const location = useLocation();
+  const gameMode = location.state?.mode || 1;
+
   useEffect(() => {
-    // 1. Branchement du signal de mort venant de Go (Maintenant avec le SCORE !)
     (window as any).onGameover = async (durationInSeconds: number, score: number) => {
       setIsGameOver(true);
-
-      // On sauvegarde le score en BDD !
       const token = localStorage.getItem('jwt_token');
       try {
         await fetch("http://localhost:8081/api/match/save", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-          body: JSON.stringify({ duration: durationInSeconds, score: score }), // On envoie les 2 !
+          body: JSON.stringify({ duration: durationInSeconds, score: score }),
         });
       } catch (err) {
         console.error("Erreur de sauvegarde du score", err);
@@ -34,6 +35,10 @@ const Game = () => {
       if (!document.querySelector('#game-container')) return;
 
       const go = new (window as any).Go();
+
+      // LA MAGIE EST ICI : On passe la variable à Go juste avant de le lancer !
+      (window as any).gameMode = gameMode;
+
       WebAssembly.instantiateStreaming(fetch('/main.wasm'), go.importObject)
         .then((result) => {
           setIsGameLoaded(true);
@@ -61,7 +66,6 @@ const Game = () => {
         });
     };
 
-    // FIX DU CHARGEMENT INFINI
     if ((window as any).Go) {
         initWasm();
     } else {
@@ -76,12 +80,12 @@ const Game = () => {
       document.querySelectorAll('canvas').forEach(c => c.remove());
       delete (window as any).onGameover;
     };
-  }, [t]);
+  }, [t, gameMode]); // <-- Ajout de gameMode dans les dépendances
 
   const handleRetry = () => {
     setIsGameOver(false);
     if ((window as any).restartGame) {
-        (window as any).restartGame(); // Appel de la fonction Go
+        (window as any).restartGame();
     }
   };
 
