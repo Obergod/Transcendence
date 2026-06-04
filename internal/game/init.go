@@ -3,7 +3,7 @@ package game
 import (
     "fmt"
     "math"
-	
+
     "golang.org/x/image/math/fixed"
 
     "transcendance/internal/enemy"
@@ -11,17 +11,18 @@ import (
     "transcendance/internal/world"
 )
 
-func InitGame() (*world.World, *player.Player) {
-    // --- Initialisation du monde ---
+func InitGame(mode int) (*world.World, *player.Player) {
     w := world.NewWorld()
 
-    // Joueur local
+    // joueur 1
     initialPlayer := player.NewPlayer(fixed.I(400), fixed.I(300), 100, "local")
     w.AddPlayer(initialPlayer.ID, initialPlayer)
 
-    // Second joueur (autre)
-    extraPlayer := player.NewPlayer(fixed.I(600), fixed.I(600), 100, "extra")
-    w.AddPlayer(extraPlayer.ID, extraPlayer)
+    // jia add un if tout con si on appuie bien sur 2 joueur
+    if mode == 2 {
+        extraPlayer := player.NewPlayer(fixed.I(450), fixed.I(300), 100, "extra")
+        w.AddPlayer(extraPlayer.ID, extraPlayer)
+    }
 
     centerX, centerY := 400, 300
     radius := 250.0
@@ -37,10 +38,11 @@ func InitGame() (*world.World, *player.Player) {
 	return w, initialPlayer
 }
 
-func Reset(g *Game) {
-	w, p := InitGame()
+func Reset(g *Game, mode int) {
+	w, p := InitGame(mode)
 
 	g.world = w
 	g.localID = p.ID
 	g.isGameover = false
+	g.ticks = 0
 }

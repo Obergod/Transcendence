@@ -1,27 +1,28 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom'; // <-- AJOUT DE useLocation
 import { useTranslation } from 'react-i18next';
 
 const Game = () => {
   const [isGameLoaded, setIsGameLoaded] = useState(false);
-  const [isGameOver, setIsGameOver] = useState(false); // État du popup
+  const [isGameOver, setIsGameOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { t } = useTranslation();
 
-  useEffect(() => {
-    // 1. Branchement du signal de mort venant de Go
-    (window as any).onGameover = async (durationInSeconds: number) => {
-      setIsGameOver(true);
+  // NOUVEAU : On récupère le mode choisi dans le Lobby (1 ou 2 joueurs). Par défaut 1.
+  const location = useLocation();
+  const gameMode = location.state?.mode || 1;
 
-      // On sauvegarde le score en BDD !
+  useEffect(() => {
+    (window as any).onGameover = async (durationInSeconds: number, score: number) => {
+      setIsGameOver(true);
       const token = localStorage.getItem('jwt_token');
       try {
         await fetch("http://localhost:8081/api/match/save", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-          body: JSON.stringify({ duration: durationInSeconds }),
+          body: JSON.stringify({ duration: durationInSeconds, score: score }),
         });
       } catch (err) {
         console.error("Erreur de sauvegarde du score", err);
@@ -34,6 +35,10 @@ const Game = () => {
       if (!document.querySelector('#game-container')) return;
 
       const go = new (window as any).Go();
+
+      // LA MAGIE EST ICI : On passe la variable à Go juste avant de le lancer !
+      (window as any).gameMode = gameMode;
+
       WebAssembly.instantiateStreaming(fetch('/main.wasm'), go.importObject)
         .then((result) => {
           setIsGameLoaded(true);
@@ -61,7 +66,6 @@ const Game = () => {
         });
     };
 
-    // FIX DU CHARGEMENT INFINI
     if ((window as any).Go) {
         initWasm();
     } else {
@@ -76,24 +80,24 @@ const Game = () => {
       document.querySelectorAll('canvas').forEach(c => c.remove());
       delete (window as any).onGameover;
     };
-  }, [t]);
+  }, [t, gameMode]); // <-- Ajout de gameMode dans les dépendances
 
   const handleRetry = () => {
     setIsGameOver(false);
     if ((window as any).restartGame) {
-        (window as any).restartGame(); // Appel de la fonction Go
+        (window as any).restartGame();
     }
   };
 
   return (
     <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-8 w-full">
 
-      {/* HEADER DU JEU */}
+      {/* HEADER DU JEU (Avec les IDs pour que Go puisse injecter le texte en temps réel) */}
       <div className="flex justify-between items-end w-full max-w-4xl mb-4 px-4">
-        <h2 className="text-3xl font-black text-red-500 tracking-widest uppercase">
-            {t('game.in_progress')}
+        <h2 id="game-timer" className="text-3xl font-black text-red-500 tracking-widest uppercase">
+            TEMPS: 00:00
         </h2>
-        <div className="text-gray-400 font-mono text-xl">Score: 00000</div>
+        <div id="game-score" className="text-gray-400 font-mono text-xl">SCORE: 00000</div>
       </div>
 
       {/* CONTENEUR DU JEU */}

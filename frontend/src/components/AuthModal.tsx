@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useUser } from '../context/UserContext';
+import { useTranslation } from 'react-i18next'; // <-- NOUVEL IMPORT
 
 interface AuthModalProps {
   onClose: () => void;
@@ -8,6 +9,8 @@ interface AuthModalProps {
 
 const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
   const { login } = useUser();
+  const { t } = useTranslation(); // <-- INITIALISATION
+
   const [isSignUp, setIsSignUp] = useState(true);
   const [pseudo, setPseudo] = useState("");
   const [email, setEmail] = useState("");
@@ -20,7 +23,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
     setErrorMsg(null);
 
     if (isSignUp && password !== confirmPassword) {
-      setErrorMsg("Les mots de passe ne correspondent pas.");
+      setErrorMsg(t('auth.error_password_mismatch'));
       return;
     }
 
@@ -64,7 +67,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
           setErrorMsg("Erreur: Données utilisateur manquantes dans la réponse.");
         }
       } else {
-        setErrorMsg(data.message || data.error || "Identifiants incorrects");
+        setErrorMsg(data.message || data.error || t('auth.error_login'));
       }
 
     } catch (error) {
@@ -85,7 +88,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
 
         <div className="p-8 pb-6">
           <h2 className="text-3xl font-black text-center text-white mb-6 uppercase tracking-widest leading-tight">
-            {isSignUp ? "Rejoindre la survie" : "Connexion"}
+            {isSignUp ? t('auth.register_title') : t('auth.login_title')}
           </h2>
 
           {errorMsg && (
@@ -95,12 +98,12 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {isSignUp && (
               <div>
-                <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Pseudo</label>
+                <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">{t('auth.pseudo')}</label>
                 <input
                   type="text"
+                  maxLength={15}
                   value={pseudo}
                   onChange={(e) => setPseudo(e.target.value)}
                   className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
@@ -111,10 +114,11 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
 
             <div>
               <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
-                {isSignUp ? "Email" : "Pseudo ou Email"}
+                {isSignUp ? t('auth.email') : t('auth.pseudo_or_email')}
               </label>
               <input
                 type="text"
+                maxLength={50}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
@@ -123,9 +127,10 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
             </div>
 
             <div>
-              <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Mot de passe</label>
+              <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">{t('auth.password')}</label>
               <input
                 type="password"
+                maxLength={30}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white tracking-widest focus:outline-none focus:border-red-500 transition-colors"
@@ -135,9 +140,10 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
 
             {isSignUp && (
               <div>
-                <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Confirmer le mot de passe</label>
+                <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">{t('auth.confirm_password')}</label>
                 <input
                   type="password"
+                  maxLength={30}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white tracking-widest focus:outline-none focus:border-red-500 transition-colors"
@@ -147,19 +153,19 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
             )}
 
             <button type="submit" className="w-full bg-[#e60000] hover:bg-red-700 text-white font-black py-4 rounded-xl mt-4 transition-colors uppercase tracking-widest shadow-[0_0_15px_rgba(220,38,38,0.3)]">
-              {isSignUp ? "Créer mon compte" : "Se connecter"}
+              {isSignUp ? t('auth.submit_register') : t('auth.login_btn')}
             </button>
           </form>
 
           <div className="flex items-center my-6">
             <div className="flex-1 border-t border-gray-700"></div>
-            <span className="px-4 text-gray-500 text-xs font-bold">OU</span>
+            <span className="px-4 text-gray-500 text-xs font-bold">{t('auth.or')}</span>
             <div className="flex-1 border-t border-gray-700"></div>
           </div>
 
           <button type="button" className="w-full bg-white text-black font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
-            Continuer avec Google
+            {t('auth.google')}
           </button>
 
         </div>
@@ -172,7 +178,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
             }}
             className="text-gray-400 hover:text-white font-bold text-sm transition-colors"
           >
-            {isSignUp ? "J'ai déjà un compte" : "Je n'ai pas encore de compte"}
+            {isSignUp ? t('auth.already_account') : t('auth.no_account')}
           </button>
         </div>
 

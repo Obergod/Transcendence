@@ -3,6 +3,7 @@ package game
 import (
     "image/color"
 	"syscall/js"
+	"fmt"
 
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/vector"
@@ -55,15 +56,16 @@ func (g *Game) MovePlayer() error {
         return nil
     }
 
-    if !localPlayer.IsAlive {
-        // verifie qu'on na pas deja envoyer le signal pour eviter de spammer react
+	if !localPlayer.IsAlive {
         if !g.isGameover {
             g.isGameover = true
 
-			durationInSeconds := g.ticks / 60 // 1 tick par frame et ebit tourne a 60/sec donc on redivise par 60
+            durationInSeconds := g.ticks / 60
+            score := g.ticks // Le score final est égal au nombre de ticks survécus
 
             if js.Global().Get("onGameover").Type() == js.TypeFunction {
-                js.Global().Call("onGameover", durationInSeconds)
+                // CORRECTION : On envoie les deux arguments à React !
+                js.Global().Call("onGameover", durationInSeconds, score)
             }
         }
         return nil
@@ -300,7 +302,28 @@ func (g *Game) RemoveDeadEnemies() {
 
 func (g *Game) Update() error {
 	if !g.isGameover {
-		g.ticks++ // +1 a chaque frame et apres on fait /60 (moins compliquer faites pas chier)
+		g.ticks++
+
+		// INJECTION EN TEMPS RÉEL DANS LE DOM DE REACT
+		if g.ticks%6 == 0 {
+			jsDoc := js.Global().Get("document")
+			if jsDoc.Type() != js.TypeUndefined {
+				// 1. Mise à jour du Timer
+				timerEl := jsDoc.Call("getElementById", "game-timer")
+				if timerEl.Type() != js.TypeNull {
+					seconds := g.ticks / 60
+					minutes := seconds / 60
+					secRemainder := seconds % 60
+					timerEl.Set("innerText", fmt.Sprintf("TEMPS: %02d:%02d", minutes, secRemainder))
+				}
+
+				// 2. Mise à jour du Score (accumulateur de ticks)
+				scoreEl := jsDoc.Call("getElementById", "game-score")
+				if scoreEl.Type() != js.TypeNull {
+					scoreEl.Set("innerText", fmt.Sprintf("SCORE: %05d", g.ticks))
+				}
+			}
+		}
 	}
     g.MovePlayer()
     g.MoveEnemies()
