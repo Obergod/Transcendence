@@ -186,18 +186,49 @@ func UpdateProfileHandler(db *gorm.DB) gin.HandlerFunc {
 
 		// 2. Gestion de l'upload de l'image (si fournie)
 		file, err := c.FormFile("avatar")
-		if err == nil { // S'il n'y a pas d'erreur, c'est qu'un fichier a été envoyé
-			// On sécurise le nom du fichier pour éviter les écrasements
+		if err == nil {
+			// Verification du poids (2 MB max)
+			const maxSize = 2 * 1024 * 1024
+			if file.Size > maxSize {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Image trop lourde (max 2MB)"})
+				return
+			}
+
+			// Verification du MIME type reel
+			src, err := file.Open()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible de lire le fichier"})
+				return
+			}
+			defer src.Close()
+
+			// lire les 512 premiers octets
+			buffer := make([]byte, 512)
+			_, err = src.Read(buffer)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible d'analyser le fichier"})
+				return
+			}
+
+			contentType := http.DetectContentType(buffer)
+			allowedTypes := map[string]bool{
+				"image/jpeg": true,
+				"image/png": true,
+				"image/gif": true,
+				"image/webp": true,
+			}
+			if !allowedTypes[contentType] {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Format non autorise (JPG, PNG, GIF, WEBP uniquement)"})
+				return
+			}
+
+			// sauvegarde
 			filename := fmt.Sprintf("avatar_%d_%s", user.ID, file.Filename)
 			savePath := "uploads/avatars/" + filename
-
-			// Sauvegarde physique sur le serveur
 			if err := c.SaveUploadedFile(file, savePath); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible de sauvegarder l'image"})
 				return
 			}
-
-			// On met à jour l'URL pour pointer vers la route statique de Gin
 			user.AvatarURL = "http://localhost:8081/" + savePath
 		}
 

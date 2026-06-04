@@ -25,6 +25,38 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
+  // Valider image pfp
+  const validateImage = (file: File): Promise<string | null> => {
+    return new Promise((resolve) => {
+      // Verification du format (MIME type)
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        resolve("Format non autorise. Utilise JPG, PNG, GIF ou WEBP.");
+        return;
+      }
+
+      // Verification du poids (2 mb max)
+      const maxSizeBytes = 2 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        resolve("Image trop lourde. Maximum 2 MB.");
+        return;
+      }
+
+      // Verification des dimensions (2000x2000 max)
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(img.src); // liberer la memoire
+        if (img.width > 2000 || img.height > 2000) {
+          resolve(`Image trop grande (${img.width}x${img.height}). Maximum 2000x2000 pixels.`);
+        } else {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve("Impossible de lire l'image.");
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   // --- LOGIQUE PROFIL MODIFIÉE POUR L'UPLOAD ---
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,7 +207,18 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+              onChange={async (e) =>{
+                const file = e.target.files?.[0] || null;
+                if (file) {
+                  const error = await validateImage(file);
+                  if (error) {
+                    setMessage({ text: error, type: 'error'});
+                    e.target.value = '';
+                    return;
+                  }
+                }
+                setAvatarFile(file);
+              }}
               className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-gray-700 file:text-white hover:file:bg-gray-600 cursor-pointer"
             />
           </div>
