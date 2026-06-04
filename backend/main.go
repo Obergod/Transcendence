@@ -68,6 +68,7 @@ func main() {
 		protected.POST("/match/save", social.SaveMatchHandler(db))
 		protected.GET("/match/history", social.MyHistoryHandler(db))
 		protected.GET("/match/leaderboard", social.LeaderboardHandler(db))
+        protected.GET("/chat/history/:friendId", social.GetHistoryHandler(db))
     }
 
 	//r.Static("/", "./frontend/dist")

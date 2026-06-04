@@ -16,6 +16,30 @@ const Chat = () => {
   // NOUVEAU : Référence pour stocker l'heure du dernier envoi sans re-render le composant
   const lastMessageTime = useRef<number>(0);
 
+  const [friendAvatar, setFriendAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (!friendId) return;
+      const token = localStorage.getItem('jwt_token');
+      try {
+        const res = await fetch(`http://localhost:8081/api/chat/history/${friendId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setMessages(data.data || []);
+          if (data.friend?.avatarUrl) {
+            setFriendAvatar(data.friend.avatarUrl);
+          }
+        }
+      } catch (err) {
+        console.error("Erreur chargement historique", err);
+      }
+    };
+    fetchHistory();
+  }, [friendId]);
+
   useEffect(() => {
     if (!ws) return;
 
@@ -76,8 +100,12 @@ const Chat = () => {
         <div className="bg-[#1a2035] p-4 border-b border-gray-700 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center font-bold text-gray-400">
-                 {friendName?.charAt(0).toUpperCase()}
+              <div className="w-10 h-10 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center font-bold text-gray-400">
+                 {friendAvatar ? (
+                  <img src={friendAvatar} alt={friendName} className="w-full h-full object-cover" />
+                 ) : (
+                  friendName?.charAt(0).toUpperCase()
+                 )}
               </div>
               <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1a2035] bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
             </div>

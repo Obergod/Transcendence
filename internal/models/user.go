@@ -39,7 +39,7 @@ type Match struct {
 	UserID		uint	`gorm:"index"`
 	Duration	int		`gorm:"not null"` //temps de survie
 	CreatedAt time.Time
-	
+
 	User	*User	`gorm:"foreignKey:UserID;references:ID"`
 }
 
@@ -101,4 +101,13 @@ func DeleteUser(db *gorm.DB, user *User) error {
 		return result.Error
 	}
 	return nil
+}
+
+func GetConversation(db *gorm.DB, userA, userB uint) ([]DirectMessage, error) {
+	var messages []DirectMessage
+	err := db.Where(
+		"(sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)",
+		userA, userB, userB, userA,
+	).Order("created_at asc").Find(&messages).Error
+	return messages, err
 }
