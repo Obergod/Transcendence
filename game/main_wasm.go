@@ -1,9 +1,7 @@
 package main
 
 import (
-    "encoding/json"
     "log"
-    "net/http"
 	"syscall/js"
 
     "github.com/hajimehoshi/ebiten/v2"
@@ -12,34 +10,20 @@ import (
 )
 
 func main() {
-    // Appel HTTP exemple (backend)
-    resp, err := http.Get("/api/hello")
-    if err != nil {
-        log.Println("Erreur HTTP:", err)
-    } else {
-        defer resp.Body.Close()
-        var result map[string]string
-        if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-            log.Println("Erreur décodage JSON:", err)
-        } else {
-            log.Printf("Réponse backend: %v", result)
-        }
-    }
-
 	// initialaze all variables for a game instance
-	gameMode := js.Global().Get("gameMode").Int()
-	if gameMode == 0 {
-		gameMode = 1
+	nbPlayer := js.Global().Get("gameMode").Int()
+	if nbPlayer == 0 {
+		nbPlayer  = 1
 	}
 
-	w, initialPlayer := game.InitGame(gameMode)
+	w, IDs := game.InitGame(nbPlayer)
 
-	gameInstance := game.NewGame(w, initialPlayer.ID)
+	gameInstance := game.NewGame(w, IDs, nbPlayer)
 
 	// mode vite fait le reset pour que quand on retry ca nous garde dans le bon mode
 	js.Global().Set("restartGame", js.FuncOf(func(this js.Value, args []js.Value) any {
 		if gameInstance != nil {
-			game.Reset(gameInstance, gameMode)
+			game.Reset(gameInstance)
 		}
 		return nil
 	}))

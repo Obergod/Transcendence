@@ -11,18 +11,21 @@ import (
     "transcendance/internal/world"
 )
 
-func InitGame(mode int) (*world.World, *player.Player) {
+func InitGame(nbPlayer int) (*world.World, []string) {
     w := world.NewWorld()
+	var localIDs []string
 
     // joueur 1
-    initialPlayer := player.NewPlayer(fixed.I(400), fixed.I(300), 100, "local")
-    w.AddPlayer(initialPlayer.ID, initialPlayer)
+    p1 := player.NewPlayer(fixed.I(400), fixed.I(300), 100, "p1")
+    w.AddPlayer(p1.ID, p1)
+	localIDs = append(localIDs, p1.ID)
 
     // jia add un if tout con si on appuie bien sur 2 joueur
-    if mode == 2 {
-        extraPlayer := player.NewPlayer(fixed.I(450), fixed.I(300), 100, "extra")
-        w.AddPlayer(extraPlayer.ID, extraPlayer)
-    }
+    if nbPlayer == 2 {
+		p2 := player.NewPlayer(fixed.I(450), fixed.I(300), 100, "p2")
+        w.AddPlayer(p2.ID, p2)
+		localIDs = append(localIDs, p2.ID)
+	}
 
     centerX, centerY := 400, 300
     radius := 250.0
@@ -35,14 +38,15 @@ func InitGame(mode int) (*world.World, *player.Player) {
         s := fmt.Sprintf("enemy_%d", i)
         w.AddEnemy(s, enemy.NewRanged(fixed.I(x), fixed.I(y), s))
     }
-	return w, initialPlayer
+	return w, localIDs
 }
 
-func Reset(g *Game, mode int) {
-	w, p := InitGame(mode)
+func Reset(g *Game) {
+	w, IDs := InitGame(g.nbPlayer)
 
 	g.world = w
-	g.localID = p.ID
+	g.localIDs = IDs 
 	g.isGameover = false
 	g.ticks = 0
+
 }

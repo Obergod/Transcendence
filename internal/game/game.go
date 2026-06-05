@@ -17,21 +17,23 @@ import (
 
 type Game struct {
     world   	*world.World
-    localID 	string
+    localIDs 	[]string
 	isGameover	bool
 	ticks		int //compteur de tick
+	nbPlayer	int
 }
 
-func NewGame(w *world.World, ID string) *Game {
+func NewGame(w *world.World, IDs []string, nb int) *Game {
     return &Game{
         world:   w,
-        localID: ID,
+        localIDs: IDs,
 		isGameover: false,
 		ticks: 0,
+		nbPlayer: nb,
     }
 }
 
-func (g *Game) MovePlayer() error {
+func	KeyPressp1() (fixed.Int26_6, fixed.Int26_6) {
     dx := fixed.Int26_6(0)
     dy := fixed.Int26_6(0)
 
@@ -47,33 +49,45 @@ func (g *Game) MovePlayer() error {
     if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
         dx = 1
     }
+	return dx, dy
+}
 
+func	KeyPressp2() (fixed.Int26_6, fixed.Int26_6) {
+    dx := fixed.Int26_6(0)
+    dy := fixed.Int26_6(0)
+
+    if ebiten.IsKeyPressed(ebiten.KeyW) {
+        dy = -1
+    }
+    if ebiten.IsKeyPressed(ebiten.KeyS) {
+        dy = 1
+    }
+    if ebiten.IsKeyPressed(ebiten.KeyA) {
+        dx = -1
+    }
+    if ebiten.IsKeyPressed(ebiten.KeyD) {
+        dx = 1
+    }
+	return dx, dy
+}
+
+func (g *Game) MovePlayer(id string) error {
     g.world.Lock()
     defer g.world.Unlock()
 
-    localPlayer, exists := g.world.Players[g.localID]
+	var dx, dy fixed.Int26_6
+	switch id {
+	case "p1": 
+		dx, dy = KeyPressp1()
+	case "p2": 
+		dx, dy = KeyPressp2()
+	}
+
+    localPlayer, exists := g.world.Players[id]
     if !exists {
         return nil
     }
 
-	if !localPlayer.IsAlive {
-        if !g.isGameover {
-            g.isGameover = true
-
-            durationInSeconds := g.ticks / 60
-            score := g.ticks // Le score final est égal au nombre de ticks survécus
-
-            if js.Global().Get("onGameover").Type() == js.TypeFunction {
-                js.Global().Call("onGameover", durationInSeconds, score)
-            }
-        }
-        return nil
-    } else {
-        if g.isGameover {
-			g.ticks = 0
-		}
-        g.isGameover = false
-    }
 
     var moveX, moveY fixed.Int26_6
     if dx != 0 && dy != 0 {
@@ -105,6 +119,29 @@ func (g *Game) MovePlayer() error {
         localPlayer.Hitbox.Y = maxY
     }
     return nil
+}
+
+func (g *Game) CheckPlayersAlive() {
+	playersdead := 0 
+	for _, id := range g.localIDs {
+		Player, exists := g.world.Players[id]
+		if !exists {
+			continue
+		}
+		if !Player.IsAlive {
+			playersdead++
+		}
+	}
+	if playersdead == g.nbPlayer && !g.isGameover {
+		g.isGameover = true
+
+		durationInSeconds := g.ticks / 60
+		score := g.ticks // Le score final est égal au nombre de ticks survécus
+
+		if js.Global().Get("onGameover").Type() == js.TypeFunction {
+			js.Global().Call("onGameover", durationInSeconds, score)
+		}
+	}
 }
 
 func (g *Game) MoveEnemies() {
@@ -299,7 +336,7 @@ func (g *Game) RemoveDeadEnemies() {
     }
 }
 
-func (g *Game) Update() error {
+func (g *Game) UpdateScoreTimer() {
 	if !g.isGameover {
 		g.ticks++
 
@@ -324,7 +361,15 @@ func (g *Game) Update() error {
 			}
 		}
 	}
-    g.MovePlayer()
+
+}
+
+func (g *Game) Update() error {
+	g.CheckPlayersAlive()
+	g.UpdateScoreTimer()
+	for _, id := range g.localIDs {
+    	g.MovePlayer(id)
+	}
     g.MoveEnemies()
     g.HandleEnemyShooting()
     g.UpdateBullets()
@@ -358,7 +403,7 @@ func (g *Game) DrawPlayers(screen *ebiten.Image) {
         var col color.Color
         if !p.IsAlive {
             col = color.RGBA{255, 255, 255, 255}
-        } else if id == g.localID {
+        } else if id == "p1" {
             col = color.RGBA{0, 255, 0, 255}
         } else {
             col = color.RGBA{0, 0, 255, 255}
