@@ -1,11 +1,11 @@
 {
   "nav": {
-    "home": "Главная"
+    "home": "Главная",
+    "login": "Авторизоваться"
   },
   "settings": {
     "title": "Настройки",
-    "music_volume": "Громкость музыки",
-    "sfx_volume": "Громкость эффектов"
+    "language": "Язык"
   },
   "home": {
     "title_line1": "67",
@@ -32,8 +32,11 @@
     "error_password_short": "Пароль должен содержать не менее 6 символов.",
     "error_register": "Ошибка при регистрации.",
     "error_login": "Неверный адрес почты или пароль.",
-	"pseudo_or_email": "Имя пользователя или Email",
-    "login_btn": "Войти"
+    "pseudo_or_email": "Имя пользователя или Email",
+    "login_btn": "Войти",
+    "error_server_unexpected": "Неожиданная ошибка сервера: {{text}}",
+    "error_missing_user": "Ошибка: Данные пользователя отсутствуют в ответе.",
+    "error_server_unreachable": "Не удаётся связаться с сервером. Он запущен?"
   },
   "profile": {
     "my_profile": "МОЙ ПРОФИЛЬ",
@@ -52,7 +55,17 @@
     "pending_requests": "Входящие запросы",
     "my_friends": "Мои друзья",
     "no_friends": "Неудачник...",
-    "chat_btn": "💬 Чат"
+    "chat_btn": "💬 Чат",
+    "choose_file": "Выбрать файл",
+    "no_file_chosen": "Файл не выбран",
+    "error_format": "Недопустимый формат. Используйте JPG, PNG, GIF или WEBP.",
+    "error_size": "Изображение слишком большое. Максимум 2 МБ.",
+    "error_dimensions": "Изображение слишком большое ({{width}}x{{height}}). Максимум 2000x2000 пикселей.",
+    "error_read": "Невозможно прочитать изображение.",
+    "update_success": "Профиль обновлён!",
+    "error_update": "Ошибка обновления",
+    "error_server": "Ошибка сервера",
+    "error_network": "Ошибка сети"
   },
   "lobby": {
     "title": "ЗАЛ",
@@ -80,13 +93,27 @@
     "col_kills": "Убито монстров",
     "col_result": "Результат",
     "victory": "Победа",
-    "defeat": "Поражение"
+    "defeat": "Поражение",
+    "data_center_pre": "Центр",
+    "data_center_highlight": "данных",
+    "tab_history": "Моя История",
+    "tab_leaderboard": "Рейтинг Друзей",
+    "col_mission_date": "Дата миссии",
+    "col_time_survived": "Время выживания",
+    "no_missions": "Нет записанных миссий.",
+    "col_rank": "Ранг",
+    "col_player": "Игрок",
+    "col_record": "Рекорд выживания",
+    "no_scores": "Нет доступных результатов."
   },
   "chat": {
     "online": "В сети",
     "close": "Закрыть чат",
     "send": "Отправить",
-    "placeholder": "Написать сообщение {{name}}..."
+    "placeholder": "Написать сообщение {{name}}...",
+    "back_to_profile": "Назад к профилю",
+    "no_messages": "Нет сообщений. Начните разговор!",
+    "spam_warning": "Помедленнее! Вы отправляете сообщения слишком быстро."
   },
   "game": {
     "in_progress": "ВЫЖИВАНИЕ В ПРОЦЕССЕ...",
@@ -94,6 +121,15 @@
     "quit": "Покинуть игру",
     "error_prefix": "Ошибка:",
     "error_wasm": "Не удалось загрузить игру. Проверьте консоль.",
-    "error_script": "Не удалось загрузить wasm_exec.js"
+    "error_script": "Не удалось загрузить wasm_exec.js",
+    "over_title": "Провал миссии",
+    "over_subtitle": "Ваш персонаж пал",
+    "retry": "Повторить",
+    "abandon": "Покинуть",
+    "footer": "Система выживания v1.0",
+    "timer_init": "ВРЕМЯ: 00:00",
+    "score_init": "СЧЁТ: 00000",
+    "timer_label": "ВРЕМЯ",
+    "score_label": "СЧЁТ"
   }
 }

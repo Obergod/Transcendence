@@ -1,11 +1,11 @@
 {
   "nav": {
-    "home": "Home"
+    "home": "Home",
+    "login": "Login"
   },
   "settings": {
     "title": "Settings",
-    "music_volume": "Music Volume",
-    "sfx_volume": "SFX Volume"
+    "language": "Language"
   },
   "home": {
     "title_line1": "67",
@@ -32,8 +32,11 @@
     "error_password_short": "Password must be at least 6 characters.",
     "error_register": "Error during registration.",
     "error_login": "Incorrect email or password.",
-	"pseudo_or_email": "Username or Email",
-    "login_btn": "Log in"
+    "pseudo_or_email": "Username or Email",
+    "login_btn": "Log in",
+    "error_server_unexpected": "Unexpected server error: {{text}}",
+    "error_missing_user": "Error: Missing user data in response.",
+    "error_server_unreachable": "Cannot reach the server. Is it running?"
   },
   "profile": {
     "my_profile": "MY PROFILE",
@@ -52,7 +55,17 @@
     "pending_requests": "Pending requests",
     "my_friends": "My Friends",
     "no_friends": "Loooooooseeeer...",
-    "chat_btn": "💬 Chat"
+    "chat_btn": "💬 Chat",
+    "choose_file": "Choose a file",
+    "no_file_chosen": "No file chosen",
+    "error_format": "Invalid format. Use JPG, PNG, GIF or WEBP.",
+    "error_size": "Image too large. Maximum 2 MB.",
+    "error_dimensions": "Image too large ({{width}}x{{height}}). Maximum 2000x2000 pixels.",
+    "error_read": "Cannot read the image.",
+    "update_success": "Profile updated!",
+    "error_update": "Update error",
+    "error_server": "Server error",
+    "error_network": "Network error"
   },
   "lobby": {
     "title": "WAITING",
@@ -80,13 +93,27 @@
     "col_kills": "Monsters Killed",
     "col_result": "Result",
     "victory": "Victory",
-    "defeat": "Defeat"
+    "defeat": "Defeat",
+    "data_center_pre": "Data",
+    "data_center_highlight": "Center",
+    "tab_history": "My History",
+    "tab_leaderboard": "Friends Ranking",
+    "col_mission_date": "Mission Date",
+    "col_time_survived": "Time Survived",
+    "no_missions": "No missions recorded.",
+    "col_rank": "Rank",
+    "col_player": "Player",
+    "col_record": "Survival Record",
+    "no_scores": "No scores available."
   },
   "chat": {
     "online": "Online",
     "close": "Close chat",
     "send": "Send",
-    "placeholder": "Send a message to {{name}}..."
+    "placeholder": "Send a message to {{name}}...",
+    "back_to_profile": "Back to profile",
+    "no_messages": "No messages. Start the conversation!",
+    "spam_warning": "Slow down! You're sending messages too fast."
   },
   "game": {
     "in_progress": "SURVIVAL IN PROGRESS...",
@@ -94,6 +121,15 @@
     "quit": "Abandon the game",
     "error_prefix": "Error:",
     "error_wasm": "Failed to load the game. Check the console.",
-    "error_script": "Failed to load wasm_exec.js"
+    "error_script": "Failed to load wasm_exec.js",
+    "over_title": "Mission Failed",
+    "over_subtitle": "Your character has fallen",
+    "retry": "Retry",
+    "abandon": "Abandon",
+    "footer": "Survival System v1.0",
+    "timer_init": "TIME: 00:00",
+    "score_init": "SCORE: 00000",
+    "timer_label": "TIME",
+    "score_label": "SCORE"
   }
 }

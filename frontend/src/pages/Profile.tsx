@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; // <-- NOUVEL IMPORT
@@ -12,6 +12,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const [email, setEmail] = useState(user?.email || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [stats, setStats] = useState({ best_score: 0, best_duration: 0, total_duration: 0 });
   const [friendships, setFriendships] = useState<any[]>([]);
@@ -53,23 +54,23 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     return new Promise((resolve) => {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        resolve("Format non autorisé.");
+        resolve(t('profile.error_format'));
         return;
       }
       if (file.size > 2 * 1024 * 1024) {
-        resolve("Image trop lourde. Maximum 2 MB.");
+        resolve(t('profile.error_size'));
         return;
       }
       const img = new Image();
       img.onload = () => {
         URL.revokeObjectURL(img.src);
         if (img.width > 2000 || img.height > 2000) {
-          resolve("Image trop grande. Maximum 2000x2000.");
+          resolve(t('profile.error_dimensions', { width: img.width, height: img.height }));
         } else {
           resolve(null);
         }
       };
-      img.onerror = () => resolve("Impossible de lire l'image.");
+      img.onerror = () => resolve(t('profile.error_read'));
       img.src = URL.createObjectURL(file);
     });
   };
@@ -93,15 +94,15 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage({ text: "Profil mis à jour !", type: 'success' });
+        setMessage({ text: t('profile.update_success'), type: 'success' });
         setAvatarUrl(data.user.avatarUrl);
         login({ ...user!, pseudo: data.user.username, email: data.user.email, avatarUrl: data.user.avatarUrl });
         setAvatarFile(null);
       } else {
-        setMessage({ text: data.error || "Erreur de mise à jour", type: 'error' });
+        setMessage({ text: data.error || t('profile.error_update'), type: 'error' });
       }
     } catch (error) {
-      setMessage({ text: "Erreur serveur", type: 'error' });
+      setMessage({ text: t('profile.error_server'), type: 'error' });
     }
   };
 
@@ -147,7 +148,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         setSocialMsg({ text: data.error, type: 'error' });
       }
     } catch (error) {
-      setSocialMsg({ text: "Erreur réseau", type: 'error' });
+      setSocialMsg({ text: t('profile.error_network'), type: 'error' });
     }
   };
 
@@ -225,23 +226,36 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
           <div>
             <label className="block text-gray-400 text-xs font-bold uppercase mb-2">{t('profile.avatar')}</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={async (e) =>{
-                const file = e.target.files?.[0] || null;
-                if (file) {
-                  const error = await validateImage(file);
-                  if (error) {
-                    setMessage({ text: error, type: 'error'});
-                    e.target.value = '';
-                    return;
+            <div className="flex items-center gap-3 bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg text-sm transition-colors shrink-0"
+              >
+                {t('profile.choose_file')}
+              </button>
+              <span className="text-gray-400 text-sm truncate">
+                {avatarFile ? avatarFile.name : t('profile.no_file_chosen')}
+              </span>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0] || null;
+                  if (file) {
+                    const error = await validateImage(file);
+                    if (error) {
+                      setMessage({ text: error, type: 'error' });
+                      e.target.value = '';
+                      return;
+                    }
                   }
-                }
-                setAvatarFile(file);
-              }}
-              className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-gray-700 file:text-white hover:file:bg-gray-600 cursor-pointer"
-            />
+                  setAvatarFile(file);
+                }}
+              />
+            </div>
           </div>
 
           <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl mt-4 uppercase tracking-widest shadow-lg">{t('profile.save')}</button>

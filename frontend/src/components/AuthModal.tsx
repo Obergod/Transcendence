@@ -45,7 +45,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
       try {
         data = JSON.parse(text);
       } catch (err) {
-        setErrorMsg(`Erreur inattendue du serveur : ${text}`);
+        setErrorMsg(t('auth.error_server_unexpected', { text }));
         return;
       }
 
@@ -64,7 +64,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
           });
           onLoginSuccess();
         } else {
-          setErrorMsg("Erreur: Données utilisateur manquantes dans la réponse.");
+          setErrorMsg(t('auth.error_missing_user'));
         }
       } else {
         setErrorMsg(data.message || data.error || t('auth.error_login'));
@@ -72,7 +72,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
 
     } catch (error) {
       console.error("Fetch error:", error);
-      setErrorMsg("Impossible de joindre le serveur. Est-il allumé ?");
+      setErrorMsg(t('auth.error_server_unreachable'));
     }
   };
 

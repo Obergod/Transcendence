@@ -116,14 +116,14 @@ const Chat = () => {
           </div>
 
           <Link to="/profile" className="text-gray-400 hover:text-white font-bold transition-colors bg-gray-800 px-4 py-2 rounded-lg">
-            Retour au profil
+            {t('chat.back_to_profile')}
           </Link>
         </div>
 
         {/* Zone des messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0a0d17]">
           {messages.length === 0 && (
-            <div className="text-center text-gray-500 italic mt-10">Aucun message. Lance la discussion !</div>
+            <div className="text-center text-gray-500 italic mt-10">{t('chat.no_messages')}</div>
           )}
 
           {messages.map((msg, index) => {
@@ -150,7 +150,7 @@ const Chat = () => {
                 maxLength={300}
                 value={currentInput}
                 onChange={(e) => setCurrentInput(e.target.value)}
-                placeholder={`Écrire à ${friendName}...`}
+                placeholder={t('chat.placeholder', { name: friendName })}
                 className={`w-full bg-[#0a0d17] border rounded-xl px-4 py-3 text-white focus:outline-none transition-colors ${
                   isSpamming ? 'border-orange-500 bg-orange-900/20' : 'border-gray-600 focus:border-red-500'
                 }`}
@@ -159,7 +159,7 @@ const Chat = () => {
               {/* Zone d'infos sous l'input : Alerte de spam + Compteur */}
               <div className="flex justify-between items-center mt-1 px-1">
                 <div className="text-orange-500 text-xs font-bold h-4">
-                  {isSpamming ? "Doucement ! Tu envoies des messages trop vite." : ""}
+                  {isSpamming ? t('chat.spam_warning') : ""}
                 </div>
                 <div className={`text-right text-xs font-bold ${currentInput.length >= 300 ? 'text-red-500' : 'text-gray-500'}`}>
                   {currentInput.length}/300
@@ -176,7 +176,7 @@ const Chat = () => {
                   : 'bg-red-600 hover:bg-red-700 text-white'
               }`}
             >
-              Envoyer
+              {t('chat.send')}
             </button>
           </form>
         </div>
