@@ -15,17 +15,17 @@ func InitGame(mode int) (*world.World, *player.Player) {
     w := world.NewWorld()
 
     // joueur 1
-    initialPlayer := player.NewPlayer(fixed.I(400), fixed.I(300), 100, "local")
+    initialPlayer := player.NewPlayer(fixed.I(600), fixed.I(360), 100, "local")
     w.AddPlayer(initialPlayer.ID, initialPlayer)
 
     // jia add un if tout con si on appuie bien sur 2 joueur
     if mode == 2 {
-        extraPlayer := player.NewPlayer(fixed.I(450), fixed.I(300), 100, "extra")
+        extraPlayer := player.NewPlayer(fixed.I(680), fixed.I(360), 100, "extra")
         w.AddPlayer(extraPlayer.ID, extraPlayer)
     }
 
-    centerX, centerY := 400, 300
-    radius := 250.0
+    centerX, centerY := 640, 360
+    radius := 350.0
     numEnemies := 30
 
     for i := 0; i < numEnemies; i++ {
