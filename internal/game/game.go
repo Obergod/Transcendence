@@ -103,9 +103,9 @@ func (g *Game) MovePlayer(id string) error {
 
     // Limites écran
     minX := fixed.I(0)
-    maxX := fixed.I(800)
+    maxX := fixed.I(1280)
     minY := fixed.I(0)
-    maxY := fixed.I(600)
+    maxY := fixed.I(720)
     if localPlayer.Hitbox.X < minX {
         localPlayer.Hitbox.X = minX
     }
@@ -206,9 +206,9 @@ func (g *Game) MoveEnemies() {
 
         // Limites écran
         minX := fixed.I(0)
-        maxX := fixed.I(800)
+        maxX := fixed.I(1280)
         minY := fixed.I(0)
-        maxY := fixed.I(600)
+        maxY := fixed.I(720)
         if e.Hitbox.X < minX {
             e.Hitbox.X = minX
         }
@@ -422,5 +422,5 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-    return 800, 600
+    return 1280, 720
 }

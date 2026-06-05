@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { useState,type ReactNode } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUser } from './context/UserContext';
 
@@ -12,7 +12,19 @@ import MatchHistory from './pages/MatchHistory';
 import Chat from './pages/Chat';
 import AuthModal from './components/AuthModal';
 
+// IMPORTS DE WIDGETS
 import LanguageSwitcher from './components/LanguageSwitcher';
+
+// check si on est log pour avoir acces aux autres pahe
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { user } = useUser();
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -50,13 +62,18 @@ function App() {
 
         {/* --- ROUTES --- */}
         <Routes>
+          {/* La route Home reste publique */}
           <Route path="/" element={<Home isLoggedIn={!!user} onLoginClick={() => setIsAuthModalOpen(true)} />} />
-          <Route path="/profile" element={<Profile onLogout={() => console.log("Déconnexion en attente du contexte !")} />} />
-          <Route path="/play" element={<Lobby />} />
-          <Route path="/game" element={<Game />} />
-          <Route path="/history" element={<MatchHistory />} />
-		  <Route path="/chat/:friendId/:friendName" element={<Chat />} />
-          <Route path="/chat/:friendName" element={<Chat />} />
+
+          {/* TOUTES LES AUTRES ROUTES SONT MAINTENANT ENVELOPPÉES DANS <ProtectedRoute> */}
+          <Route path="/profile" element={<ProtectedRoute><Profile onLogout={() => console.log("Déconnexion en attente du contexte !")} /></ProtectedRoute>} />
+          <Route path="/play" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
+          <Route path="/game" element={<ProtectedRoute><Game /></ProtectedRoute>} />
+          <Route path="/history" element={<ProtectedRoute><MatchHistory /></ProtectedRoute>} />
+          <Route path="/chat/:friendId/:friendName" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+          <Route path="/chat/:friendName" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+
+		  <Route path="*" element={<Navigate to= "/" replace />} />
         </Routes>
 
         {/* --- MODALES --- */}

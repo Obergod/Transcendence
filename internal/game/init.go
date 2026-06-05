@@ -27,8 +27,8 @@ func InitGame(nbPlayer int) (*world.World, []string) {
 		localIDs = append(localIDs, p2.ID)
 	}
 
-    centerX, centerY := 400, 300
-    radius := 250.0
+    centerX, centerY := 640, 360
+    radius := 350.0
     numEnemies := 30
 
     for i := 0; i < numEnemies; i++ {

@@ -29,7 +29,7 @@ func main() {
 	}))
 
 	ebiten.SetTPS(60) // force 60 ticks par seconde
-	ebiten.SetWindowSize(800, 600)
+	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("Multiplayer with Ranged Enemies")
 	if err := ebiten.RunGame(gameInstance); err != nil {
 		log.Fatal(err)

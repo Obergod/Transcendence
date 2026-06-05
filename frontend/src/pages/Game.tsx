@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // <-- AJOUT DE useLocation
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const Game = () => {
@@ -92,7 +92,7 @@ const Game = () => {
     <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-8 w-full">
 
       {/* HEADER DU JEU (Avec les IDs pour que Go puisse injecter le texte en temps réel) */}
-      <div className="flex justify-between items-end w-full max-w-4xl mb-4 px-4">
+      <div className="flex justify-between items-end w-full max-w-7xl mb-4 px-4">
         <h2 id="game-timer" className="text-3xl font-black text-red-500 tracking-widest uppercase">
             TEMPS: 00:00
         </h2>
@@ -103,7 +103,7 @@ const Game = () => {
       <div
         id="game-container"
         ref={containerRef}
-        className="relative w-full max-w-4xl aspect-video bg-black border-4 border-gray-700 rounded-xl flex items-center justify-center overflow-hidden shadow-2xl"
+        className="relative w-full max-w-7xl aspect-video bg-black border-4 border-gray-700 rounded-xl flex items-center justify-center overflow-hidden shadow-2xl"
       >
         {!isGameLoaded && !error && (
           <div className="text-center animate-pulse z-10">
