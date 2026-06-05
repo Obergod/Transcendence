@@ -68,10 +68,11 @@ func main() {
 		protected.POST("/match/save", social.SaveMatchHandler(db))
 		protected.GET("/match/history", social.MyHistoryHandler(db))
 		protected.GET("/match/leaderboard", social.LeaderboardHandler(db))
+		protected.GET("/user/stats", social.UserStatsHandler(db))
     }
 
 	//r.Static("/", "./frontend/dist")
 
-    log.Println("Serveur sur http://localhost:8081")
+	log.Println("Serveur sur :8081")
     log.Fatal(r.Run(":8081"))
 }

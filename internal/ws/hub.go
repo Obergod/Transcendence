@@ -10,19 +10,19 @@ import (
 
 // Le format du message qu'on va s'échanger avec React
 type MessagePayload struct {
-	Type       string `json:"type"`        // ex: "chat"
-	TargetID   uint   `json:"target_id"`   // L'ID de l'ami à qui on parle
-	Content    string `json:"content"`     // Le texte du message
-	SenderID   uint   `json:"sender_id"`   // Rempli par le Hub (sécurité)
-	SenderName string `json:"sender_name"` // Rempli par le Hub (pour l'affichage)
+	Type       string `json:"type"`
+	TargetID   uint   `json:"target_id"`
+	Content    string `json:"content"`
+	SenderID   uint   `json:"sender_id"`
+	SenderName string `json:"sender_name"`
 }
 
 type Hub struct {
 	clients    map[uint]*Client
-	directMsg  chan MessagePayload // <-- Remplace l'ancien "broadcast"
+	directMsg  chan MessagePayload
 	register   chan *Client
 	unregister chan *Client
-	db         *gorm.DB            // <-- Le Hub a accès à la BDD
+	db         *gorm.DB
 }
 
 func NewHub(db *gorm.DB) *Hub {
@@ -53,7 +53,6 @@ func (h *Hub) Run() {
 			}
 
 		case payload := <-h.directMsg:
-			// 1. Trouver le pseudo de l'expéditeur pour l'affichage React
 			var sender models.User
 			if err := h.db.First(&sender, payload.SenderID).Error; err == nil {
 				payload.SenderName = sender.Username
@@ -61,7 +60,6 @@ func (h *Hub) Run() {
 				payload.SenderName = "Inconnu"
 			}
 
-			// 2. Sauvegarder le message en Base de Données
 			dm := models.DirectMessage{
 				SenderID:   payload.SenderID,
 				ReceiverID: payload.TargetID,
@@ -69,15 +67,12 @@ func (h *Hub) Run() {
 			}
 			h.db.Create(&dm)
 
-			// 3. Livrer le message (Conversion en JSON)
 			jsonMsg, _ := json.Marshal(payload)
 
-			// 3a. On l'envoie au destinataire s'il est en ligne !
 			if targetClient, ok := h.clients[payload.TargetID]; ok {
 				targetClient.send <- jsonMsg
 			}
 
-			// 3b. On le renvoie aussi à l'expéditeur pour confirmer l'envoi
 			if senderClient, ok := h.clients[payload.SenderID]; ok {
 				senderClient.send <- jsonMsg
 			}

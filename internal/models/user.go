@@ -38,8 +38,9 @@ type Match struct {
 	ID			uint	`gorm:"primaryKey"`
 	UserID		uint	`gorm:"index"`
 	Duration	int		`gorm:"not null"` //temps de survie
+	Score     int       `gorm:"not null"`
 	CreatedAt time.Time
-	
+
 	User	*User	`gorm:"foreignKey:UserID;references:ID"`
 }
 

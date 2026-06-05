@@ -2,7 +2,8 @@ package game
 
 import (
     "image/color"
-	"syscall/js"
+    "syscall/js"
+    "fmt"
     "math/rand"
 
     "github.com/hajimehoshi/ebiten/v2"
@@ -17,20 +18,24 @@ import (
 )
 
 type Game struct {
-    world   	*world.World
-    localID 	string
-    waveNumber  int
-	isGameover	bool
-	ticks		int //compteur de tick
+    world         *world.World
+    localIDs      []string
+    waveNumber    int
+    isGameover    bool
+    ticks         int // compteur de tick
+    nbPlayer      int
+    lastShotTicks map[string]int // cooldown par joueur
 }
 
-func NewGame(w *world.World, ID string) *Game {
+func NewGame(w *world.World, IDs []string, nb int) *Game {
     return &Game{
-        world:   w,
-        localID: ID,
-        waveNumber: 1,
-		isGameover: false,
-		ticks: 0,
+        world:         w,
+        localIDs:      IDs,
+        waveNumber:    1,
+        isGameover:    false,
+        ticks:         0,
+        nbPlayer:      nb,
+        lastShotTicks: make(map[string]int),
     }
 }
 
@@ -42,32 +47,32 @@ func (g *Game) SpawnEnemies() {
             aliveEnemies++
         }
     }
-    
+
     // S'il reste des ennemis, ne pas en spawn de nouveaux
     if aliveEnemies > 0 {
         return
     }
-    
-    screenWidth := 800
-    screenHeight := 600
-    
+
+    screenWidth := 1280
+    screenHeight := 720
+
     // Le nombre d'ennemis augmente avec la vague
     numEnemies := 1 + g.waveNumber*2
-    
+
     // Limiter le nombre maximum
     if numEnemies > 40 {
         numEnemies = 40
     }
-    
+
     g.world.Lock()
     defer g.world.Unlock()
-    
+
     for i := 0; i < numEnemies; i++ {
         var x, y int
-        
+
         // Choisir aléatoirement un bord (0: haut, 1: droite, 2: bas, 3: gauche)
         edge := rand.Intn(4)
-        
+
         switch edge {
         case 0: // Bord haut
             x = rand.Intn(screenWidth)
@@ -82,12 +87,12 @@ func (g *Game) SpawnEnemies() {
             x = 0
             y = rand.Intn(screenHeight)
         }
-        
+
         enemyName := "enemy_wave" + itoa(g.waveNumber) + "_" + itoa(i)
-        
+
         // Créer un ennemi à distance avec NewRanged
         newEnemy := enemy.NewRanged(fixed.I(x), fixed.I(y), enemyName)
-        
+
         // Optionnel: Augmenter les stats selon le numéro de vague
         // Plus la vague est élevée, plus les ennemis sont forts
         if g.waveNumber > 3 {
@@ -96,13 +101,13 @@ func (g *Game) SpawnEnemies() {
             if newEnemy.HP > 300 {
                 newEnemy.HP = 300
             }
-            
+
             // Augmenter la vitesse
             newEnemy.Speed = fixed.I(4 + (g.waveNumber-3)/2)
             if newEnemy.Speed > fixed.I(8) {
                 newEnemy.Speed = fixed.I(8)
             }
-            
+
             // Augmenter les dégâts de l'arme
             if newEnemy.Weapon != nil {
                 newEnemy.Weapon.Damage = 5 + (g.waveNumber-3)/2
@@ -111,15 +116,15 @@ func (g *Game) SpawnEnemies() {
                 }
             }
         }
-        
+
         g.world.Enemies[enemyName] = newEnemy
     }
-    
+
     // Incrémenter le numéro de vague après le spawn
     g.waveNumber++
 }
 
-func (g *Game) MovePlayer() error {
+func KeyPressp1() (fixed.Int26_6, fixed.Int26_6) {
     dx := fixed.Int26_6(0)
     dy := fixed.Int26_6(0)
 
@@ -135,32 +140,43 @@ func (g *Game) MovePlayer() error {
     if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
         dx = 1
     }
+    return dx, dy
+}
 
+func KeyPressp2() (fixed.Int26_6, fixed.Int26_6) {
+    dx := fixed.Int26_6(0)
+    dy := fixed.Int26_6(0)
+
+    if ebiten.IsKeyPressed(ebiten.KeyW) {
+        dy = -1
+    }
+    if ebiten.IsKeyPressed(ebiten.KeyS) {
+        dy = 1
+    }
+    if ebiten.IsKeyPressed(ebiten.KeyA) {
+        dx = -1
+    }
+    if ebiten.IsKeyPressed(ebiten.KeyD) {
+        dx = 1
+    }
+    return dx, dy
+}
+
+func (g *Game) MovePlayer(id string) error {
     g.world.Lock()
     defer g.world.Unlock()
 
-    localPlayer, exists := g.world.Players[g.localID]
-    if !exists {
-        return nil
+    var dx, dy fixed.Int26_6
+    switch id {
+    case "p1":
+        dx, dy = KeyPressp1()
+    case "p2":
+        dx, dy = KeyPressp2()
     }
 
-    if !localPlayer.IsAlive {
-        // verifie qu'on na pas deja envoyer le signal pour eviter de spammer react
-        if !g.isGameover {
-            g.isGameover = true
-
-			durationInSeconds := g.ticks / 60 // 1 tick par frame et ebit tourne a 60/sec donc on redivise par 60
-
-            if js.Global().Get("onGameover").Type() == js.TypeFunction {
-                js.Global().Call("onGameover", durationInSeconds)
-            }
-        }
+    localPlayer, exists := g.world.Players[id]
+    if !exists {
         return nil
-    } else {
-        if g.isGameover {
-			g.ticks = 0
-		}
-        g.isGameover = false
     }
 
     var moveX, moveY fixed.Int26_6
@@ -177,9 +193,9 @@ func (g *Game) MovePlayer() error {
 
     // Limites écran
     minX := fixed.I(0)
-    maxX := fixed.I(800)
+    maxX := fixed.I(1280)
     minY := fixed.I(0)
-    maxY := fixed.I(600)
+    maxY := fixed.I(720)
     if localPlayer.Hitbox.X < minX {
         localPlayer.Hitbox.X = minX
     }
@@ -193,6 +209,29 @@ func (g *Game) MovePlayer() error {
         localPlayer.Hitbox.Y = maxY
     }
     return nil
+}
+
+func (g *Game) CheckPlayersAlive() {
+    playersdead := 0
+    for _, id := range g.localIDs {
+        Player, exists := g.world.Players[id]
+        if !exists {
+            continue
+        }
+        if !Player.IsAlive {
+            playersdead++
+        }
+    }
+    if playersdead == g.nbPlayer && !g.isGameover {
+        g.isGameover = true
+
+        durationInSeconds := g.ticks / 60
+        score := g.ticks // Le score final est égal au nombre de ticks survécus
+
+        if js.Global().Get("onGameover").Type() == js.TypeFunction {
+            js.Global().Call("onGameover", durationInSeconds, score)
+        }
+    }
 }
 
 func (g *Game) MoveEnemies() {
@@ -257,9 +296,9 @@ func (g *Game) MoveEnemies() {
 
         // Limites écran
         minX := fixed.I(0)
-        maxX := fixed.I(800)
+        maxX := fixed.I(1280)
         minY := fixed.I(0)
-        maxY := fixed.I(600)
+        maxY := fixed.I(720)
         if e.Hitbox.X < minX {
             e.Hitbox.X = minX
         }
@@ -319,41 +358,52 @@ func (g *Game) HandlePlayerShooting() {
     g.world.Lock()
     defer g.world.Unlock()
 
-    localPlayer, exists := g.world.Players[g.localID]
-    if !exists || !localPlayer.IsAlive || localPlayer.Weapon == nil {
-        return
-    }
+    const fireCooldown = 10 // environ 6 tirs/seconde à 60 FPS
 
-    var closestEnemy *enemy.Enemy
-    var closestDistSq int64 = 1 << 62
-    
-    for _, e := range g.world.Enemies {
-        if !e.IsAlive {
+    for _, id := range g.localIDs {
+        player, exists := g.world.Players[id]
+        if !exists || !player.IsAlive || player.Weapon == nil {
             continue
         }
-        dx := int64(e.Hitbox.X - localPlayer.Hitbox.X)
-        dy := int64(e.Hitbox.Y - localPlayer.Hitbox.Y)
-        distSq := dx*dx + dy*dy
-        if distSq < closestDistSq {
-            closestDistSq = distSq
-            closestEnemy = e
+
+        // Vérifier le cooldown individuel
+        lastTick := g.lastShotTicks[id]
+        if g.ticks-lastTick < fireCooldown {
+            continue
         }
-    }
-    
-    if closestEnemy == nil {
-        return
-    }
-    
-    dx := closestEnemy.Hitbox.X - localPlayer.Hitbox.X
-    dy := closestEnemy.Hitbox.Y - localPlayer.Hitbox.Y
-    
-    if dx == 0 && dy == 0 {
-        return
-    }
-    
-    bullet, ok := localPlayer.Weapon.Shoot(localPlayer.Hitbox.X, localPlayer.Hitbox.Y, dx, dy, g.localID, true)
-    if ok {
-        g.world.Bullets = append(g.world.Bullets, bullet)
+
+        // Trouver l'ennemi le plus proche
+        var closestEnemy *enemy.Enemy
+        var closestDistSq int64 = 1 << 62
+
+        for _, e := range g.world.Enemies {
+            if !e.IsAlive {
+                continue
+            }
+            dx := int64(e.Hitbox.X - player.Hitbox.X)
+            dy := int64(e.Hitbox.Y - player.Hitbox.Y)
+            distSq := dx*dx + dy*dy
+            if distSq < closestDistSq {
+                closestDistSq = distSq
+                closestEnemy = e
+            }
+        }
+
+        if closestEnemy == nil {
+            continue
+        }
+
+        dx := closestEnemy.Hitbox.X - player.Hitbox.X
+        dy := closestEnemy.Hitbox.Y - player.Hitbox.Y
+        if dx == 0 && dy == 0 {
+            continue
+        }
+
+        bullet, ok := player.Weapon.Shoot(player.Hitbox.X, player.Hitbox.Y, dx, dy, id, true)
+        if ok {
+            g.world.Bullets = append(g.world.Bullets, bullet)
+            g.lastShotTicks[id] = g.ticks
+        }
     }
 }
 
@@ -429,12 +479,40 @@ func (g *Game) RemoveDeadEnemies() {
     }
 }
 
+func (g *Game) UpdateScoreTimer() {
+    if !g.isGameover {
+        g.ticks++
+
+        // INJECTION EN TEMPS RÉEL DANS LE DOM DE REACT
+        if g.ticks%6 == 0 {
+            jsDoc := js.Global().Get("document")
+            if jsDoc.Type() != js.TypeUndefined {
+                // 1. Mise à jour du Timer
+                timerEl := jsDoc.Call("getElementById", "game-timer")
+                if timerEl.Type() != js.TypeNull {
+                    seconds := g.ticks / 60
+                    minutes := seconds / 60
+                    secRemainder := seconds % 60
+                    timerEl.Set("innerText", fmt.Sprintf("TEMPS: %02d:%02d", minutes, secRemainder))
+                }
+
+                // 2. Mise à jour du Score (accumulateur de ticks)
+                scoreEl := jsDoc.Call("getElementById", "game-score")
+                if scoreEl.Type() != js.TypeNull {
+                    scoreEl.Set("innerText", fmt.Sprintf("SCORE: %05d", g.ticks))
+                }
+            }
+        }
+    }
+}
+
 func (g *Game) Update() error {
-	if !g.isGameover {
-		g.ticks++ // +1 a chaque frame et apres on fait /60 (moins compliquer faites pas chier)
-	}
+    g.CheckPlayersAlive()
+    g.UpdateScoreTimer()
+    for _, id := range g.localIDs {
+        g.MovePlayer(id)
+    }
     g.SpawnEnemies()
-    g.MovePlayer()
     g.MoveEnemies()
     g.HandleEnemyShooting()
     g.HandlePlayerShooting()
@@ -469,7 +547,7 @@ func (g *Game) DrawPlayers(screen *ebiten.Image) {
         var col color.Color
         if !p.IsAlive {
             col = color.RGBA{255, 255, 255, 255}
-        } else if id == g.localID {
+        } else if id == "p1" {
             col = color.RGBA{0, 255, 0, 255}
         } else {
             col = color.RGBA{0, 0, 255, 255}
@@ -488,9 +566,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-    return 800, 600
+    return 1280, 720
 }
-
 
 func itoa(n int) string {
     if n == 0 {

@@ -10,6 +10,7 @@ import (
 
 type SaveMatchRequest struct {
 	Duration int `json:"duration" binding:"required"`
+	Score    int `json:"score" binding:"required"`
 }
 
 // 1. Sauvegarder le score à la fin d'une partie
@@ -27,13 +28,37 @@ func SaveMatchHandler(db *gorm.DB) gin.HandlerFunc {
 		match := models.Match{
 			UserID:   userID,
 			Duration: req.Duration,
+			Score:    req.Score, // Sauvegarde du score pur
 		}
 		db.Create(&match)
 		c.JSON(http.StatusOK, gin.H{"message": "Score sauvegardé !"})
 	}
 }
 
-// 2. Récupérer l'historique personnel
+// NOUVEAU : 4. Récupérer les 3 statistiques globales pour le profil
+type UserStatsResponse struct {
+	BestScore     int `json:"best_score"`
+	BestDuration  int `json:"best_duration"`
+	TotalDuration int `json:"total_duration"`
+}
+
+func UserStatsHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userIDInterface, _ := c.Get("userID")
+		userID := userIDInterface.(uint)
+
+		var stats UserStatsResponse
+
+		db.Model(&models.Match{}).Where("user_id = ?", userID).Select("COALESCE(MAX(score), 0)").Row().Scan(&stats.BestScore)
+
+		db.Model(&models.Match{}).Where("user_id = ?", userID).Select("COALESCE(MAX(duration), 0)").Row().Scan(&stats.BestDuration)
+
+		db.Model(&models.Match{}).Where("user_id = ?", userID).Select("COALESCE(SUM(duration), 0)").Row().Scan(&stats.TotalDuration)
+
+		c.JSON(http.StatusOK, stats)
+	}
+}
+
 func MyHistoryHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userIDInterface, _ := c.Get("userID")
@@ -46,17 +71,14 @@ func MyHistoryHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// 3. Récupérer le TOP 10 (Moi + Mes amis)
 func LeaderboardHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userIDInterface, _ := c.Get("userID")
 		userID := userIDInterface.(uint)
 
-		// A. On récupère la liste de mes amis acceptés
 		var friendships []models.Friendship
 		db.Where("(user_id = ? OR friend_id = ?) AND status = 'accepted'", userID, userID).Find(&friendships)
 
-		// B. On construit une liste des IDs autorisés (Moi inclus)
 		friendIDs := []uint{userID}
 		for _, f := range friendships {
 			if f.UserID == userID {
@@ -66,7 +88,6 @@ func LeaderboardHandler(db *gorm.DB) gin.HandlerFunc {
 			}
 		}
 
-		// C. On cherche les 10 meilleures parties de ce groupe !
 		var bestMatches []models.Match
 		db.Preload("User").
 			Where("user_id IN ?", friendIDs).
@@ -74,7 +95,6 @@ func LeaderboardHandler(db *gorm.DB) gin.HandlerFunc {
 			Limit(10).
 			Find(&bestMatches)
 
-		// On formate pour React
 		type LeaderboardEntry struct {
 			Username string `json:"username"`
 			Duration int    `json:"duration"`

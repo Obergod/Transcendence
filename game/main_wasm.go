@@ -1,9 +1,7 @@
 package main
 
 import (
-    "encoding/json"
     "log"
-    "net/http"
 	"syscall/js"
 
     "github.com/hajimehoshi/ebiten/v2"
@@ -12,26 +10,17 @@ import (
 )
 
 func main() {
-    // Appel HTTP exemple (backend)
-    resp, err := http.Get("/api/hello")
-    if err != nil {
-        log.Println("Erreur HTTP:", err)
-    } else {
-        defer resp.Body.Close()
-        var result map[string]string
-        if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-            log.Println("Erreur décodage JSON:", err)
-        } else {
-            log.Printf("Réponse backend: %v", result)
-        }
-    }
-
 	// initialaze all variables for a game instance
-	w, initialPlayer := game.InitGame()
+	nbPlayer := js.Global().Get("gameMode").Int()
+	if nbPlayer == 0 {
+		nbPlayer  = 1
+	}
 
-    gameInstance := game.NewGame(w, initialPlayer.ID)
+	w, IDs := game.InitGame(nbPlayer)
 
-	// Expose a "restartGame" function to JavaScript
+	gameInstance := game.NewGame(w, IDs, nbPlayer)
+
+	// mode vite fait le reset pour que quand on retry ca nous garde dans le bon mode
 	js.Global().Set("restartGame", js.FuncOf(func(this js.Value, args []js.Value) any {
 		if gameInstance != nil {
 			game.Reset(gameInstance)
@@ -39,10 +28,10 @@ func main() {
 		return nil
 	}))
 
-    ebiten.SetTPS(60) // force 60 ticks par seconde
-    ebiten.SetWindowSize(800, 600)
-    ebiten.SetWindowTitle("Multiplayer with Ranged Enemies")
-    if err := ebiten.RunGame(gameInstance); err != nil {
-        log.Fatal(err)
-    }
+	ebiten.SetTPS(60) // force 60 ticks par seconde
+	ebiten.SetWindowSize(1280, 720)
+	ebiten.SetWindowTitle("Multiplayer with Ranged Enemies")
+	if err := ebiten.RunGame(gameInstance); err != nil {
+		log.Fatal(err)
+	}
 }

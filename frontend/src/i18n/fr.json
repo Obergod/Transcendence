@@ -31,23 +31,35 @@
     "error_password_mismatch": "Les mots de passe ne correspondent pas !",
     "error_password_short": "Le mot de passe doit faire au moins 6 caractères.",
     "error_register": "Erreur lors de l'inscription.",
-    "error_login": "Email ou mot de passe incorrect."
+    "error_login": "Email ou mot de passe incorrect.",
+	"pseudo_or_email": "Pseudo ou Email",
+    "login_btn": "Se connecter"
   },
   "profile": {
-    "title": "PARAMÈTRES DU",
-    "title_highlight": "PROFIL",
+    "my_profile": "MON PROFIL",
+    "best_score": "Meilleur Score",
+    "best_time": "Meilleur Temps",
+    "total_time": "Temps Total",
     "pseudo": "Pseudo",
     "email": "Email",
+    "avatar": "Photo de profil",
     "save": "Sauvegarder",
-    "edit": "Modifier",
     "logout": "Se déconnecter",
-    "friends": "Amis"
+    "social": "SOCIAL",
+    "add_player": "Ajouter un joueur",
+    "friend_placeholder": "Pseudo de ton ami...",
+    "add_btn": "Ajouter",
+    "pending_requests": "Demandes reçues",
+    "my_friends": "Mes Amis",
+    "no_friends": "Looseeeeeeeeeer...",
+    "chat_btn": "💬 Chat"
+
   },
   "lobby": {
     "title": "SALLE D'",
     "title_highlight": "ATTENTE",
-    "create": "CRÉER UNE PARTIE",
-    "join_with_code": "REJOINDRE AVEC UN CODE",
+    "solo_mode": "1 Joueur (Survie Solo)",
+    "coop_mode": "2 Joueurs (Co-op Local)",
     "back_to_menu": "Retour au menu",
     "lobby_code_label": "Code du Salon",
     "share_code_hint": "Donne ce code à tes amis, ou lance directement pour jouer seul !",

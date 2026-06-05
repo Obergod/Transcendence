@@ -31,6 +31,6 @@ func ConnectToPostgreSQL() (*gorm.DB, error) {
 		time.Sleep(2 * time.Second)
 	}
 
-	// Si ça échoue vraiment après 10 secondes, on renvoie l'erreur fatale
+	// si ca ehoue aprts 10 secondes on renvoie l'erreur fatale
 	return nil, fmt.Errorf("impossible de se connecter à la BDD après 5 essais : %w", err)
 }

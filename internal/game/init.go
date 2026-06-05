@@ -7,25 +7,30 @@ import (
     "transcendance/internal/world"
 )
 
-func InitGame() (*world.World, *player.Player) {
-    // --- Initialisation du monde ---
+func InitGame(nbPlayer int) (*world.World, []string) {
     w := world.NewWorld()
+	var localIDs []string
 
-    // Joueur local
-    initialPlayer := player.NewPlayer(fixed.I(400), fixed.I(300), 100, "local")
-    w.AddPlayer(initialPlayer.ID, initialPlayer)
+    // joueur 1
+    p1 := player.NewPlayer(fixed.I(600), fixed.I(360), 100, "p1")
+    w.AddPlayer(p1.ID, p1)
+	localIDs = append(localIDs, p1.ID)
 
-    // Second joueur (autre)
-    extraPlayer := player.NewPlayer(fixed.I(600), fixed.I(600), 100, "extra")
-    w.AddPlayer(extraPlayer.ID, extraPlayer)
-
-	return w, initialPlayer
+    // jia add un if tout con si on appuie bien sur 2 joueur
+    if nbPlayer == 2 {
+		p2 := player.NewPlayer(fixed.I(680), fixed.I(360), 100, "p2")
+        w.AddPlayer(p2.ID, p2)
+		localIDs = append(localIDs, p2.ID)
+	}
+	return w, localIDs
 }
 
 func Reset(g *Game) {
-	w, p := InitGame()
+	w, IDs := InitGame(g.nbPlayer)
 
 	g.world = w
-	g.localID = p.ID
+	g.localIDs = IDs 
 	g.isGameover = false
+	g.ticks = 0
+
 }

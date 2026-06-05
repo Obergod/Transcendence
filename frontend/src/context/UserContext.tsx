@@ -14,7 +14,7 @@ interface UserContextType {
   login: (userData: User) => void;
   logout: () => void;
   isReady: boolean;
-  ws: WebSocket | null; //socket global
+  ws: WebSocket | null;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
