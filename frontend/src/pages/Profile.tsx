@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // <-- NOUVEL IMPORT
+import { useTranslation } from 'react-i18next';
 
 const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const { user, login, logout, onlineUsers = [] } = useUser() as any;
   const navigate = useNavigate();
-  const { t } = useTranslation(); // <-- INITIALISATION
+  const { t } = useTranslation();
 
   const [pseudo, setPseudo] = useState(user?.pseudo || "");
   const [email, setEmail] = useState(user?.email || "");

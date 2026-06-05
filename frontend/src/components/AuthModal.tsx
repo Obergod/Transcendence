@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { useTranslation } from 'react-i18next'; // <-- NOUVEL IMPORT
+import { useTranslation } from 'react-i18next';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -9,7 +9,7 @@ interface AuthModalProps {
 
 const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
   const { login } = useUser();
-  const { t } = useTranslation(); // <-- INITIALISATION
+  const { t } = useTranslation();
 
   const [isSignUp, setIsSignUp] = useState(true);
   const [pseudo, setPseudo] = useState("");

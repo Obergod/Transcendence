@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useUser } from './context/UserContext'; // <-- L'import manquant est ici !
+import { useUser } from './context/UserContext';
 
 // IMPORTS DE PAGES
 import Home from './pages/Home';
@@ -12,7 +12,6 @@ import MatchHistory from './pages/MatchHistory';
 import Chat from './pages/Chat';
 import AuthModal from './components/AuthModal';
 
-// IMPORTS DE WIDGETS
 import LanguageSwitcher from './components/LanguageSwitcher';
 
 function App() {
@@ -20,7 +19,6 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { t } = useTranslation();
 
-  // MAGIE : On récupère l'utilisateur depuis notre Contexte !
   const { user } = useUser();
 
   return (
@@ -40,7 +38,6 @@ function App() {
 
           <LanguageSwitcher></LanguageSwitcher>
 
-          {/* <-- La correction est ici (on utilise 'user' au lieu de 'isLoggedIn') */}
           {user && (
             <Link to="/profile" className="flex items-center space-x-4 cursor-pointer hover:bg-gray-800 p-2 rounded-lg transition-colors">
               <span className="font-bold text-lg">{user.pseudo}</span>

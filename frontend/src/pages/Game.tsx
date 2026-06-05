@@ -10,7 +10,7 @@ const Game = () => {
 
   const { t } = useTranslation();
 
-  // NOUVEAU : On récupère le mode choisi dans le Lobby (1 ou 2 joueurs). Par défaut 1.
+  // onrécupère le mode choisi dans le Lobby (1 ou 2 joueurs). Par défaut 1.
   const location = useLocation();
   const gameMode = location.state?.mode || 1;
 
@@ -36,7 +36,6 @@ const Game = () => {
 
       const go = new (window as any).Go();
 
-      // LA MAGIE EST ICI : On passe la variable à Go juste avant de le lancer !
       (window as any).gameMode = gameMode;
 
       WebAssembly.instantiateStreaming(fetch('/main.wasm'), go.importObject)
@@ -80,7 +79,7 @@ const Game = () => {
       document.querySelectorAll('canvas').forEach(c => c.remove());
       delete (window as any).onGameover;
     };
-  }, [t, gameMode]); // <-- Ajout de gameMode dans les dépendances
+  }, [t, gameMode]);
 
   const handleRetry = () => {
     setIsGameOver(false);
@@ -125,12 +124,11 @@ const Game = () => {
         {t('game.quit')}
       </Link>
 
-      {/* --- POPUP GAME OVER (Style AuthModal) --- */}
+      {/*POPUP GAME OVER*/}
       {isGameOver && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100] backdrop-blur-md p-4">
           <div className="bg-[#0f1423] border border-gray-700 rounded-2xl w-full max-w-md shadow-[0_0_50px_rgba(230,0,0,0.3)] relative overflow-hidden flex flex-col">
 
-            {/* Décoration rouge en haut */}
             <div className="h-2 w-full bg-[#e60000]"></div>
 
             <div className="p-10 text-center">
@@ -158,7 +156,6 @@ const Game = () => {
               </div>
             </div>
 
-            {/* Pied du popup */}
             <div className="bg-[#1a2035] p-4 text-center border-t border-gray-800">
                 <span className="text-gray-600 text-[10px] font-black uppercase tracking-widest">Système de survie v1.0</span>
             </div>

@@ -64,7 +64,6 @@ func (g *Game) MovePlayer() error {
             score := g.ticks // Le score final est égal au nombre de ticks survécus
 
             if js.Global().Get("onGameover").Type() == js.TypeFunction {
-                // CORRECTION : On envoie les deux arguments à React !
                 js.Global().Call("onGameover", durationInSeconds, score)
             }
         }
