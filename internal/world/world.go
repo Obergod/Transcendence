@@ -12,7 +12,6 @@ type World struct {
     Players map[string]*player.Player
     Enemies map[string]*enemy.Enemy
     Bullets []*weapon.Bullet
-    // Ajoutez projectiles, etc.
 }
 
 func NewWorld() *World {
@@ -32,4 +31,10 @@ func (w *World) AddEnemy(id string, e *enemy.Enemy) {
     w.Lock()
     defer w.Unlock()
     w.Enemies[id] = e
+}
+
+func (w *World) AddBullet(b *weapon.Bullet) {
+    w.Lock()
+    defer w.Unlock()
+    w.Bullets = append(w.Bullets, b)
 }
