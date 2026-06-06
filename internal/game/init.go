@@ -5,6 +5,7 @@ import (
 
     "transcendance/internal/player"
     "transcendance/internal/world"
+    "transcendance/internal/logger"
 )
 
 func InitGame(nbPlayer int) (*world.World, []string) {
@@ -26,11 +27,13 @@ func InitGame(nbPlayer int) (*world.World, []string) {
 }
 
 func Reset(g *Game) {
+	logger.Infof("Reset du jeu - vague=%d, ticks=%d", g.waveNumber, g.ticks)
 	w, IDs := InitGame(g.nbPlayer)
-
 	g.world = w
-	g.localIDs = IDs 
+	g.localIDs = IDs
 	g.isGameover = false
 	g.ticks = 0
-
+	g.waveNumber = 0
+	g.lastShotTicks = make(map[string]int)
+	logger.Debugf("Reset terminé, nouvelles localIDs=%v, lastShotTicks vide", g.localIDs)
 }

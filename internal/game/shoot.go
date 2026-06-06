@@ -5,6 +5,7 @@ import (
 	"transcendance/internal/player"
 	"transcendance/internal/enemy"
 	"transcendance/internal/weapon"
+	"transcendance/internal/logger"
 )
 
 func (g *Game) HandleEnemyShooting() {
@@ -44,6 +45,7 @@ func (g *Game) HandleEnemyShooting() {
 		if ok {
 			bullet.SpawnTick = g.ticks
 			shoots = append(shoots, shootInfo{bullet: bullet})
+			logger.Debugf("Ennemi %s tire sur %s (tick %d)", e.ID, closestPlayer.ID, g.ticks)
 		}
 	}
 	g.world.RUnlock()
@@ -61,6 +63,9 @@ func (g *Game) HandlePlayersShooting() {
 		player, exists := g.world.Players[id]
 		g.world.RUnlock()
 		if !exists || !player.IsAlive || player.Weapon == nil {
+			if player != nil && player.Weapon == nil {
+				logger.Debugf("Joueur %s n'a pas d'arme !", id)
+			}
 			continue
 		}
 		lastTick := g.lastShotTicks[id]
@@ -97,6 +102,7 @@ func (g *Game) HandlePlayersShooting() {
 			bullet.SpawnTick = g.ticks
 			g.world.AddBullet(bullet)
 			g.lastShotTicks[id] = g.ticks
+			logger.Debugf("Joueur %s tire sur ennemi %s (tick %d)", id, closestEnemy.ID, g.ticks)
 		}
 	}
 }
@@ -107,6 +113,7 @@ func (g *Game) UpdateBullets() {
 	bullets := &g.world.Bullets
 	for i := 0; i < len(*bullets); i++ {
 		if !(*bullets)[i].Update() {
+			logger.Debugf("Balle de %s expirée (portée dépassée) au tick %d", (*bullets)[i].OwnerID, g.ticks)
 			*bullets = append((*bullets)[:i], (*bullets)[i+1:]...)
 			i--
 		}
@@ -134,8 +141,11 @@ func (g *Game) HandleBulletCollisions() {
 					continue
 				}
 				if hitbox.CheckCollision(bulletHitbox, e.Hitbox) {
+					oldHp := e.HP
 					e.HP -= b.Damage
+					logger.Debugf("Balle du joueur %s touche ennemi %s: PV %d -> %d", b.OwnerID, e.ID, oldHp, e.HP)
 					if e.HP <= 0 {
+						logger.Infof("Ennemi %s tué par %s", e.ID, b.OwnerID)
 						e.IsAlive = false
 					}
 					hit = true
@@ -148,13 +158,12 @@ func (g *Game) HandleBulletCollisions() {
 					continue
 				}
 				if hitbox.CheckCollision(bulletHitbox, p.Hitbox) {
-					if g.ticks >= p.InvincibleUntil {
-						p.HP -= b.Damage
-						if p.HP <= 0 {
-							p.IsAlive = false
-						} else {
-							p.InvincibleUntil = g.ticks + 10
-						}
+					oldHp := p.HP
+					p.HP -= b.Damage
+					logger.Debugf("Balle d'ennemi %s touche joueur %s: PV %d -> %d", b.OwnerID, p.ID, oldHp, p.HP)
+					if p.HP <= 0 {
+						logger.Infof("Joueur %s tué par %s", p.ID, b.OwnerID)
+						p.IsAlive = false
 					}
 					hit = true
 					break
@@ -163,6 +172,7 @@ func (g *Game) HandleBulletCollisions() {
 		}
 
 		if hit {
+			logger.Debugf("Balle supprimée après impact (tick %d)", g.ticks)
 			*bullets = append((*bullets)[:i], (*bullets)[i+1:]...)
 			i--
 		}

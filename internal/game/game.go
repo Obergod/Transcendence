@@ -3,7 +3,9 @@ package game
 import (
 	"syscall/js"
 	"fmt"
+
 	"transcendance/internal/world"
+	"transcendance/internal/logger"
 )
 
 type Game struct {
@@ -17,6 +19,7 @@ type Game struct {
 }
 
 func NewGame(w *world.World, IDs []string, nb int) *Game {
+	logger.Debugf("Création d'une nouvelle partie, nbPlayer=%d, localIDs=%v", nb, IDs)
 	return &Game{
 		world:         w,
 		localIDs:      IDs,
@@ -37,12 +40,14 @@ func (g *Game) CheckPlayersAlive() {
 		}
 		if !Player.IsAlive {
 			playersdead++
+			logger.Debugf("Joueur %s est mort", id)
 		}
 	}
 	if playersdead == g.nbPlayer && !g.isGameover {
 		g.isGameover = true
 		durationInSeconds := g.ticks / 60
 		score := g.ticks
+		logger.Infof("Game Over! Durée=%d sec, Score=%d ticks", durationInSeconds, score)
 		if js.Global().Get("onGameover").Type() == js.TypeFunction {
 			js.Global().Call("onGameover", durationInSeconds, score)
 		}
@@ -52,6 +57,7 @@ func (g *Game) CheckPlayersAlive() {
 func (g *Game) RemoveDeadEnemies() {
 	for id, e := range g.world.Enemies {
 		if !e.IsAlive {
+			logger.Debugf("Ennemi %s retiré du monde", id)
 			delete(g.world.Enemies, id)
 		}
 	}
