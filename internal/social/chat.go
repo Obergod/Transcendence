@@ -59,11 +59,12 @@ func GetHistoryHandler(db *gorm.DB) gin.HandlerFunc {
 			})
 		}
 
-		friendInfo := gin.H{"avatarUrl": "", "username": ""}
+		friendInfo := gin.H{"avatarUrl": "", "username": "", "level": 1}
 		if friend != nil {
 			friendInfo = gin.H{
 				"avatarUrl":	friend.AvatarURL,
 				"username":		friend.Username,
+				"level":		LevelForUser(db, friendID),
 			}
 		}
 

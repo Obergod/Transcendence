@@ -70,6 +70,7 @@ func main() {
 		protected.GET("/match/leaderboard", social.LeaderboardHandler(db))
 		protected.GET("/user/stats", social.UserStatsHandler(db))
         protected.GET("/chat/history/:friendId", social.GetHistoryHandler(db))
+        protected.GET("/user/level", social.GetLevelHandler(db))
     }
 
 	//r.Static("/", "./frontend/dist")

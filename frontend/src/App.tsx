@@ -21,7 +21,7 @@ function App() {
   const { t } = useTranslation();
 
   // MAGIE : On récupère l'utilisateur depuis notre Contexte !
-  const { user } = useUser();
+  const { user, levelInfo } = useUser();
 
   return (
     <BrowserRouter>
@@ -41,7 +41,12 @@ function App() {
           {/* <-- La correction est ici (on utilise 'user' au lieu de 'isLoggedIn') */}
           {user ? (
             <Link to="/profile" className="flex items-center space-x-4 cursor-pointer hover:bg-gray-800 p-2 rounded-lg transition-colors">
-              <span className="font-bold text-lg">{user.pseudo}</span>
+              <div className="flex flex-col items-end leading-tight">
+                <span className="font-bold text-lg">{user.pseudo}</span>
+                <span className="text-red-500 font-bold text-sm">
+                  {levelInfo ? `${t('level.short')} ${levelInfo.level}` : ''}
+                </span>
+              </div>
               <div className="w-12 h-12 bg-gray-700 rounded-full border-2 border-red-500 overflow-hidden">
                 <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
               </div>

@@ -24,8 +24,6 @@
     "confirm_password": "Confirmer le mot de passe",
     "submit_login": "JOUER",
     "submit_register": "CRÉER MON COMPTE",
-    "or": "OU",
-    "google": "Continuer avec Google",
     "already_account": "J'ai déjà un compte",
     "no_account": "Je n'ai pas encore de compte",
     "error_password_mismatch": "Les mots de passe ne correspondent pas !",
@@ -114,6 +112,9 @@
     "back_to_profile": "Retour au profil",
     "no_messages": "Aucun message. Lance la discussion !",
     "spam_warning": "Doucement ! Tu envoies des messages trop vite."
+  },
+  "level": {
+    "short": "Nv"
   },
   "game": {
     "in_progress": "SURVIE EN COURS...",

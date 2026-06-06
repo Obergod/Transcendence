@@ -156,18 +156,6 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
               {isSignUp ? t('auth.submit_register') : t('auth.login_btn')}
             </button>
           </form>
-
-          <div className="flex items-center my-6">
-            <div className="flex-1 border-t border-gray-700"></div>
-            <span className="px-4 text-gray-500 text-xs font-bold">{t('auth.or')}</span>
-            <div className="flex-1 border-t border-gray-700"></div>
-          </div>
-
-          <button type="button" className="w-full bg-white text-black font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
-            {t('auth.google')}
-          </button>
-
         </div>
 
         <div className="bg-[#1a2035] p-4 text-center mt-auto border-t border-gray-800">

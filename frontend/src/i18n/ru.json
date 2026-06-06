@@ -24,8 +24,6 @@
     "confirm_password": "Подтвердить пароль",
     "submit_login": "ИГРАТЬ",
     "submit_register": "СОЗДАТЬ АККАУНТ",
-    "or": "ИЛИ",
-    "google": "Войти через Google",
     "already_account": "У меня уже есть аккаунт",
     "no_account": "У меня ещё нет аккаунта",
     "error_password_mismatch": "Пароли не совпадают!",
@@ -114,6 +112,9 @@
     "back_to_profile": "Назад к профилю",
     "no_messages": "Нет сообщений. Начните разговор!",
     "spam_warning": "Помедленнее! Вы отправляете сообщения слишком быстро."
+  },
+  "level": {
+    "short": "Ур"
   },
   "game": {
     "in_progress": "ВЫЖИВАНИЕ В ПРОЦЕССЕ...",

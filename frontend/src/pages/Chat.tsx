@@ -17,6 +17,7 @@ const Chat = () => {
   const lastMessageTime = useRef<number>(0);
 
   const [friendAvatar, setFriendAvatar] = useState<string | null>(null);
+  const [friendLevel, setFriendLevel] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -29,8 +30,9 @@ const Chat = () => {
         if (res.ok) {
           const data = await res.json();
           setMessages(data.data || []);
-          if (data.friend?.avatarUrl) {
-            setFriendAvatar(data.friend.avatarUrl);
+          if (data.friend) {
+            if (data.friend.avatarUrl) setFriendAvatar(data.friend.avatarUrl);
+            if (data.friend.level) setFriendLevel(data.friend.level);
           }
         }
       } catch (err) {
@@ -110,7 +112,12 @@ const Chat = () => {
               <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1a2035] bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-widest">{friendName?.toUpperCase()}</h2>
+              <div className="flex items-baseline gap-2">
+                <h2 className="text-xl font-black text-white tracking-widest">{friendName?.toUpperCase()}</h2>
+                {friendLevel && (
+                  <span className="text-red-500 text-sm font-bold">{t('level.short')} {friendLevel}</span>
+                )}
+              </div>
               <span className="text-green-400 text-xs font-bold">{t('chat.online')}</span>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 interface User {
   id: number;
@@ -15,6 +15,8 @@ interface UserContextType {
   logout: () => void;
   isReady: boolean;
   ws: WebSocket | null; //socket global
+  levelInfo: { level: number; xpInLevel: number; xpForNext: number } | null;
+  refreshLevel : () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
+  const [levelInfo, setLevelInfo] = useState<{ level: number; xpInLevel: number; xpForNext: number } | null>(null);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -75,6 +78,24 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [user]);
 
+  const refreshLevel = useCallback(async () => {
+    if (!user) { setLevelInfo(null); return; }
+    const token = localStorage.getItem('jwt_token');
+    try {
+      const res = await fetch("http://localhost:8081/api/user/level", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLevelInfo({ level: data.level, xpInLevel: data.xp_in_level, xpForNext: data.xp_for_next });
+      }
+    } catch (err) {
+      console.error("Erreur chargement niveau", err);
+    }
+  }, [user]);
+
+  useEffect(() => { refreshLevel(); }, [refreshLevel]);
+
   const login = (userData: User) => setUser(userData);
 
   const logout = () => {
@@ -87,7 +108,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, login, logout, isReady, ws }}>
+    <UserContext.Provider value={{ user, login, logout, isReady, ws, levelInfo, refreshLevel }}>
       {children}
     </UserContext.Provider>
   );

@@ -24,8 +24,6 @@
     "confirm_password": "Confirm password",
     "submit_login": "PLAY",
     "submit_register": "CREATE MY ACCOUNT",
-    "or": "OR",
-    "google": "Continue with Google",
     "already_account": "I already have an account",
     "no_account": "I don't have an account yet",
     "error_password_mismatch": "Passwords do not match!",
@@ -114,6 +112,9 @@
     "back_to_profile": "Back to profile",
     "no_messages": "No messages. Start the conversation!",
     "spam_warning": "Slow down! You're sending messages too fast."
+  },
+  "level": {
+    "short": "Lvl"
   },
   "game": {
     "in_progress": "SURVIVAL IN PROGRESS...",

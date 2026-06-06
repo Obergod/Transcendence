@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom'; // <-- AJOUT DE useLocation
 import { useTranslation } from 'react-i18next';
+import { useUser } from '../context/UserContext';
 
 const Game = () => {
   const [isGameLoaded, setIsGameLoaded] = useState(false);
@@ -9,6 +10,7 @@ const Game = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { t } = useTranslation();
+  const { refreshLevel } = useUser();
 
   // NOUVEAU : On récupère le mode choisi dans le Lobby (1 ou 2 joueurs). Par défaut 1.
   const location = useLocation();
@@ -24,6 +26,7 @@ const Game = () => {
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify({ duration: durationInSeconds, score: score }),
         });
+        await refreshLevel();
       } catch (err) {
         console.error("Erreur de sauvegarde du score", err);
       }

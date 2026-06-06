@@ -26,7 +26,7 @@ const Home = ({ isLoggedIn, onLoginClick }: HomeProps) => {
             </Link>
           </>
         ) : (
-          <button onClick={onLoginClick} className="bg-red-600 hover:bg-red-700 border-2 border-red-500 py-4 rounded-xl text-xl font-bold uppercase tracking-widest transition-all text-white shadow-[0_0_20px_rgba(220,38,38,0.5)]">
+          <button onClick={onLoginClick} className="bg-red-600 hover:bg-red-700 border-2 border-red-500 py-4 rounded-xl text-4xl font-bold uppercase tracking-widest transition-all text-white shadow-[0_0_20px_rgba(220,38,38,0.5)]">
             {t('home.play')}
           </button>
         )}
