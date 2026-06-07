@@ -3,11 +3,4 @@ path:
 xpack:
   monitoring:
     enabled: false
-  logging:
-    files:
-      main:
-        name: logstash-main.log
-        path: /usr/share/logstash/logs
-      slow:
-        name: logstash-slow.log
-        path: /usr/share/logstash/logs
+xpack.monitoring.enabled: false

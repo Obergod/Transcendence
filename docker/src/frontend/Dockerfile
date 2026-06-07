@@ -1,8 +1,8 @@
-FROM node:24-bookworm
+FROM node:24-alpine
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y openssl && \
+RUN apk update && apk add openssl curl ca-certificates &&  \
     wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-linux-amd64 && \
     mv mkcert-v1.4.4-linux-amd64 mkcert && \
     chmod +x mkcert && \

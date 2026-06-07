@@ -19,36 +19,36 @@ CLEAR = \033[2K\r
 .PHONY: all clean fclean re up down start stop ps core launch_core reset
 
 SRCS=docker/docker-compose.yml
+SETUP=docker/docker-compose.setup.yml
 
-all: build up clean # TODO clean has been deleted from all launch, check if it is needed 
+all: bootstrap build up clean # build clean <up> # TODO clean has been deleted from all launch, check if it is needed 
 
 # --- For Dockers ---
 
 bootstrap:
-	./docker/start_elastic.sh
+	@docker compose -f ${SETUP} up certs
+	@./docker/start_elastic.sh
 
-up: bootstrap
-	@docker compose -f ${SRCS} up -d
+up:
+	@docker compose -f ${SRCS} up --build -d
+# 	sudo docker compose -f docker-compose.setup.yml run --rm certs
 
 build:
-	@docker compose -f ${SRCS} build backend && docker compose -f ${SRCS} build
+	@docker compose -f ${SRCS} build #backend && docker compose -f ${SRCS} build
 
-launch_core:
-	@docker compose -f ${SRCS} up -d database backend frontend
+# build:
+# 	@docker compose -f ${SRCS} build
 
-core: build launch_core clean
+# launch_core:
+# 	@docker compose -f ${SRCS} up -d database backend frontend
+
+# core: build launch_core clean
 
 start:
 	@docker compose -f ${SRCS} start
 
-stop_ng:
-	@docker compose -f ${SRCS} kill nginx
-
-stop: stop_ng
-	@docker compose -f ${SRCS} stop
-
-down:
-	@docker compose -f ${SRCS} down
+stop: 
+	@docker compose -f ${SRCS} down --remove-orphans
 
 ps:
 	@docker compose -f ${SRCS} ps
@@ -56,16 +56,16 @@ ps:
 # --- Nettoyage ---
 
 clean:
-	@docker image rm backend-builder docker_frontend custom-logstash -f
+	@docker image rm backend frontend -f
 # 	docker image prune -af
 
-fclean: stop down clean
-	@docker container prune -f
+fclean: stop clean # down at beginning
 # 	@ docker image prune -af
 # 	@ docker compose -f ${SRCS} down --rmi 'all'
 
 death: fclean
-	@rm -rf docker/.env docker/.secrets .env .secrets docker/backups docker/certs docker/src/nginx/logs
+	@rm -rf docker/backups docker/certs docker/src/elasticsearch/ssl/* docker/src/kibana/ssl/*
+	@echo > docker/.env
 	@docker system prune -af
 	@docker volume prune -f
 

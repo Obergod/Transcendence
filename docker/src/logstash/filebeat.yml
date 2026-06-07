@@ -1,14 +1,52 @@
+# filebeat.inputs:
+# - type: container
+#   enabled: true
+#   paths:
+#     - /var/log/journal/*/*.journal
+
+# output.elasticsearch:
+#   hosts: ["https://elasticsearch:9200"]
+#   hosts.resolve.hostname: false
+#   index: "filebeat-journal-%{+yyyy.MM.dd}"
+#   username: "elastic"
+#   password: "${ELASTIC_PASSWORD}"
+#   ssl.enabled: true
+#   ssl.certificate_authorities:
+#     - /usr/share/elasticsearch/config/certs/ca.pem
+#   verification_mode: "none"
+
+# setup.ilm.enabled: false
+# setup.template.enabled: true
+# setup.template.name: "filebeat"
+# setup.template.pattern: "filebeat-*"
+
+# logging.level: info
+# logging.to_files: true
+# logging.files:
+#   path: /var/log/filebeat
+#   name: filebeat
+#   keepfiles: 7
+#   permissions: 0644
+
 filebeat.inputs:
-  - type: journald
-    id: podman-journal
-  - type: filestream
-    id: app-log
-    paths:
-      - /sample-logs/app.log
+- type: log
+  enabled: true
+  paths:
+    - /app/logs/main.log
+    - /app/logs/*.log
 
 output.logstash:
   hosts: ["logstash:5044"]
 
+setup.ilm.enabled: true
+setup.template.enabled: true
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
 
-# ssl.enabled: true
-# ssl.certificate_authorities: ["/etc/pki/ca.crt"]
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644

@@ -1,98 +1,264 @@
+apiVersion: 1
+
 groups:
-  - name: "Backend Alerts"
-    folder: "Backend"
+  - orgId: 1
+    name: Backend Alerts
+    folder: Backend
     interval: 60s
     rules:
-      - alert: "BackendDown"
-        expr: "up{job=\"backend\"} == 0"
-        for: "5m"
-        labels:
-          severity: "critical"
-        annotations:
-          title: "Backend Service Down"
-          summary: "Backend service is down"
-          description: "The backend service ({{ $labels.instance }}) has been down for more than 5 minutes."
-
-  - name: "Postgres Alerts"
-    folder: "Posgres"
-    interval: 60s
-    rules:
-      - alert: "PostgresDown"
-        expr: "up{job=\"postgres\"} == 0"
-        for: "5m"
-        labels:
-          severity: "critical"
-        annotations:
-          title: "Postgres Service Down"
-          summary: "Postgres service is down"
-          description: "The Postgres service ({{ $labels.instance }}) has been down for more than 5 minutes."
-
-      - alert: "HighDatabaseErrors"
-        expr: "rate(pg_stat_database_numbackends[5m]) > 10"
-        for: "5m"
-        labels:
-          severity: "warning"
-        annotations:
-          title: "High Number of Database Connections"
-          summary: "High number of database connections"
-          description: "The Postgres service {{ $labels.instance }} has {{ $value }} active connections (threshold > 10)."
-          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/fire-alerts/"
-
-  - name: "Node-metrics"
-    folder: "Node Exporter"
-    interval: 60s
-    rules:
-      - alert: HighDiskUsage
-        expr: 100 - (node_filesystem_avail_bytes{device!="tmpfs", device!="rootfs"} / node_filesystem_size_bytes{device!="tmpfs", device!="rootfs"} * 100) > 90
+      - uid: backend_down
+        title: BackendDown
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prom_ds
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: up{job="backend"} == 0
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
         for: 5m
-        labels:
-          severity: "warning"
+        noDataState: NoData
+        execErrState: Error
         annotations:
-          title: "High Disk Usage"
-          summary: "High disk usage detected"
-          description: "Disk {{ $labels.device }} on instance {{ $labels.instance }} is {{ $value }}% full (threshold > 90%)."
-          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/fire-alerts/"
+          summary: Backend service is down
+          description: The backend service ({{ $labels.instance }}) has been down for more than 5 minutes.
+        labels:
+          severity: critical
 
-      - alert: CriticalDiskUsage
-        expr: 100 - (node_filesystem_avail_bytes{device!="tmpfs", device!="rootfs"} / node_filesystem_size_bytes{device!="tmpfs", device!="rootfs"} * 100) > 95
+  - orgId: 1
+    name: Postgres Alerts
+    folder: Postgres
+    interval: 60s
+    rules:
+      - uid: postgres-down
+        title: PostgresDown
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prom_ds
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: up{job="postgres"} == 0
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
         for: 5m
-        labels:
-          severity: "critical"
+        noDataState: NoData
+        execErrState: Error
         annotations:
-          title: "Critical Disk Usage"
-          summary: "Critical disk usage detected"
-          description: "Disk {{ $labels.device }} on instance {{ $labels.instance }} is {{ $value }}% full (threshold > 95%)."
-          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/fire-alerts/"
+          summary: Postgres service is down
+          description: The Postgres service ({{ $labels.instance }}) has been down for more than 5 minutes.
+        labels:
+          severity: critical
 
-      - alert: HighCPULoad
-        expr: node_load5 > 4
+      - uid: postgres-high-connections
+        title: HighDatabaseConnections
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prom_ds
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: sum(pg_stat_database_numbackends) by (instance) > 100
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        for: 5m
+        noDataState: NoData
+        execErrState: Error
+        annotations:
+          summary: High number of database connections
+          description: The Postgres service {{ $labels.instance }} has {{ $value }} active connections.
+          runbook_url: https://grafana.com/docs/grafana/latest/alerting/fire-alerts/
+        labels:
+          severity: warning
+
+  - orgId: 1
+    name: Node Metrics
+    folder: Node Exporter
+    interval: 60s
+    rules:
+      - uid: high-disk-usage
+        title: HighDiskUsage
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prom_ds
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: |
+                (
+                  100 * (
+                    1 - (
+                      node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"}
+                      /
+                      node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}
+                    )
+                  )
+                ) > 90
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        for: 5m
+        noDataState: NoData
+        execErrState: Error
+        annotations:
+          summary: High disk usage detected
+          description: Disk {{ $labels.device }} on instance {{ $labels.instance }} is {{ $value }}% full (threshold > 90%).
+          runbook_url: https://grafana.com/docs/grafana/latest/alerting/fire-alerts/
+        labels:
+          severity: warning
+
+      - uid: critical-disk-usage
+        title: CriticalDiskUsage
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prom_ds
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: |
+                (
+                  100 * (
+                    1 - (
+                      node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"}
+                      /
+                      node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}
+                    )
+                  )
+                ) > 95
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        for: 5m
+        noDataState: NoData
+        execErrState: Error
+        annotations:
+          summary: Critical disk usage detected
+          description: Disk {{ $labels.device }} on instance {{ $labels.instance }} is {{ $value }}% full (threshold > 95%).
+          runbook_url: https://grafana.com/docs/grafana/latest/alerting/fire-alerts/
+        labels:
+          severity: critical
+
+      - uid: high-cpu-load
+        title: HighCPULoad
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prom_ds
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              editorMode: code
+              expr: |
+                (
+                  node_load5
+                  /
+                  count(node_cpu_seconds_total{mode="idle"}) by (instance)
+                ) > 0.8
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
         for: 10m
-        labels:
-          severity: "critical"
+        noDataState: NoData
+        execErrState: Error
         annotations:
-          title: "High CPU Load"
-          summary: "High CPU load detected"
-          description: "CPU load on {{ $labels.instance }} is {{ $value }} (threshold > 4)."
-          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/fire-alerts/"
+          summary: High CPU load detected
+          description: CPU load on {{ $labels.instance }} is {{ $value }}.
+          runbook_url: https://grafana.com/docs/grafana/latest/alerting/fire-alerts/
+        labels:
+          severity: critical
 
-      - alert: HighMemoryUsage
-        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+      - uid: high-memory-usage
+        title: HighMemoryUsage
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prom_ds
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: |
+                (
+                  100 * (
+                    1 - (
+                      node_memory_MemAvailable_bytes
+                      /
+                      node_memory_MemTotal_bytes
+                    )
+                  )
+                ) > 90
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
         for: 5m
-        labels:
-          severity: "warning"
+        noDataState: NoData
+        execErrState: Error
         annotations:
-          title: "High Memory Usage"
-          summary: "High memory usage detected"
-          description: "Memory usage on {{ $labels.instance }} is {{ $value }}% (threshold > 90%)."
-          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/fire-alerts/"
+          summary: High memory usage detected
+          description: Memory usage on {{ $labels.instance }} is {{ $value }}% (threshold > 90%).
+          runbook_url: https://grafana.com/docs/grafana/latest/alerting/fire-alerts/
+        labels:
+          severity: warning
 
-      - alert: CriticalMemoryUsage
-        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 95
+      - uid: critical-memory-usage
+        title: CriticalMemoryUsage
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prom_ds
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: |
+                (
+                  100 * (
+                    1 - (
+                      node_memory_MemAvailable_bytes
+                      /
+                      node_memory_MemTotal_bytes
+                    )
+                  )
+                ) > 95
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
         for: 5m
-        labels:
-          severity: "critical"
+        noDataState: NoData
+        execErrState: Error
         annotations:
-          title: "Critical Memory Usage"
-          summary: "Critical memory usage detected"
-          description: "Memory usage on {{ $labels.instance }} is {{ $value }}% (threshold > 95%)."
-          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/fire-alerts/"
+          summary: Critical memory usage detected
+          description: Memory usage on {{ $labels.instance }} is {{ $value }}% (threshold > 95%).
+          runbook_url: https://grafana.com/docs/grafana/latest/alerting/fire-alerts/
+        labels:
+          severity: critical
