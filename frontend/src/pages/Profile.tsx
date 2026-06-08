@@ -312,14 +312,14 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             <h3 className="text-xl font-bold text-yellow-500 mb-4">{t('profile.pending_requests')}</h3>
             <div className="space-y-3">
               {pendingRequests.map(req => (
-                <div key={req.ID} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700">
+                <div key={req.friendship_id} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700">
                   <div className="flex items-center gap-3">
-                    <img src={req.User.AvatarURL} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
-                    <span className="font-bold">{req.User.Username}</span>
+                    <img src={req.other_avatar} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
+                    <span className="font-bold">{req.other_username}</span>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => respondToRequest(req.ID, 'accept')} className="bg-green-600/20 text-green-500 hover:bg-green-600 hover:text-white p-2 rounded-lg transition-colors">✓</button>
-                    <button onClick={() => respondToRequest(req.ID, 'reject')} className="bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white p-2 rounded-lg transition-colors">✗</button>
+                    <button onClick={() => respondToRequest(req.friendship_id, 'accept')} className="bg-green-600/20 text-green-500 hover:bg-green-600 hover:text-white p-2 rounded-lg transition-colors">✓</button>
+                    <button onClick={() => respondToRequest(req.friendship_id, 'reject')} className="bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white p-2 rounded-lg transition-colors">✗</button>
                   </div>
                 </div>
               ))}
