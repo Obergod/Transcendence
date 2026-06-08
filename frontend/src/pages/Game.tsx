@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // <-- AJOUT DE useLocation
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUser } from '../context/UserContext';
 
@@ -12,7 +12,7 @@ const Game = () => {
   const { t } = useTranslation();
   const { refreshLevel } = useUser();
 
-  // NOUVEAU : On récupère le mode choisi dans le Lobby (1 ou 2 joueurs). Par défaut 1.
+  // onrécupère le mode choisi dans le Lobby (1 ou 2 joueurs). Par défaut 1.
   const location = useLocation();
   const gameMode = location.state?.mode || 1;
 
@@ -85,7 +85,7 @@ const Game = () => {
       document.querySelectorAll('canvas').forEach(c => c.remove());
       delete (window as any).onGameover;
     };
-  }, [t, gameMode]); // <-- Ajout de gameMode dans les dépendances
+  }, [t, gameMode]);
 
   const handleRetry = () => {
     setIsGameOver(false);
@@ -98,7 +98,7 @@ const Game = () => {
     <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-8 w-full">
 
       {/* HEADER DU JEU (Avec les IDs pour que Go puisse injecter le texte en temps réel) */}
-      <div className="flex justify-between items-end w-full max-w-4xl mb-4 px-4">
+      <div className="flex justify-between items-end w-full max-w-7xl mb-4 px-4">
         <h2 id="game-timer" className="text-3xl font-black text-red-500 tracking-widest uppercase">
             {t('game.timer_init')}
         </h2>
@@ -109,7 +109,7 @@ const Game = () => {
       <div
         id="game-container"
         ref={containerRef}
-        className="relative w-full max-w-4xl aspect-video bg-black border-4 border-gray-700 rounded-xl flex items-center justify-center overflow-hidden shadow-2xl"
+        className="relative w-full max-w-7xl aspect-video bg-black border-4 border-gray-700 rounded-xl flex items-center justify-center overflow-hidden shadow-2xl"
       >
         {!isGameLoaded && !error && (
           <div className="text-center animate-pulse z-10">
@@ -130,12 +130,11 @@ const Game = () => {
         {t('game.quit')}
       </Link>
 
-      {/* --- POPUP GAME OVER (Style AuthModal) --- */}
+      {/*POPUP GAME OVER*/}
       {isGameOver && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100] backdrop-blur-md p-4">
           <div className="bg-[#0f1423] border border-gray-700 rounded-2xl w-full max-w-md shadow-[0_0_50px_rgba(230,0,0,0.3)] relative overflow-hidden flex flex-col">
 
-            {/* Décoration rouge en haut */}
             <div className="h-2 w-full bg-[#e60000]"></div>
 
             <div className="p-10 text-center">
@@ -163,7 +162,6 @@ const Game = () => {
               </div>
             </div>
 
-            {/* Pied du popup */}
             <div className="bg-[#1a2035] p-4 text-center border-t border-gray-800">
                 <span className="text-gray-600 text-[10px] font-black uppercase tracking-widest">{t('game.footer')}</span>
             </div>

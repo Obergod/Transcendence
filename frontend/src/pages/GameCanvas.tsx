@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 
-// Déclarer le constructeur Go qui vient de wasm_exec.js
+// declarer le constructeur Go qui vient de wasm_exec.js
 declare global {
   const Go: any;
 }
 
 export default function GameCanvas() {
   useEffect(() => {
-    // Éviter de recharger le script plusieurs fois
     if (!document.querySelector('script[src="/wasm/wasm_exec.js"]')) {
       const script = document.createElement('script');
       script.src = '/wasm/wasm_exec.js';

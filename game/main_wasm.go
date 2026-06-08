@@ -1,45 +1,38 @@
 package main
 
 import (
-    "encoding/json"
     "log"
-    "net/http"
+	"os"
 	"syscall/js"
 
     "github.com/hajimehoshi/ebiten/v2"
 
     "transcendance/internal/game"
+    "transcendance/internal/logger"
 )
 
 func main() {
-    // Appel HTTP exemple (backend)
-    resp, err := http.Get("/api/hello")
-    if err != nil {
-        log.Println("Erreur HTTP:", err)
-    } else {
-        defer resp.Body.Close()
-        var result map[string]string
-        if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-            log.Println("Erreur décodage JSON:", err)
-        } else {
-            log.Printf("Réponse backend: %v", result)
-        }
-    }
-
-	// initialaze all variables for a game instance
-	gameMode := js.Global().Get("gameMode").Int()
-	if gameMode == 0 {
-		gameMode = 1
+	// Activer les logs si la variable d'environnement est présente
+	if os.Getenv("DEBUG") == "1" {
+		logger.EnableDebug()
 	}
 
-	w, initialPlayer := game.InitGame(gameMode)
+	// initialaze all variables for a game instance
+	nbPlayer := js.Global().Get("gameMode").Int()
+	if nbPlayer == 0 {
+		nbPlayer  = 1
+	}
+	logger.Infof("Démarrage du jeu avec %d joueur(s)", nbPlayer)
 
-	gameInstance := game.NewGame(w, initialPlayer.ID)
+	w, IDs := game.InitGame(nbPlayer)
+
+	gameInstance := game.NewGame(w, IDs, nbPlayer)
 
 	// mode vite fait le reset pour que quand on retry ca nous garde dans le bon mode
 	js.Global().Set("restartGame", js.FuncOf(func(this js.Value, args []js.Value) any {
+		logger.Infof("Reset demandé depuis JavaScript")
 		if gameInstance != nil {
-			game.Reset(gameInstance, gameMode)
+			game.Reset(gameInstance)
 		}
 		return nil
 	}))
@@ -48,6 +41,7 @@ func main() {
 	ebiten.SetWindowSize(800, 600)
 	ebiten.SetWindowTitle("Multiplayer with Ranged Enemies")
 	if err := ebiten.RunGame(gameInstance); err != nil {
+		logger.Errorf("Erreur lors de l'exécution du jeu: %v", err)
 		log.Fatal(err)
 	}
 }

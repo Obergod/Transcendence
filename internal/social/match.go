@@ -10,7 +10,7 @@ import (
 
 type SaveMatchRequest struct {
 	Duration int `json:"duration" binding:"required"`
-	Score    int `json:"score" binding:"required"` // NOUVEAU
+	Score    int `json:"score" binding:"required"`
 }
 
 // 1. Sauvegarder le score à la fin d'une partie
@@ -49,20 +49,16 @@ func UserStatsHandler(db *gorm.DB) gin.HandlerFunc {
 
 		var stats UserStatsResponse
 
-		// Récupérer le meilleur score (COALESCE évite d'avoir un bug si la table est vide au début)
 		db.Model(&models.Match{}).Where("user_id = ?", userID).Select("COALESCE(MAX(score), 0)").Row().Scan(&stats.BestScore)
 
-		// Récupérer le meilleur temps (en secondes)
 		db.Model(&models.Match{}).Where("user_id = ?", userID).Select("COALESCE(MAX(duration), 0)").Row().Scan(&stats.BestDuration)
 
-		// Récupérer la somme totale du temps passé ingame
 		db.Model(&models.Match{}).Where("user_id = ?", userID).Select("COALESCE(SUM(duration), 0)").Row().Scan(&stats.TotalDuration)
 
 		c.JSON(http.StatusOK, stats)
 	}
 }
 
-// 2. Récupérer l'historique personnel
 func MyHistoryHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userIDInterface, _ := c.Get("userID")
@@ -75,7 +71,6 @@ func MyHistoryHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// 3. Récupérer le TOP 10 (Moi + Mes amis)
 func LeaderboardHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userIDInterface, _ := c.Get("userID")

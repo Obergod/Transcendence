@@ -8,12 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// Structure attendue depuis React
 type FriendRequest struct {
 	TargetUsername string `json:"username" binding:"required"`
 }
 
-// Structure pour répondre à une demande
 type RespondFriendRequest struct {
 	FriendshipID uint   `json:"friendship_id" binding:"required"`
 	Action       string `json:"action" binding:"required"` // "accept" ou "reject"
@@ -37,7 +35,6 @@ func RespondFriendRequestHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Sécurité : Seul celui qui a REÇU la demande (FriendID) peut y répondre
 		if friendship.FriendID != userID {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Cette demande ne t'est pas adressée"})
 			return
@@ -63,8 +60,6 @@ func ListFriendsHandler(db *gorm.DB) gin.HandlerFunc {
 		userID := userIDInterface.(uint)
 
 		var friendships []models.Friendship
-		// On charge les relations où l'utilisateur est soit l'envoyeur, soit le receveur.
-		// Preload permet à GORM de remplir automatiquement les infos des utilisateurs !
 		if err := db.Preload("User").Preload("Friend").
 			Where("user_id = ? OR friend_id = ?", userID, userID).
 			Find(&friendships).Error; err != nil {
@@ -119,14 +114,12 @@ func SendFriendRequestHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 		userID := userIDInterface.(uint)
 
-		// 2. Lire le pseudo de la cible
 		var req FriendRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Format invalide"})
 			return
 		}
 
-		// 3. Trouver le joueur cible en BDD
 		targetUser, err := models.GetUserByUsername(db, req.TargetUsername)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Joueur introuvable"})
@@ -138,14 +131,12 @@ func SendFriendRequestHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// 4. Créer la relation "en attente"
 		friendship := models.Friendship{
 			UserID:   userID,
 			FriendID: targetUser.ID,
 			Status:   "pending",
 		}
 
-		// (Ici GORM va planter si une relation existe déjà grâce aux contraintes de la BDD)
 		if err := db.Create(&friendship).Error; err != nil {
 			c.JSON(http.StatusConflict, gin.H{"error": "Une demande existe déjà avec ce joueur"})
 			return

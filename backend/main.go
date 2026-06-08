@@ -75,6 +75,6 @@ func main() {
 
 	//r.Static("/", "./frontend/dist")
 
-    log.Println("Serveur sur http://localhost:8081")
+	log.Println("Serveur sur :8081")
     log.Fatal(r.Run(":8081"))
 }

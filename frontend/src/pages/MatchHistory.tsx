@@ -15,7 +15,6 @@ const MatchHistory = () => {
       if (!token) return;
 
       try {
-        // 1. Charger l'historique perso
         const histRes = await fetch("http://localhost:8081/api/match/history", {
           headers: { "Authorization": `Bearer ${token}` }
         });
@@ -24,7 +23,6 @@ const MatchHistory = () => {
           setMyHistory(histData.data || []);
         }
 
-        // 2. Charger le classement
         const leadRes = await fetch("http://localhost:8081/api/match/leaderboard", {
           headers: { "Authorization": `Bearer ${token}` }
         });
@@ -40,7 +38,6 @@ const MatchHistory = () => {
     fetchData();
   }, []);
 
-  // Fonction utilitaire pour formater les secondes (ex: 125s -> 02:05)
   const formatTime = (totalSeconds: number) => {
     const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
     const s = (totalSeconds % 60).toString().padStart(2, '0');

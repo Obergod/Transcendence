@@ -11,9 +11,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [currentInput, setCurrentInput] = useState("");
 
-  // NOUVEAU : État pour afficher l'alerte de spam
   const [isSpamming, setIsSpamming] = useState(false);
-  // NOUVEAU : Référence pour stocker l'heure du dernier envoi sans re-render le composant
   const lastMessageTime = useRef<number>(0);
 
   const [friendAvatar, setFriendAvatar] = useState<string | null>(null);
@@ -88,10 +86,9 @@ const Chat = () => {
 
     ws.send(JSON.stringify(payload));
 
-    // Réinitialisation après envoi
     setCurrentInput("");
     setIsSpamming(false);
-    lastMessageTime.current = now; // On met à jour l'heure du dernier message
+    lastMessageTime.current = now;
   };
 
   return (
@@ -188,7 +185,7 @@ const Chat = () => {
           </form>
         </div>
 
-      </div> {/* <-- C'est cette balise qui manquait ! */}
+      </div>
     </main>
   );
 };
