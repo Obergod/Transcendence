@@ -117,7 +117,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
                 {isSignUp ? t('auth.email') : t('auth.pseudo_or_email')}
               </label>
               <input
-                type="text"
+                type={isSignUp ? "email" : "text"}
                 maxLength={50}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

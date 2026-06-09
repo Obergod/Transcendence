@@ -35,6 +35,24 @@ func NewHub(db *gorm.DB) *Hub {
 	}
 }
 
+// NOUVEAU : Fonction qui envoie la liste de tous les IDs connectés à tout le monde
+func (h *Hub) broadcastOnlineUsers() {
+	var onlineIDs []uint
+	for id := range h.clients {
+		onlineIDs = append(onlineIDs, id)
+	}
+
+	msg := map[string]interface{}{
+		"type":  "online_users",
+		"users": onlineIDs,
+	}
+	jsonMsg, _ := json.Marshal(msg)
+
+	for _, client := range h.clients {
+		client.send <- jsonMsg
+	}
+}
+
 func (h *Hub) Run() {
 	for {
 		select {
@@ -45,11 +63,17 @@ func (h *Hub) Run() {
 			h.clients[client.UserID] = client
 			log.Printf("🟢 Joueur %d connecté au Hub", client.UserID)
 
+			// NOUVEAU : On met à jour tout le monde !
+			h.broadcastOnlineUsers()
+
 		case client := <-h.unregister:
 			if currentClient, ok := h.clients[client.UserID]; ok && currentClient == client {
 				delete(h.clients, client.UserID)
 				close(client.send)
 				log.Printf("🔴 Joueur %d déconnecté du Hub", client.UserID)
+
+				// NOUVEAU : On met à jour tout le monde !
+				h.broadcastOnlineUsers()
 			}
 
 		case payload := <-h.directMsg:

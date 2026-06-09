@@ -5,7 +5,7 @@ import { useUser } from '../context/UserContext';
 
 const Chat = () => {
   const { friendId, friendName } = useParams();
-  const { user, ws } = useUser();
+  const { user, ws, onlineUsers = [] } = useUser() as any;
   const { t } = useTranslation();
 
   const [messages, setMessages] = useState<any[]>([]);
@@ -43,7 +43,8 @@ const Chat = () => {
   useEffect(() => {
     if (!ws) return;
 
-    ws.onmessage = (event) => {
+    // CORRECTION ICI : On précise que event est de type MessageEvent
+    ws.onmessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
 
@@ -72,11 +73,9 @@ const Chat = () => {
 
     if (now - lastMessageTime.current < cooldownMs) {
       setIsSpamming(true);
-      // Fait disparaître le message d'erreur après 1.5s
       setTimeout(() => setIsSpamming(false), 1500);
       return;
     }
-    // ------------------------------------
 
     const payload = {
       type: "chat",
@@ -90,6 +89,8 @@ const Chat = () => {
     setIsSpamming(false);
     lastMessageTime.current = now;
   };
+
+  const isOnline = onlineUsers.includes(Number(friendId));
 
   return (
     <main className="flex-1 flex flex-col items-center pt-24 px-4 pb-12 w-full">
@@ -106,7 +107,7 @@ const Chat = () => {
                   friendName?.charAt(0).toUpperCase()
                  )}
               </div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1a2035] bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
+              <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1a2035] ${isOnline ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]' : 'bg-gray-500'}`}></div>
             </div>
             <div>
               <div className="flex items-baseline gap-2">
@@ -115,7 +116,9 @@ const Chat = () => {
                   <span className="text-red-500 text-sm font-bold">{t('level.short')} {friendLevel}</span>
                 )}
               </div>
-              <span className="text-green-400 text-xs font-bold">{t('chat.online')}</span>
+              <span className={`text-xs font-bold ${isOnline ? 'text-green-400' : 'text-gray-500'}`}>
+                {isOnline ? t('chat.online') : t('chat.offline', 'Hors ligne')}
+              </span>
             </div>
           </div>
 
@@ -160,7 +163,6 @@ const Chat = () => {
                 }`}
               />
 
-              {/* Zone d'infos sous l'input : Alerte de spam + Compteur */}
               <div className="flex justify-between items-center mt-1 px-1">
                 <div className="text-orange-500 text-xs font-bold h-4">
                   {isSpamming ? t('chat.spam_warning') : ""}

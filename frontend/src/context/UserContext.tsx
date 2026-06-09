@@ -14,9 +14,10 @@ interface UserContextType {
   login: (userData: User) => void;
   logout: () => void;
   isReady: boolean;
-  ws: WebSocket | null; //socket global
+  ws: WebSocket | null;
   levelInfo: { level: number; xpInLevel: number; xpForNext: number } | null;
   refreshLevel : () => Promise<void>;
+  onlineUsers: number[]; // <-- NOUVEAU : La variable est officiellement dans le type !
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -26,6 +27,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [isReady, setIsReady] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [levelInfo, setLevelInfo] = useState<{ level: number; xpInLevel: number; xpForNext: number } | null>(null);
+
+  // NOUVEAU : État qui va contenir les IDs des joueurs connectés
+  const [onlineUsers, setOnlineUsers] = useState<number[]>([]);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -62,8 +66,22 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("🟢 WebSocket Connecté !");
       };
 
+      // NOUVEAU : On écoute les messages envoyés par le Hub Go !
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.type === "online_users") {
+            setOnlineUsers(data.users || []); // On met à jour la liste instantanément
+          }
+        } catch (err) {
+          console.error("Erreur de parsing WS", err);
+        }
+      };
+
       socket.onclose = () => {
         console.log("🔴 WebSocket Déconnecté !");
+        setOnlineUsers([]); // On vide la liste si on perd la connexion
       };
 
       setWs(socket);
@@ -107,8 +125,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white font-bold">Chargement du profil...</div>;
   }
 
+  // NOUVEAU : On donne accès à "onlineUsers" à toute l'application !
   return (
-    <UserContext.Provider value={{ user, login, logout, isReady, ws, levelInfo, refreshLevel }}>
+    <UserContext.Provider value={{ user, login, logout, isReady, ws, levelInfo, refreshLevel, onlineUsers }}>
       {children}
     </UserContext.Provider>
   );
