@@ -22,9 +22,18 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
     e.preventDefault();
     setErrorMsg(null);
 
-    if (isSignUp && password !== confirmPassword) {
-      setErrorMsg(t('auth.error_password_mismatch'));
-      return;
+    // VÉRIFICATION STRICTE DE L'EMAIL (Uniquement à l'inscription)
+    if (isSignUp) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErrorMsg(t('auth.error_invalid_email', 'Veuillez entrer une adresse email valide (ex: nom@domaine.com).'));
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setErrorMsg(t('auth.error_password_mismatch'));
+        return;
+      }
     }
 
     const url = isSignUp ? "http://localhost:8081/api/signup" : "http://localhost:8081/api/signin";
@@ -117,7 +126,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
                 {isSignUp ? t('auth.email') : t('auth.pseudo_or_email')}
               </label>
               <input
-                type="text"
+                type={isSignUp ? "email" : "text"}
                 maxLength={50}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
