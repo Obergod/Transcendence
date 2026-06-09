@@ -82,6 +82,14 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
+
+    // VÉRIFICATION STRICTE DE L'EMAIL
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage({ text: t('profile.error_invalid_email', 'Veuillez entrer une adresse email valide.'), type: 'error' });
+      return;
+    }
+
     const token = localStorage.getItem('jwt_token');
 
     const formData = new FormData();
