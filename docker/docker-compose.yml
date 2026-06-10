@@ -15,21 +15,24 @@ services:
       POSTGRES_PASSWORD: goodPassword123
       POSTGRES_USER: admin
       POSTGRES_DB: myapp
+      JWT_SECRET: jwt_secret
     ports:
       - "5432:5432"
 
   backend:
-    image: backend-builder:latest
+    image: backend-builder
     build:
       context: ..
       dockerfile: docker/src/backend/Dockerfile
     container_name: backend
+    restart: always
     ports:
       - "8081:8081"
     depends_on:
       - database
     networks:
       - appnet
+    #ne pas oublier de changer env
     environment:
       DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
     healthcheck:
@@ -53,6 +56,7 @@ services:
       context: ..
       dockerfile: docker/src/frontend/Dockerfile
     container_name: frontend
+    restart: always
     ports:
       - "5173:5173"
     networks:

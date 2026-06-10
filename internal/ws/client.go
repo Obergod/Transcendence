@@ -1,65 +1,63 @@
 package ws
 
 import (
-	"bytes"
+	//"bytes"
 	"log"
 	"net/http"
 	"time"
 
+	"encoding/json"
 	"github.com/gorilla/websocket"
+    "github.com/gin-gonic/gin"
+	"transcendance/internal/auth"
 )
+
+type Client struct {
+	hub    *Hub
+	conn   *websocket.Conn
+	send   chan []byte
+	UserID uint
+}
 
 const (
-	// Time allowed to write a message to peer
 	writeWait = 10 * time.Second
-
-	// Time allowed to read the next pong message from the peer.
 	pongWait = 60 * time.Second
-
-	// send pings to peer with this persiod must be less than pongWait
 	pingPeriod = (pongWait * 9) / 10
-
-	// Max msg size allowed from peer (change for the json gameInfo size ?)
-	maxMsgSize = 512
+	maxMsgSize = 2048
 )
 
-//	usefull for chat msg, readapt for game communication
 var (
 	newline = []byte{'\n'}
 	space	= []byte{' '}
 )
 
-var upgrader = websocket.Upgrader {
-	ReadBufferSize: 1024,
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header.Get("Origin")
+		return origin == "http://localhost:5173"
+	},
 }
 
-type Client struct {
-	hub *Hub
-	conn *websocket.Conn
-
-	//buffered channel of outbound msg
-	send chan []byte
-}
-
-func NewClient(hub *Hub, conn *websocket.Conn) *Client {
-	return &Client {
-		hub: hub,
-		conn: conn,
-		send: make(chan []byte, 256),
+func NewClient(hub *Hub, conn *websocket.Conn, userID uint) *Client {
+	return &Client{
+		hub:    hub,
+		conn:   conn,
+		send:   make(chan []byte, 256),
+		UserID: userID,
 	}
 }
 
-// readPump pumps messages from the websocket connection to the hub
 func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMsgSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait)) //launch "timer" before client considered afk
+	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error {
-		c.conn.SetReadDeadline(time.Now().Add(pongWait)) // reset timer when pong sent
+		c.conn.SetReadDeadline(time.Now().Add(pongWait))
 		return nil
 	})
 	for {
@@ -70,12 +68,25 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- message
+
+		var payload MessagePayload
+		if err := json.Unmarshal(message, &payload); err == nil {
+
+			if payload.Type == "chat" {
+
+				runes := []rune(payload.Content)
+				if len(runes) > 300 {
+					payload.Content = string(runes[:300])
+				}
+
+				payload.SenderID = c.UserID
+
+				c.hub.directMsg <- payload
+			}
+		}
 	}
 }
 
-// writePump pumps messages from the hub to the websocket connection.[27;5;106~
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -87,11 +98,9 @@ func (c *Client) writePump() {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				//hub closed channell
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			// maybe not necessary if no batching (just writeMessage)
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
@@ -110,15 +119,27 @@ func (c *Client) writePump() {
 	}
 }
 
-	//serveWs handles websocket request from peer
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil) // upgrades to websocket
-	if err != nil {
-		log.Println(err)
+func ServeWs(hub *Hub, c *gin.Context) {
+	token := c.Query("token")
+	if token == "" {
+		c.JSON(401, gin.H{"error": "Token manquant"})
 		return
 	}
-	client := NewClient(hub, conn)
-	client.hub.register <- client
+
+	userID, err := auth.ValidateToken(token)
+	if err != nil {
+		c.JSON(401, gin.H{"error": "Token invalide"})
+		return
+	}
+
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Println("Erreur d'upgrade WS:", err)
+		return
+	}
+
+	client := NewClient(hub, conn, userID)
+	hub.register <- client
 
 	go client.writePump()
 	go client.readPump()

@@ -27,7 +27,7 @@ ENV GOPROXY=https://proxy.golang.org,direct
 ENV GOSUMDB=off
 
 RUN --mount=type=cache,target=/go/pkg/mod \
-    go mod tidy
+	GOPROXY=https://goproxy.cn,direct go mod tidy -v
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
