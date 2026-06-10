@@ -32,7 +32,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const token = localStorage.getItem('jwt_token');
       if (token) {
         try {
-          const response = await fetch("http://localhost:8081/api/user/me", {
+          const response = await fetch("https://localhost:8081/api/user/me", {
             headers: { "Authorization": `Bearer ${token}` }
           });
           if (response.ok) {
@@ -56,7 +56,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (user) {
       const token = localStorage.getItem('jwt_token');
-      socket = new WebSocket(`ws://localhost:8081/ws?token=${token}`);
+      socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
 
       socket.onopen = () => {
         console.log("🟢 WebSocket Connecté !");
@@ -82,7 +82,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) { setLevelInfo(null); return; }
     const token = localStorage.getItem('jwt_token');
     try {
-      const res = await fetch("http://localhost:8081/api/user/level", {
+      const res = await fetch("https://localhost:8081/api/user/level", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {

@@ -22,14 +22,23 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,
+
     https: {
       key: '/app/ssl/localhost+2-key.pem',
       cert: '/app/ssl/localhost+2.pem',
     },
+
     proxy: {
       '/api': {
-        target: 'https://backend:8081',
+        target: 'https://localhost:8081',
         changeOrigin: true,
+        secure: false,
+      },
+      '/ws': {
+        target: 'wss://localhost:8081',
+        ws: true,
+        changeOrigin: true,
+        secure: false,
       }
     }
   }

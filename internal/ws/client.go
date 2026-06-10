@@ -30,13 +30,14 @@ var (
 	newline = []byte{'\n'}
 	space	= []byte{' '}
 )
-
+//need to be changed for deployment
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		origin := r.Header.Get("Origin")
-		return origin == "http://localhost:5173"
+//		origin := r.Header.Get("Origin")
+//		return origin == "https://localhost:5173"
+		return true
 	},
 }
 
@@ -122,13 +123,13 @@ func (c *Client) writePump() {
 func ServeWs(hub *Hub, c *gin.Context) {
 	token := c.Query("token")
 	if token == "" {
-		c.JSON(401, gin.H{"error": "Token manquant"})
+		c.AbortWithStatusJSON(401, gin.H{"error": "Token manquant"})
 		return
 	}
 
 	userID, err := auth.ValidateToken(token)
 	if err != nil {
-		c.JSON(401, gin.H{"error": "Token invalide"})
+		c.AbortWithStatusJSON(401, gin.H{"error": "Token invalide"})
 		return
 	}
 
