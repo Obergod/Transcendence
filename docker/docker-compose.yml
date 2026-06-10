@@ -120,51 +120,9 @@ services:
         max-size: "10m"
         max-file: "3"
 
-
-## TODO make sure that these 3 inits are in the correct order with elasticsearch
-
-  # elastic-init:
-  #   image: curlimages/curl:latest
-  #   container_name: elastic-init
-  #   # depends_on:
-  #   #   - elasticsearch
-  #   # network_mode: "service:elasticsearch"
-  #   volumes:
-  #     - snapdata:/usr/share/elasticsearch/snapshots
-  #     - ./src/elasticsearch/snapshot_repo.json:/snapshot_repo.json:ro
-  #   entrypoint: >
-  #     sh -c '
-        
-  #     '
-
-  # ilm-init:
-  #   image: curlimages/curl:latest
-  #   container_name: ilm-init
-  #   # depends_on:
-  #   #   - elastic-init
-  #   network_mode: "service:elasticsearch"
-  #   entrypoint: >
-  #     sh -c '
-  #       until curl -s -k -u elastic:${ELASTIC_PASSWORD} https://elasticsearch:9200; do
-  #         echo "Waiting for ES…";
-  #         sleep 3;
-  #       done;
-  #       echo "Registering ILM policy…";
-  #       curl -s -k -u elastic:${ELASTIC_PASSWORD} -X PUT https://elasticsearch:9200/_ilm/policy/logs-policy -H "Content-Type: application/json" -d @/policy.json;
-  #       echo "ILM policy registered.";
-  #     '
-  #   volumes:
-  #     - ./src/elasticsearch/ilm_policy.json:/policy.json:ro
-
-
   elasticsearch:
     container_name: elasticsearch
-    # depends_on:
-    # - elastic-init
     image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-    # build:
-    #   context: ..
-    #   dockerfile: docker/src/elasticsearch/Dockerfile
     restart: on-failure
     env_file:
       - .env
@@ -207,34 +165,12 @@ services:
         max-size: "10m"
         max-file: "3"
 
-
-  # template-init:
-  #   image: curlimages/curl:latest
-  #   container_name: template-init
-  #   depends_on:
-  #     - elasticsearch
-  #   network_mode: "service:elasticsearch"
-  #   entrypoint: >
-  #     sh -c '
-  #       until curl -s -k -u elastic:${ELASTIC_PASSWORD} https://elasticsearch:9200; do
-  #         echo "Waiting for ES…";
-  #         sleep 3;
-  #       done;
-  #       echo "Registering index template…";
-  #       curl -s -k -u elastic:${ELASTIC_PASSWORD} -X PUT https://elasticsearch:9200/_template/logs-template -H "Content-Type: application/json" -d @/template.json;
-  #       echo "Template registered.";
-  #     '
-  #   volumes:
-  #     - ./src/elasticsearch/logs_template.json:/template.json:ro
-
-
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:7.15.0
     restart: on-failure
     networks:
       - appnet
-      # - elk
     ports:
       - "5601:5601"
     env_file:
@@ -243,27 +179,13 @@ services:
       - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
- 
-      # - SERVER_SSL_ENABLED=true
-      # - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana/kibana.crt
-      # - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana/kibana.key
-
-      # - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certs/ca.pem
       - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
-
-      # - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=bf86139133da2f7fc1f2384e235d997c2730c8a89e112efd195a4477730715d6
-      # - XPACK_REPORTING_ENCRYPTIONKEY=2e9d5c1e8d8d9e516936041280368498fc09bea8ac464c8c0436e0838834b6bc
     volumes:
       - kibana:/usr/share/kibana
       - ./src/kibana/dashboards:/usr/share/kibana/data/saved_objects
       - ./src/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
-      # - esdata:/usr/share/elasticsearch/data
       - ./certs/kibana/kibana.crt:/usr/share/kibana/config/certs/kibana.crt:ro
       - ./certs/kibana/kibana.key:/usr/share/kibana/config/certs/kibana.key:ro
-      # - ./certs/ca.pem:/usr/share/elasticsearch/config/certs/ca.pem:ro
-      # - ./certs/ca.pem:/usr/share/kibana/config/certs/ca.pem:ro
-    # depends_on:
-    #   - elastic-init
     healthcheck:
       test: ["CMD-SHELL", "curl -s -I https://localhost:5601 | head -1 | grep -q 'HTTP/1.1 200 OK' || exit 1"]
       interval: 10s
@@ -275,29 +197,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
-  # kibana-init:
-  #   image: curlimages/curl:latest
-  #   depends_on:
-  #     - kibana
-  #   networks:
-  #     - appnet
-  #     - elk
-  #   volumes:
-  #   - ./src/kibana/dashboards/export.ndjson:/dashboards/dashboards.ndjson:ro
-  #   entrypoint: >
-  #     sh -c '
-  #     until curl -s http://kibana:5601/api/status | grep -q "available"; do
-  #       sleep 3;
-  #     done;
-
-  #     if [ -f "/dashboards/dashboards.ndjson" ]; then
-  #       curl -X POST http://kibana:5601/api/saved_objects/_import \
-  #         -H "kbn-xsrf: true" \
-  #         --form file=@/dashboards/dashboards.ndjson \
-  #         -u elastic:${ELASTIC_PASSWORD};
-  #     fi
-  #     '
 
   logstash:
     container_name: logstash
@@ -386,8 +285,6 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "false"
       GF_PROMETHEUS_PROXY_ENABLED: "true"
       GF_PROMETHEUS_URL: http://prometheus:9090
-      # GF_SERVER_CERT_FILE: /etc/grafana/ssl/grafana.crt
-      # GF_SERVER_CERT_KEY: /etc/grafana/ssl/grafana.key
     ports:
       - "3000:3000"
     logging:
@@ -428,5 +325,3 @@ volumes:
 networks:
   appnet:
     driver: bridge
-  # elk:
-  #   driver: bridge
