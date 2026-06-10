@@ -10,8 +10,9 @@ type Bullet struct {
     Damage        int
     Traveled      fixed.Int26_6
     MaxRange      fixed.Int26_6
-    OwnerID       string // ID de l'entité qui a tiré
-    OwnerIsPlayer bool   // true = joueur, false = ennemi
+    OwnerID       string
+    OwnerIsPlayer bool
+    SpawnTick     int
 }
 
 func NewBullet(x, y, size, moveX, moveY, stepLength fixed.Int26_6, damage int, maxRange fixed.Int26_6, ownerID string, ownerIsPlayer bool) *Bullet {
@@ -27,6 +28,7 @@ func NewBullet(x, y, size, moveX, moveY, stepLength fixed.Int26_6, damage int, m
         MaxRange:      maxRange,
         OwnerID:       ownerID,
         OwnerIsPlayer: ownerIsPlayer,
+        SpawnTick:     0,
     }
 }
 

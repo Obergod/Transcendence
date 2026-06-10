@@ -3,33 +3,29 @@ import { useTranslation } from 'react-i18next';
 const LanguageSwitcher = () => {
 	const { i18n } = useTranslation();
 
+	const flags: Record<string, string> = {
+		fr: '/flags/fr.svg',
+		en: '/flags/gb.svg',
+		ru: '/flags/ru.svg',
+	};
+
+	const langs = ['fr', 'en', 'ru'];
+
 	return (
-	<div className="flex space-x-2">
-		<button
-			onClick={() => i18n.changeLanguage('fr')}
-		className={i18n.language === 'fr'
-			? 'text-white border-b-2 border-red-500 font-bold'
-			: 'text-gray-400 hover:text-white transition-colors'}
-		>
-			FR
-		</button>
-		<button
-			onClick={() => i18n.changeLanguage('en')}
-		className={i18n.language === 'en'
-			? 'text-white border-b-2 border-red-500 font-bold'
-			: 'text-gray-400 hover:text-white transition-colors'}
-		>
-			EN
-		</button>
-		<button
-			onClick={() => i18n.changeLanguage('ru')}
-		className={i18n.language === 'ru'
-			? 'text-white border-b-2 border-red-500 font-bold'
-			: 'text-gray-400 hover:text-white transition-colors'}
-		>
-			RU
-		</button>
-	</div>
+		<div className ="flex space-x-3">
+			{langs.map((lng) => (
+				<button
+					key={lng}
+					onClick={() => i18n.changeLanguage(lng)}
+					className={`font-black text-4xl bg-clip-text text-transparent bg-cover bg-center transition-opacity ${
+						i18n.language === lng ? 'opacity-100' : 'opacity-40 hover:opacity-70'
+					}`}
+					style={{ backgroundImage: `url(${flags[lng]})` }}
+				>
+					{lng.toUpperCase()}
+				</button>
+			))}
+		</div>
 	);
 };
 

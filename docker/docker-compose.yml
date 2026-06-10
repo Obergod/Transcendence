@@ -34,6 +34,7 @@ services:
       DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
     volumes:
       - shared:/shared
+      - avatars:/app/uploads
 
   frontend:
     build:
@@ -49,7 +50,7 @@ services:
       - backend
     volumes:
       - shared:/shared
-    
+
 
   # nginx:
   #   image: nginx:stable
@@ -150,6 +151,7 @@ volumes:
   esdata:
   kibana:
   shared:
+  avatars:
     # driver: local
     # driver_opts:
     #   type: 'none'

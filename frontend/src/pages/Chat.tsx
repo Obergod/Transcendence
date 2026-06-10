@@ -14,6 +14,32 @@ const Chat = () => {
   const [isSpamming, setIsSpamming] = useState(false);
   const lastMessageTime = useRef<number>(0);
 
+  const [friendAvatar, setFriendAvatar] = useState<string | null>(null);
+  const [friendLevel, setFriendLevel] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (!friendId) return;
+      const token = localStorage.getItem('jwt_token');
+      try {
+        const res = await fetch(`http://localhost:8081/api/chat/history/${friendId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setMessages(data.data || []);
+          if (data.friend) {
+            if (data.friend.avatarUrl) setFriendAvatar(data.friend.avatarUrl);
+            if (data.friend.level) setFriendLevel(data.friend.level);
+          }
+        }
+      } catch (err) {
+        console.error("Erreur chargement historique", err);
+      }
+    };
+    fetchHistory();
+  }, [friendId]);
+
   useEffect(() => {
     if (!ws) return;
 
@@ -73,26 +99,35 @@ const Chat = () => {
         <div className="bg-[#1a2035] p-4 border-b border-gray-700 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center font-bold text-gray-400">
-                 {friendName?.charAt(0).toUpperCase()}
+              <div className="w-10 h-10 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center font-bold text-gray-400">
+                 {friendAvatar ? (
+                  <img src={friendAvatar} alt={friendName} className="w-full h-full object-cover" />
+                 ) : (
+                  friendName?.charAt(0).toUpperCase()
+                 )}
               </div>
               <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1a2035] bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-widest">{friendName?.toUpperCase()}</h2>
+              <div className="flex items-baseline gap-2">
+                <h2 className="text-xl font-black text-white tracking-widest">{friendName?.toUpperCase()}</h2>
+                {friendLevel && (
+                  <span className="text-red-500 text-sm font-bold">{t('level.short')} {friendLevel}</span>
+                )}
+              </div>
               <span className="text-green-400 text-xs font-bold">{t('chat.online')}</span>
             </div>
           </div>
 
           <Link to="/profile" className="text-gray-400 hover:text-white font-bold transition-colors bg-gray-800 px-4 py-2 rounded-lg">
-            Retour au profil
+            {t('chat.back_to_profile')}
           </Link>
         </div>
 
         {/* Zone des messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0a0d17]">
           {messages.length === 0 && (
-            <div className="text-center text-gray-500 italic mt-10">Aucun message. Lance la discussion !</div>
+            <div className="text-center text-gray-500 italic mt-10">{t('chat.no_messages')}</div>
           )}
 
           {messages.map((msg, index) => {
@@ -119,7 +154,7 @@ const Chat = () => {
                 maxLength={300}
                 value={currentInput}
                 onChange={(e) => setCurrentInput(e.target.value)}
-                placeholder={`Écrire à ${friendName}...`}
+                placeholder={t('chat.placeholder', { name: friendName })}
                 className={`w-full bg-[#0a0d17] border rounded-xl px-4 py-3 text-white focus:outline-none transition-colors ${
                   isSpamming ? 'border-orange-500 bg-orange-900/20' : 'border-gray-600 focus:border-red-500'
                 }`}
@@ -128,7 +163,7 @@ const Chat = () => {
               {/* Zone d'infos sous l'input : Alerte de spam + Compteur */}
               <div className="flex justify-between items-center mt-1 px-1">
                 <div className="text-orange-500 text-xs font-bold h-4">
-                  {isSpamming ? "Doucement ! Tu envoies des messages trop vite." : ""}
+                  {isSpamming ? t('chat.spam_warning') : ""}
                 </div>
                 <div className={`text-right text-xs font-bold ${currentInput.length >= 300 ? 'text-red-500' : 'text-gray-500'}`}>
                   {currentInput.length}/300
@@ -145,7 +180,7 @@ const Chat = () => {
                   : 'bg-red-600 hover:bg-red-700 text-white'
               }`}
             >
-              Envoyer
+              {t('chat.send')}
             </button>
           </form>
         </div>

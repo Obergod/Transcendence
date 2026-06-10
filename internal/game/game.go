@@ -4,32 +4,35 @@ import (
 	"syscall/js"
 	"fmt"
 
-
-    "transcendance/internal/world"
+	"transcendance/internal/world"
+	"transcendance/internal/logger"
 )
 
 type Game struct {
-    world   	*world.World
-    localIDs 	[]string
-	isGameover	bool
-	ticks		int //compteur de tick
-	nbPlayer	int
+	world         *world.World
+	localIDs      []string
+	waveNumber    int
+	isGameover    bool
+	ticks         int
+	nbPlayer      int
+	lastShotTicks map[string]int
 }
 
 func NewGame(w *world.World, IDs []string, nb int) *Game {
-    return &Game{
-        world:   w,
-        localIDs: IDs,
-		isGameover: false,
-		ticks: 0,
-		nbPlayer: nb,
-    }
+	logger.Debugf("Création d'une nouvelle partie, nbPlayer=%d, localIDs=%v", nb, IDs)
+	return &Game{
+		world:         w,
+		localIDs:      IDs,
+		waveNumber:    1,
+		isGameover:    false,
+		ticks:         0,
+		nbPlayer:      nb,
+		lastShotTicks: make(map[string]int),
+	}
 }
 
-
-
 func (g *Game) CheckPlayersAlive() {
-	playersdead := 0 
+	playersdead := 0
 	for _, id := range g.localIDs {
 		Player, exists := g.world.Players[id]
 		if !exists {
@@ -37,14 +40,14 @@ func (g *Game) CheckPlayersAlive() {
 		}
 		if !Player.IsAlive {
 			playersdead++
+			logger.Debugf("Joueur %s est mort", id)
 		}
 	}
 	if playersdead == g.nbPlayer && !g.isGameover {
 		g.isGameover = true
-
 		durationInSeconds := g.ticks / 60
-		score := g.ticks // Le score final est égal au nombre de ticks survécus
-
+		score := g.ticks
+		logger.Infof("Game Over! Durée=%d sec, Score=%d ticks", durationInSeconds, score)
 		if js.Global().Get("onGameover").Type() == js.TypeFunction {
 			js.Global().Call("onGameover", durationInSeconds, score)
 		}
@@ -52,53 +55,50 @@ func (g *Game) CheckPlayersAlive() {
 }
 
 func (g *Game) RemoveDeadEnemies() {
-    for id, e := range g.world.Enemies {
-        if !e.IsAlive {
-            delete(g.world.Enemies, id)
-        }
-    }
+	for id, e := range g.world.Enemies {
+		if !e.IsAlive {
+			logger.Debugf("Ennemi %s retiré du monde", id)
+			delete(g.world.Enemies, id)
+		}
+	}
 }
 
 func (g *Game) UpdateScoreTimer() {
 	if !g.isGameover {
 		g.ticks++
-
-		// INJECTION EN TEMPS RÉEL DANS LE DOM DE REACT
 		if g.ticks%6 == 0 {
 			jsDoc := js.Global().Get("document")
 			if jsDoc.Type() != js.TypeUndefined {
-				// 1. Mise à jour du Timer
 				timerEl := jsDoc.Call("getElementById", "game-timer")
 				if timerEl.Type() != js.TypeNull {
 					seconds := g.ticks / 60
 					minutes := seconds / 60
 					secRemainder := seconds % 60
-					timerEl.Set("innerText", fmt.Sprintf("TEMPS: %02d:%02d", minutes, secRemainder))
+					timerLabel := js.Global().Get("timerLabel").String()
+					timerEl.Set("innerText", fmt.Sprintf("%s: %02d:%02d", timerLabel, minutes, secRemainder))
 				}
-
-				// 2. Mise à jour du Score (accumulateur de ticks)
 				scoreEl := jsDoc.Call("getElementById", "game-score")
 				if scoreEl.Type() != js.TypeNull {
-					scoreEl.Set("innerText", fmt.Sprintf("SCORE: %05d", g.ticks))
+					scoreLabel := js.Global().Get("scoreLabel").String()
+					scoreEl.Set("innerText", fmt.Sprintf("%s: %05d", scoreLabel, g.ticks))
 				}
 			}
 		}
 	}
-
 }
 
 func (g *Game) Update() error {
 	g.CheckPlayersAlive()
 	g.UpdateScoreTimer()
 	for _, id := range g.localIDs {
-    	g.MovePlayer(id)
+		g.MovePlayer(id)
 	}
-    g.MoveEnemies()
-    g.HandleEnemyShooting()
-    g.HandlePlayersShooting()
-    g.UpdateBullets()
-    g.HandleBulletCollisions()
-    g.RemoveDeadEnemies()
-    return nil
+	g.SpawnEnemies()
+	g.MoveEnemies()
+	g.HandleEnemyShooting()
+	g.HandlePlayersShooting()
+	g.UpdateBullets()
+	g.HandleBulletCollisions()
+	g.RemoveDeadEnemies()
+	return nil
 }
-

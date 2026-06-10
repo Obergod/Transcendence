@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const Profile = ({ onLogout }: { onLogout: () => void }) => {
-  const { user, login, logout, onlineUsers = [] } = useUser() as any;
+  const { user, login, logout, levelInfo, refreshLevel, onlineUsers = [] } = useUser() as any;
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -12,6 +12,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const [email, setEmail] = useState(user?.email || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [stats, setStats] = useState({ best_score: 0, best_duration: 0, total_duration: 0 });
   const [friendships, setFriendships] = useState<any[]>([]);
@@ -39,6 +40,10 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     if (user) fetchStats();
   }, [user]);
 
+  useEffect(() => {
+    refreshLevel();
+  }, [refreshLevel]);
+
   const formatStatsTime = (seconds: number) => {
     if (seconds === 0) return "0s";
     const h = Math.floor(seconds / 3600);
@@ -53,23 +58,23 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     return new Promise((resolve) => {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        resolve("Format non autorisé.");
+        resolve(t('profile.error_format'));
         return;
       }
       if (file.size > 2 * 1024 * 1024) {
-        resolve("Image trop lourde. Maximum 2 MB.");
+        resolve(t('profile.error_size'));
         return;
       }
       const img = new Image();
       img.onload = () => {
         URL.revokeObjectURL(img.src);
         if (img.width > 2000 || img.height > 2000) {
-          resolve("Image trop grande. Maximum 2000x2000.");
+          resolve(t('profile.error_dimensions', { width: img.width, height: img.height }));
         } else {
           resolve(null);
         }
       };
-      img.onerror = () => resolve("Impossible de lire l'image.");
+      img.onerror = () => resolve(t('profile.error_read'));
       img.src = URL.createObjectURL(file);
     });
   };
@@ -77,6 +82,14 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
+
+    // VÉRIFICATION STRICTE DE L'EMAIL
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage({ text: t('profile.error_invalid_email', 'Veuillez entrer une adresse email valide.'), type: 'error' });
+      return;
+    }
+
     const token = localStorage.getItem('jwt_token');
 
     const formData = new FormData();
@@ -93,15 +106,15 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage({ text: "Profil mis à jour !", type: 'success' });
+        setMessage({ text: t('profile.update_success'), type: 'success' });
         setAvatarUrl(data.user.avatarUrl);
         login({ ...user!, pseudo: data.user.username, email: data.user.email, avatarUrl: data.user.avatarUrl });
         setAvatarFile(null);
       } else {
-        setMessage({ text: data.error || "Erreur de mise à jour", type: 'error' });
+        setMessage({ text: data.error || t('profile.error_update'), type: 'error' });
       }
     } catch (error) {
-      setMessage({ text: "Erreur serveur", type: 'error' });
+      setMessage({ text: t('profile.error_server'), type: 'error' });
     }
   };
 
@@ -147,7 +160,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
         setSocialMsg({ text: data.error, type: 'error' });
       }
     } catch (error) {
-      setSocialMsg({ text: "Erreur réseau", type: 'error' });
+      setSocialMsg({ text: t('profile.error_network'), type: 'error' });
     }
   };
 
@@ -165,8 +178,8 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
   if (!user) return null;
 
-  const pendingRequests = friendships.filter(f => f.Status === 'pending' && f.FriendID === user.id);
-  const acceptedFriends = friendships.filter(f => f.Status === 'accepted');
+  const pendingRequests = friendships.filter(f => f.status === 'pending' && f.friend_id === user.id);
+  const acceptedFriends = friendships.filter(f => f.status === 'accepted');
   const displayAvatar = avatarFile ? URL.createObjectURL(avatarFile) : avatarUrl;
 
   return (
@@ -201,6 +214,23 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
           <img src={displayAvatar} alt="Avatar" className="w-32 h-32 rounded-full object-cover border-4 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
         </div>
 
+        {levelInfo && (
+          <div className="mb-8">
+            <div className="flex items-center gap-3">
+              <span className="text-red-500 font-black text-lg whitespace-nowrap">{t('level.short')} {levelInfo.level}</span>
+              <div className="flex-1 h-3 bg-[#1a2035] rounded-full overflow-hidden border border-gray-700">
+                <div
+                  className="h-full bg-gradient-to-r from-red-700 to-red-400 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, (levelInfo.xpInLevel / levelInfo.xpForNext) * 100)}%` }}
+                ></div>
+              </div>
+            </div>
+            <div className="text-right text-gray-500 text-xs font-bold mt-1">
+              {levelInfo.xpInLevel} / {levelInfo.xpForNext} XP
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleUpdate} className="space-y-6">
           <div>
             <label className="block text-gray-400 text-xs font-bold uppercase mb-2">{t('profile.pseudo')}</label>
@@ -225,23 +255,36 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
           <div>
             <label className="block text-gray-400 text-xs font-bold uppercase mb-2">{t('profile.avatar')}</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={async (e) =>{
-                const file = e.target.files?.[0] || null;
-                if (file) {
-                  const error = await validateImage(file);
-                  if (error) {
-                    setMessage({ text: error, type: 'error'});
-                    e.target.value = '';
-                    return;
+            <div className="flex items-center gap-3 bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg text-sm transition-colors shrink-0"
+              >
+                {t('profile.choose_file')}
+              </button>
+              <span className="text-gray-400 text-sm truncate">
+                {avatarFile ? avatarFile.name : t('profile.no_file_chosen')}
+              </span>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0] || null;
+                  if (file) {
+                    const error = await validateImage(file);
+                    if (error) {
+                      setMessage({ text: error, type: 'error' });
+                      e.target.value = '';
+                      return;
+                    }
                   }
-                }
-                setAvatarFile(file);
-              }}
-              className="w-full bg-[#1a2035] border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-gray-700 file:text-white hover:file:bg-gray-600 cursor-pointer"
-            />
+                  setAvatarFile(file);
+                }}
+              />
+            </div>
           </div>
 
           <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl mt-4 uppercase tracking-widest shadow-lg">{t('profile.save')}</button>
@@ -277,14 +320,14 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
             <h3 className="text-xl font-bold text-yellow-500 mb-4">{t('profile.pending_requests')}</h3>
             <div className="space-y-3">
               {pendingRequests.map(req => (
-                <div key={req.ID} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700">
+                <div key={req.friendship_id} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700">
                   <div className="flex items-center gap-3">
-                    <img src={req.User.AvatarURL} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
-                    <span className="font-bold">{req.User.Username}</span>
+                    <img src={req.other_avatar} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
+                    <span className="font-bold">{req.other_username}</span>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => respondToRequest(req.ID, 'accept')} className="bg-green-600/20 text-green-500 hover:bg-green-600 hover:text-white p-2 rounded-lg transition-colors">✓</button>
-                    <button onClick={() => respondToRequest(req.ID, 'reject')} className="bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white p-2 rounded-lg transition-colors">✗</button>
+                    <button onClick={() => respondToRequest(req.friendship_id, 'accept')} className="bg-green-600/20 text-green-500 hover:bg-green-600 hover:text-white p-2 rounded-lg transition-colors">✓</button>
+                    <button onClick={() => respondToRequest(req.friendship_id, 'reject')} className="bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white p-2 rounded-lg transition-colors">✗</button>
                   </div>
                 </div>
               ))}
@@ -299,27 +342,28 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
           ) : (
             <div className="space-y-3">
               {acceptedFriends.map(f => {
-                const isSender = f.UserID === user.id;
-                const friendData = isSender ? f.Friend : f.User;
-                const isOnline = onlineUsers.includes(friendData.ID);
+                const isOnline = onlineUsers.includes(f.other_id);
 
                 return (
-                  <div key={f.ID} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700 hover:border-gray-500 transition-colors cursor-pointer">
+                  <div key={f.friendship_id} className="flex items-center justify-between bg-[#1a2035] p-3 rounded-xl border border-gray-700 hover:border-gray-500 transition-colors cursor-pointer">
                     <div className="flex items-center gap-4">
                       <div className="relative">
-                        <img src={friendData.AvatarURL} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-gray-600" />
+                        <img src={f.other_avatar} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-gray-600" />
                         <span className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-[#1a2035] rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></span>
                       </div>
-                      <span className="font-bold text-lg">{friendData.Username}</span>
+                      <div className="flex flex-col items-start leading-tight">
+                        <span className="font-bold text-lg">{f.other_username}</span>
+                        <span className="text-red-500 font-bold text-sm">{t('level.short')} {f.other_level}</span>
+                      </div>
                     </div>
                     <button
-                      onClick={() => navigate(`/chat/${friendData.ID}/${friendData.Username}`)}
+                      onClick={() => navigate(`/chat/${f.other_id}/${f.other_username}`)}
                       className="text-gray-400 hover:text-white px-4 py-2 bg-gray-800 hover:bg-red-600 transition-colors rounded-lg"
                     >
                       {t('profile.chat_btn')}
                     </button>
                   </div>
-                )
+                );
               })}
             </div>
           )}

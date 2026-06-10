@@ -22,9 +22,18 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
     e.preventDefault();
     setErrorMsg(null);
 
-    if (isSignUp && password !== confirmPassword) {
-      setErrorMsg(t('auth.error_password_mismatch'));
-      return;
+    // VÉRIFICATION STRICTE DE L'EMAIL (Uniquement à l'inscription)
+    if (isSignUp) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErrorMsg(t('auth.error_invalid_email', 'Veuillez entrer une adresse email valide (ex: nom@domaine.com).'));
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setErrorMsg(t('auth.error_password_mismatch'));
+        return;
+      }
     }
 
     const url = isSignUp ? "http://localhost:8081/api/signup" : "http://localhost:8081/api/signin";
@@ -45,7 +54,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
       try {
         data = JSON.parse(text);
       } catch (err) {
-        setErrorMsg(`Erreur inattendue du serveur : ${text}`);
+        setErrorMsg(t('auth.error_server_unexpected', { text }));
         return;
       }
 
@@ -64,7 +73,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
           });
           onLoginSuccess();
         } else {
-          setErrorMsg("Erreur: Données utilisateur manquantes dans la réponse.");
+          setErrorMsg(t('auth.error_missing_user'));
         }
       } else {
         setErrorMsg(data.message || data.error || t('auth.error_login'));
@@ -72,7 +81,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
 
     } catch (error) {
       console.error("Fetch error:", error);
-      setErrorMsg("Impossible de joindre le serveur. Est-il allumé ?");
+      setErrorMsg(t('auth.error_server_unreachable'));
     }
   };
 
@@ -117,7 +126,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
                 {isSignUp ? t('auth.email') : t('auth.pseudo_or_email')}
               </label>
               <input
-                type="text"
+                type={isSignUp ? "email" : "text"}
                 maxLength={50}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -156,18 +165,6 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
               {isSignUp ? t('auth.submit_register') : t('auth.login_btn')}
             </button>
           </form>
-
-          <div className="flex items-center my-6">
-            <div className="flex-1 border-t border-gray-700"></div>
-            <span className="px-4 text-gray-500 text-xs font-bold">{t('auth.or')}</span>
-            <div className="flex-1 border-t border-gray-700"></div>
-          </div>
-
-          <button type="button" className="w-full bg-white text-black font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
-            {t('auth.google')}
-          </button>
-
         </div>
 
         <div className="bg-[#1a2035] p-4 text-center mt-auto border-t border-gray-800">
