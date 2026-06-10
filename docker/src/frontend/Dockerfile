@@ -17,12 +17,12 @@ RUN npm install
 
 COPY frontend .
 
-COPY --from=backend-builder:latest /app/ssl/localhost+2-key.pem /app/ssl/localhost+2-key.pem
-COPY --from=backend-builder:latest /app/ssl/localhost+2.pem /app/ssl/localhost+2.pem
+COPY --from=backend-builder /app/ssl/localhost+2-key.pem /app/ssl/localhost+2-key.pem
+COPY --from=backend-builder /app/ssl/localhost+2.pem /app/ssl/localhost+2.pem
 
 RUN npm run build
 
-COPY --from=backend-builder:latest /app/frontend/public/main.wasm /app/public/main.wasm
-COPY --from=backend-builder:latest /app/frontend/public/wasm_exec.js /app/public/wasm_exec.js
+COPY --from=backend-builder /app/frontend/public/main.wasm /app/public/main.wasm
+COPY --from=backend-builder /app/frontend/public/wasm_exec.js /app/public/wasm_exec.js
 
 CMD ["npm", "run", "dev", "--", "--host"]

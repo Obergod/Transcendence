@@ -96,7 +96,7 @@ services:
     container_name: node-exporter
     image: prom/node-exporter
     ports:
-      - "9100:9100"
+      - "9101:9101"
     networks:
       - appnet
     logging:
@@ -231,7 +231,7 @@ services:
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.15.0
-    container_name: docker_filebeat_1
+    container_name: filebeat_1
     user: root
     command: ["filebeat", "-e", "--strict.perms=false"]
     environment:
@@ -243,8 +243,9 @@ services:
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /run/user/44515483/podman/podman.sock:/var/run/docker.sock:ro
       - esdata:/var/lib/elasticsearch/data
       - ./certs/ca.pem:/usr/share/elasticsearch/config/certs/ca.pem:ro
       - ./src/logstash/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro

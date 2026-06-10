@@ -30,19 +30,10 @@ bootstrap:
 	@./docker/start_elastic.sh
 
 up:
-	@docker compose -f ${SRCS} up --build -d
-# 	sudo docker compose -f docker-compose.setup.yml run --rm certs
+	@docker compose -f ${SRCS} up -d
 
 build:
 	@docker compose -f ${SRCS} build #backend && docker compose -f ${SRCS} build
-
-# build:
-# 	@docker compose -f ${SRCS} build
-
-# launch_core:
-# 	@docker compose -f ${SRCS} up -d database backend frontend
-
-# core: build launch_core clean
 
 start:
 	@docker compose -f ${SRCS} start
