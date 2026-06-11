@@ -110,7 +110,7 @@ services:
 
   postgres-exporter:
     container_name: postgres-exporter
-    image: prometheuscommunity/postgres-exporter
+    image: docker.io/prometheuscommunity/postgres-exporter:latest
     environment:
       DATA_SOURCE_NAME: "postgresql://admin:goodPassword123@postgres:5432/myapp?sslmode=disable"
     ports:
@@ -221,7 +221,7 @@ services:
     volumes:
       - ./certs/ca.pem:/usr/share/logstash/config/certs/ca.pem:ro
       - ./src/logstash/logs:/usr/share/logstash/logs
-      - ./src/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      # - ./src/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:z
       - ./src/logstash/config/pipeline:/usr/share/logstash/pipeline:ro
       - esdata:/usr/share/logstash/data
     depends_on:
