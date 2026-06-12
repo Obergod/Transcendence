@@ -34,15 +34,16 @@ services:
     #ne pas oublier de changer env
     environment:
       DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
-    healthcheck:
-      test: ["CMD", "curl", "-f", "--http1.1", "https://backend:8081/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "--http1.1", "https://backend:8081/health"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
     volumes:
       - ./backups:/backup
       - ./:/ssl:ro
       - ./logs:/app/logs
+      - uploads_data:/app/uploads
     restart: on-failure
     logging:
       driver: "json-file"
@@ -89,11 +90,11 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+#    healthcheck:
+#      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
 
   node-exporter:
     container_name: node-exporter
@@ -189,12 +190,12 @@ services:
       - ./src/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
       - ./certs/kibana/kibana.crt:/usr/share/kibana/config/certs/kibana.crt:ro
       - ./certs/kibana/kibana.key:/usr/share/kibana/config/certs/kibana.key:ro
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s -I https://localhost:5601 | head -1 | grep -q 'HTTP/1.1 200 OK' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
+#    healthcheck:
+#      test: ["CMD-SHELL", "curl -s -I https://localhost:5601 | head -1 | grep -q 'HTTP/1.1 200 OK' || exit 1"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
+#      start_period: 30s
     logging:
       driver: "json-file"
       options:
@@ -248,7 +249,7 @@ services:
       - /etc/machine-id:/etc/machine-id:ro
       # - /var/lib/docker/containers:/var/lib/docker/containers:ro
       # - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /run/user/44515483/podman/podman.sock:/var/run/docker.sock:ro
+      - $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock:ro
       - esdata:/var/lib/elasticsearch/data
       - ./certs/ca.pem:/usr/share/elasticsearch/config/certs/ca.pem:ro
       - ./src/logstash/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
@@ -296,11 +297,11 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost:3000/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "https://localhost:3000/api/health"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
 
   backup:
     container_name: backup
@@ -325,6 +326,7 @@ volumes:
   backup:
   ssl:
   snapdata:
+  uploads_data:
 
 networks:
   appnet:
