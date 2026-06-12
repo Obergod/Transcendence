@@ -229,7 +229,7 @@ func UpdateProfileHandler(db *gorm.DB) gin.HandlerFunc {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible de sauvegarder l'image"})
 				return
 			}
-			user.AvatarURL = "http://localhost:8081/" + savePath
+			user.AvatarURL = "https://localhost:8081/" + savePath
 		}
 
 		// 3. On sauvegarde en BDD

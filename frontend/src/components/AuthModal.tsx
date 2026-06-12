@@ -36,7 +36,7 @@ const AuthModal = ({ onClose, onLoginSuccess }: AuthModalProps) => {
       }
     }
 
-    const url = isSignUp ? "http://localhost:8081/api/signup" : "http://localhost:8081/api/signin";
+    const url = isSignUp ? "https://localhost:8081/api/signup" : "https://localhost:8081/api/signin";
     const payload = isSignUp
       ? { username: pseudo, email: email, password: password }
       : { login: email, password: password };

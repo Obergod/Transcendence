@@ -1,0 +1,11 @@
+{
+  "index_patterns": ["app-logs-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 3,
+      "number_of_replicas": 2,
+      "index.lifecycle.name": "logs-policy",
+      "index.lifecycle.rollover_alias": "app-logs"
+    }
+  }
+}

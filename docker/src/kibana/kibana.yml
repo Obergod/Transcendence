@@ -1,0 +1,17 @@
+server.name: "kibana"
+server.host: "0.0.0.0"
+server.port: 5601
+
+elasticsearch.hosts: ["https://elasticsearch:9200"]
+# elasticsearch.ssl:
+#   verificationMode: certificate
+#   certificateAuthorities: ["/usr/share/elasticsearch/config/certs/ca.pem"]
+# elasticsearch.ssl.verificationMode: none
+# elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/config/certs/ca.pem"]
+
+server.ssl.enabled: true
+server.ssl.certificate: "/usr/share/kibana/config/certs/kibana.crt"
+server.ssl.key: "/usr/share/kibana/config/certs/kibana.key"
+
+xpack.encryptedSavedObjects.encryptionKey: "bf86139133da2f7fc1f2384e235d997c2730c8a89e112efd195a4477730715d6"
+xpack.reporting.encryptionKey: "2e9d5c1e8d8d9e516936041280368498fc09bea8ac464c8c0436e0838834b6bc"

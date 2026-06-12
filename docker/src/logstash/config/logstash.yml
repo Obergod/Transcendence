@@ -1,0 +1,6 @@
+path:
+  logs: /usr/share/logstash/logs
+xpack:
+  monitoring:
+    enabled: false
+xpack.monitoring.enabled: false
