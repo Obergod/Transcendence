@@ -16,12 +16,10 @@ CYAN = \033[36m
 RESET = \033[0m
 CLEAR = \033[2K\r
 
-.PHONY: all clean fclean re up down start stop ps core launch_core reset
-
 SRCS=docker/docker-compose.yml
 SETUP=docker/docker-compose.setup.yml
 
-all: bootstrap build up clean # build clean <up> # TODO clean has been deleted from all launch, check if it is needed 
+all: bootstrap build up # build clean <up> # TODO clean has been deleted from all launch, check if it is needed 
 
 # --- For Dockers ---
 
@@ -60,4 +58,9 @@ death: fclean
 	@docker system prune -af
 	@docker volume prune -f
 
+core: build
+	@docker compose -f ${SRCS} up -d backend frontend database
+
 re: fclean all
+
+.PHONY: all clean fclean re up down start stop ps core launch_core reset

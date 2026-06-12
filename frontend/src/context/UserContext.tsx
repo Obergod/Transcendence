@@ -50,33 +50,37 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     checkToken();
   }, []);
 
-  // gestion du websoket
+  // gestion du websocket
   useEffect(() => {
     let socket: WebSocket | null = null;
+    let connectTimer: ReturnType<typeof setTimeout>;
 
     if (user) {
-      const token = localStorage.getItem('jwt_token');
-      socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
+        const token = localStorage.getItem('jwt_token');
+        
+        connectTimer = setTimeout(() => {
+            socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
 
-      socket.onopen = () => {
-        console.log("🟢 WebSocket Connecté !");
-      };
+            socket.onopen = () => {
+                console.log("🟢 WebSocket Connecté !");
+            };
 
-      socket.onclose = () => {
-        console.log("🔴 WebSocket Déconnecté !");
-      };
+            socket.onclose = () => {
+                console.log("🔴 WebSocket Déconnecté !");
+            };
 
-      setWs(socket);
+            setWs(socket);
+        }, 150);
     }
 
-    // nettoyage
     return () => {
-      if (socket) {
-        socket.close();
-        setWs(null);
-      }
+        clearTimeout(connectTimer);      
+        if (socket) {
+            socket.close();
+            setWs(null);
+        }
     };
-  }, [user]);
+}, [user]);
 
   const refreshLevel = useCallback(async () => {
     if (!user) { setLevelInfo(null); return; }
