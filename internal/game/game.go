@@ -3,9 +3,13 @@ package game
 import (
 	"syscall/js"
 	"fmt"
+	"bytes"
+	"log"
 
 	"transcendance/internal/world"
 	"transcendance/internal/logger"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 )
 
 type Game struct {
@@ -16,6 +20,10 @@ type Game struct {
 	ticks         int
 	nbPlayer      int
 	lastShotTicks map[string]int
+	initialized	  bool
+
+	fontSource *text.GoTextFaceSource
+	fontFace *text.GoTextFace
 }
 
 func NewGame(w *world.World, IDs []string, nb int) *Game {
@@ -28,6 +36,7 @@ func NewGame(w *world.World, IDs []string, nb int) *Game {
 		ticks:         0,
 		nbPlayer:      nb,
 		lastShotTicks: make(map[string]int),
+		initialized: false,
 	}
 }
 
@@ -85,7 +94,26 @@ func (g *Game) UpdateScoreTimer() {
 	}
 }
 
+func (g *Game) initialize() {
+	// Load variable-width font embedded in Ebitengine.
+	var err error
+	g.fontSource, err = text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Create 16px font face from the above source.
+	g.fontFace = &text.GoTextFace{
+		Source: g.fontSource,
+		Size:   16,
+	}
+	g.initialized = true
+}
+
 func (g *Game) Update() error {
+	if !g.initialized {
+		g.initialize()
+	}
 	g.CheckPlayersAlive()
 	g.UpdateScoreTimer()
 	for _, id := range g.localIDs {
