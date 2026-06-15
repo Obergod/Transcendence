@@ -54,47 +54,37 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     checkToken();
   }, []);
 
-  // gestion du websoket
+  // gestion du websocket
   useEffect(() => {
     let socket: WebSocket | null = null;
+    let connectTimer: ReturnType<typeof setTimeout>;
 
     if (user) {
-      const token = localStorage.getItem('jwt_token');
-      socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
+        const token = localStorage.getItem('jwt_token');
 
-      socket.onopen = () => {
-        console.log("🟢 WebSocket Connecté !");
-      };
+        connectTimer = setTimeout(() => {
+            socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
 
-      // NOUVEAU : On écoute les messages envoyés par le Hub Go !
-      socket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
+            socket.onopen = () => {
+                console.log("🟢 WebSocket Connecté !");
+            };
 
-          if (data.type === "online_users") {
-            setOnlineUsers(data.users || []); // On met à jour la liste instantanément
-          }
-        } catch (err) {
-          console.error("Erreur de parsing WS", err);
-        }
-      };
+            socket.onclose = () => {
+                console.log("🔴 WebSocket Déconnecté !");
+            };
 
-      socket.onclose = () => {
-        console.log("🔴 WebSocket Déconnecté !");
-        setOnlineUsers([]); // On vide la liste si on perd la connexion
-      };
-
-      setWs(socket);
+            setWs(socket);
+        }, 150);
     }
 
-    // nettoyage
     return () => {
-      if (socket) {
-        socket.close();
-        setWs(null);
-      }
+        clearTimeout(connectTimer);
+        if (socket) {
+            socket.close();
+            setWs(null);
+        }
     };
-  }, [user]);
+}, [user]);
 
   const refreshLevel = useCallback(async () => {
     if (!user) { setLevelInfo(null); return; }
