@@ -17,7 +17,7 @@ interface UserContextType {
   ws: WebSocket | null;
   levelInfo: { level: number; xpInLevel: number; xpForNext: number } | null;
   refreshLevel : () => Promise<void>;
-  onlineUsers: number[]; // <-- NOUVEAU : La variable est officiellement dans le type !
+  onlineUsers: number[];
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -28,7 +28,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [levelInfo, setLevelInfo] = useState<{ level: number; xpInLevel: number; xpForNext: number } | null>(null);
 
-  // NOUVEAU : État qui va contenir les IDs des joueurs connectés
+  // État qui va contenir les IDs des joueurs connectés
   const [onlineUsers, setOnlineUsers] = useState<number[]>([]);
 
   useEffect(() => {
@@ -69,8 +69,21 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 console.log("🟢 WebSocket Connecté !");
             };
 
+            // CORRECTION : On remet l'écouteur de messages qui met à jour la liste !
+            socket.onmessage = (event: MessageEvent) => {
+              try {
+                const data = JSON.parse(event.data);
+                if (data.type === "online_users") {
+                  setOnlineUsers(data.users || []);
+                }
+              } catch (err) {
+                console.error("Erreur de parsing WS", err);
+              }
+            };
+
             socket.onclose = () => {
                 console.log("🔴 WebSocket Déconnecté !");
+                setOnlineUsers([]); // On vide la liste à la déconnexion
             };
 
             setWs(socket);
@@ -84,7 +97,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             setWs(null);
         }
     };
-}, [user]);
+  }, [user]);
 
   const refreshLevel = useCallback(async () => {
     if (!user) { setLevelInfo(null); return; }
@@ -115,7 +128,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white font-bold">Chargement du profil...</div>;
   }
 
-  // NOUVEAU : On donne accès à "onlineUsers" à toute l'application !
   return (
     <UserContext.Provider value={{ user, login, logout, isReady, ws, levelInfo, refreshLevel, onlineUsers }}>
       {children}
