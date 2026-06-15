@@ -22,7 +22,7 @@ const Chat = () => {
       if (!friendId) return;
       const token = localStorage.getItem('jwt_token');
       try {
-        const res = await fetch(`http://localhost:8081/api/chat/history/${friendId}`, {
+        const res = await fetch(`https://localhost:8081/api/chat/history/${friendId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

@@ -21,7 +21,7 @@ const Game = () => {
       setIsGameOver(true);
       const token = localStorage.getItem('jwt_token');
       try {
-        await fetch("http://localhost:8081/api/match/save", {
+        await fetch("https://localhost:8081/api/match/save", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify({ duration: durationInSeconds, score: score }),
