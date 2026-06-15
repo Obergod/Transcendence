@@ -1,4 +1,4 @@
-FROM postgres
+FROM postgres-bookworm
 
 RUN apt-get update && \
     apt-get install -y postgres:14.22 && \

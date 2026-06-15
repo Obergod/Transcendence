@@ -16,56 +16,48 @@ CYAN = \033[36m
 RESET = \033[0m
 CLEAR = \033[2K\r
 
-.PHONY: all clean fclean re up down start stop ps core
+.PHONY: all clean fclean re up down start stop ps core launch_core reset
 
 SRCS=docker/docker-compose.yml
+SETUP=docker/docker-compose.setup.yml
 
-all: build up
+all: bootstrap build up clean # build clean <up> # TODO clean has been deleted from all launch, check if it is needed 
 
 # --- For Dockers ---
+
+bootstrap:
+	@docker compose -f ${SETUP} up certs
+	@./docker/start_elastic.sh
+
 up:
 	@docker compose -f ${SRCS} up -d
 
 build:
-	@docker compose -f ${SRCS} build backend && docker compose -f ${SRCS} build
-
-down:
-	@docker compose -f ${SRCS} down
+	@docker compose -f ${SRCS} build #backend && docker compose -f ${SRCS} build
 
 start:
 	@docker compose -f ${SRCS} start
 
-stop:
-	@docker compose -f ${SRCS} stop
+stop: 
+	@docker compose -f ${SRCS} down --remove-orphans
 
 ps:
 	@docker compose -f ${SRCS} ps
 
 # --- Nettoyage ---
-clean:
-	@printf "$(YELLOW)Cleaning Go cache...$(RESET)"
-	@$(GOCLEAN) -cache
-	@printf "$(CLEAR)$(GREEN)✓ Go cache cleaned$(RESET)\n"
 
-fclean: clean
-	@printf "$(YELLOW)Deleting $(NAME)...$(RESET)"
-	@rm -f $(NAME)
-	@printf "$(CLEAR)$(GREEN)✓ $(NAME) deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting WASM files...$(RESET)"
-	@rm -f $(WASM_OUT) $(WASM_DIR)/wasm_exec.js
-	@printf "$(CLEAR)$(GREEN)✓ WASM files deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting go.mod and go.sum...$(RESET)"
-	@rm -f go.mod go.sum
-	@printf "$(CLEAR)$(GREEN)✓ go.mod and go.sum deleted$(RESET)\n"
-	@printf "$(YELLOW)Deleting frontend/dist and frontend/node_modules...$(RESET)"
-	@rm -rf $(FRONTEND_DIR)/dist $(FRONTEND_DIR)/node_modules
-	@printf "$(CLEAR)$(GREEN)✓ frontend/dist and node_modules deleted$(RESET)\n"
-	docker system prune -af
-	@ docker compose -f ${SRCS} down --rmi 'all'
+clean:
+	@docker image rm backend frontend -f
+# 	docker image prune -af
+
+fclean: stop clean # down at beginning
+# 	@ docker image prune -af
+# 	@ docker compose -f ${SRCS} down --rmi 'all'
+
+death: fclean
+	@rm -rf docker/backups docker/certs docker/src/elasticsearch/ssl/* docker/src/kibana/ssl/*
+	@echo > docker/.env
+	@docker system prune -af
+	@docker volume prune -f
 
 re: fclean all
-
-# --- To launch without reinstalling dockers ---
-
-core: build
-	@docker compose -f ${SRCS} up -d backend frontend database

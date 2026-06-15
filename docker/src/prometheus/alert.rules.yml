@@ -1,0 +1,51 @@
+groups:
+- name: "backend"
+  rules:
+  - alert: "BackendDown"
+    expr: "up{job=\"backend\"} == 0"
+    for: "5m"
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "Backend service is down"
+      description: "The backend service ({{ $labels.instance }}) has been down for more than 5 minutes."
+
+- name: "postgres"
+  rules:
+  - alert: "PostgresDown"
+    expr: "up{job=\"postgres\"} == 0"
+    for: "5m"
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "Postgres service is down"
+      description: "The Postgres service ({{ $labels.instance }}) has been down for more than 5 minutes."
+
+- name: "node"
+  rules:
+  - alert: "HighDiskUsage"
+    expr: "100 - (node_filesystem_avail_bytes{device!=\"tmpfs\"} / node_filesystem_size_bytes{device!=\"tmpfs\"} * 100) > 90"
+    for: "5m"
+    labels:
+      severity: "warning"
+    annotations:
+      summary: "High disk usage detected"
+      description: "Disk {{ $labels.device }} on {{ $labels.instance }} is {{ $value }}% full."
+
+  - alert: "HighCPULoad"
+    expr: "node_load5 > 4"
+    for: "10m"
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "High CPU load detected"
+      description: "CPU load on {{ $labels.instance }} is {{ $value }}."
+
+  - alert: "HighMemoryUsage"
+    expr: "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90"
+    for: "5m"
+    labels:
+      severity: "warning"
+    annotations:
+      summary: "High memory usage detected"
+      description: "Memory usage on {{ $labels.instance }} is {{ $value }}%."

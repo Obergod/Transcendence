@@ -1,6 +1,0 @@
-filebeat.inputs:
-  - type: journald
-    id: podman-journal
-
-output.logstash:
-  hosts: ["logstash:5044"]
