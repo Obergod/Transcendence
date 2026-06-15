@@ -32,7 +32,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const token = localStorage.getItem('jwt_token');
       if (token) {
         try {
-          const response = await fetch("https://localhost:8081/api/user/me", {
+          const response = await fetch("/api/user/me", {
             headers: { "Authorization": `Bearer ${token}` }
           });
           if (response.ok) {
@@ -50,39 +50,43 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     checkToken();
   }, []);
 
-  // gestion du websoket
+  // gestion du websocket
   useEffect(() => {
     let socket: WebSocket | null = null;
+    let connectTimer: ReturnType<typeof setTimeout>;
 
     if (user) {
-      const token = localStorage.getItem('jwt_token');
-      socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
+        const token = localStorage.getItem('jwt_token');
 
-      socket.onopen = () => {
-        console.log("🟢 WebSocket Connecté !");
-      };
+        connectTimer = setTimeout(() => {
+            socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
 
-      socket.onclose = () => {
-        console.log("🔴 WebSocket Déconnecté !");
-      };
+            socket.onopen = () => {
+                console.log("🟢 WebSocket Connecté !");
+            };
 
-      setWs(socket);
+            socket.onclose = () => {
+                console.log("🔴 WebSocket Déconnecté !");
+            };
+
+            setWs(socket);
+        }, 150);
     }
 
-    // nettoyage
     return () => {
-      if (socket) {
-        socket.close();
-        setWs(null);
-      }
+        clearTimeout(connectTimer);
+        if (socket) {
+            socket.close();
+            setWs(null);
+        }
     };
-  }, [user]);
+}, [user]);
 
   const refreshLevel = useCallback(async () => {
     if (!user) { setLevelInfo(null); return; }
     const token = localStorage.getItem('jwt_token');
     try {
-      const res = await fetch("https://localhost:8081/api/user/level", {
+      const res = await fetch("/api/user/level", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
