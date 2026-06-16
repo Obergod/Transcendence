@@ -17,6 +17,8 @@ const Game = () => {
   const gameMode = location.state?.mode || 1;
 
   useEffect(() => {
+    let isCancelled = false; // <-- LE VERROU DE SÉCURITÉ
+
     (window as any).onGameover = async (durationInSeconds: number, score: number) => {
       setIsGameOver(true);
       const token = localStorage.getItem('jwt_token');
@@ -39,13 +41,18 @@ const Game = () => {
 
       const go = new (window as any).Go();
 
-      // LA MAGIE EST ICI : On passe les variables à Go juste avant de le lancer !
       (window as any).gameMode = gameMode;
       (window as any).timerLabel = t('game.timer_label');
       (window as any).scoreLabel = t('game.score_label');
 
       WebAssembly.instantiateStreaming(fetch('/main.wasm'), go.importObject)
         .then((result) => {
+          // SI LE COMPOSANT A ÉTÉ DÉMONTÉ ENTRE-TEMPS, ON NE LANCE PAS LE JEU
+          if (isCancelled) {
+            console.log("🛑 Instance asynchrone bloquée pour éviter un double lancement.");
+            return;
+          }
+
           setIsGameLoaded(true);
           go.run(result.instance);
 
@@ -66,8 +73,10 @@ const Game = () => {
           setTimeout(moveCanvas, 100);
         })
         .catch((err) => {
-          console.error("Erreur Wasm:", err);
-          setError(t('game.error_wasm'));
+          if (!isCancelled) {
+            console.error("Erreur Wasm:", err);
+            setError(t('game.error_wasm'));
+          }
         });
     };
 
@@ -82,10 +91,11 @@ const Game = () => {
     }
 
     return () => {
+      isCancelled = true; // <-- ON VERROUILLE L'EFFET AU DÉMONTAGE
       document.querySelectorAll('canvas').forEach(c => c.remove());
       delete (window as any).onGameover;
     };
-  }, [t, gameMode]);
+  }, [t, gameMode, refreshLevel]);
 
   const handleRetry = () => {
     setIsGameOver(false);
