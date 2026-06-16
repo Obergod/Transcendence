@@ -1,4 +1,4 @@
-FROM golang:1.25 AS backend-builder
+FROM golang:1.25 AS builder
 
 WORKDIR /app
 
@@ -34,15 +34,45 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 \
     go build -o transcendance ./backend
 
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    mkdir -p frontend/public && \
+RUN mkdir -p frontend/public && \
     cd game && \
-    GOARCH=wasm GOOS=js \
-    go build -o ../frontend/public/main.wasm main_wasm.go
+    GOARCH=wasm GOOS=js go build -o ../frontend/public/main.wasm main_wasm.go
 
-RUN cp $(go env GOROOT)/lib/wasm/wasm_exec.js frontend/public/
+RUN cp $(go env GOROOT)/lib/wasm/wasm_exec.js frontend/public/wasm_exec.js
+# RUN --mount=type=cache,target=/root/.cache/go-build \
+#     mkdir -p frontend/public && \
+#     cd game && \
+#     GOARCH=wasm GOOS=js \
+#     go build -o ../frontend/public/main.wasm main_wasm.go
 
-RUN mkdir -p /var/log/containers && \
-    mkdir -p /app/logs
+# RUN cp $(go env GOROOT)/lib/wasm/wasm_exec.js frontend/public/
+
+FROM node:24-alpine AS frontend-builder
+
+WORKDIR /app
+
+COPY frontend/package*.json ./
+RUN npm install
+
+COPY frontend .
+RUN npm run build
+
+FROM alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
+
+COPY --from=builder /app/transcendance /app/
+COPY --from=builder /app/ssl /app/ssl
+COPY --from=builder /app/frontend/public/main.wasm /app/public/
+COPY --from=builder /app/frontend/public/wasm_exec.js /app/public/
+
+COPY --from=frontend-builder /app/dist /app/public
+
+RUN mkdir -p /app/logs
+
+# RUN mkdir -p /var/log/containers && \
+#     mkdir -p /app/logs
 
 CMD ["./transcendance"]

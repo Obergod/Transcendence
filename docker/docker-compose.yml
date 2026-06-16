@@ -20,7 +20,7 @@ services:
       - "5432:5432"
 
   backend:
-    image: backend-builder
+    # image: backend-builder
     build:
       context: ..
       dockerfile: docker/src/backend/Dockerfile
@@ -64,7 +64,7 @@ services:
       - backend
     volumes:
       - ./backups:/backup
-      - ./ssl:/etc/nginx/ssl:ro
+      - ./:/ssl:ro
     logging:
       driver: "json-file"
       options:
