@@ -1,6 +1,3 @@
-# include:
-#   - path: docker/docker-compose.setup.yml
-
 services:
   database:
     image: postgres:14

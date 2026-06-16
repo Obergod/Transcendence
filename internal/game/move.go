@@ -103,7 +103,7 @@ func (g *Game) MoveEnemies() {
 		if !e.IsAlive {
 			continue
 		}
-		var closestPlayer *player.Player
+		var closestPlayer *player.Player = g.world.Players["p1"]
 		var closestDistSq int64 = 1 << 62
 		for _, p := range g.world.Players {
 			if !p.IsAlive {

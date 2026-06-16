@@ -2,9 +2,11 @@ package game
 
 import (
     "image/color"
+    "strconv"
 
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 
     "transcendance/internal/utils"
 )
@@ -43,6 +45,20 @@ func (g *Game) DrawPlayers(screen *ebiten.Image) {
     }
 }
 
+func (g *Game) DrawHP(screen *ebiten.Image) {
+    for _, p := range g.world.Players {
+        x := utils.FixedToFloat64(p.Hitbox.X)
+        y := utils.FixedToFloat64(p.Hitbox.Y)
+        txtOp := &text.DrawOptions{}
+        txtOp.GeoM.Translate(x-10,y-10)
+        col := color.RGBA{0, 0, 0, 255}
+        txtOp.ColorScale.ScaleWithColor(col)
+        text.Draw(screen, strconv.Itoa(p.HP), g.fontFace, txtOp)
+
+    }
+}
+
+
 func (g *Game) Draw(screen *ebiten.Image) {
     screen.Fill(color.Black)
     g.world.RLock()
@@ -50,6 +66,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
     g.DrawPlayers(screen)
     g.DrawEnemies(screen)
     g.DrawBullets(screen)
+    g.DrawHP(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
