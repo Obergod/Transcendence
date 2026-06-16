@@ -30,12 +30,17 @@ export default defineConfig({
 
     proxy: {
       '/api': {
-        target: 'https://localhost:8081',
+        target: 'https://backend:8081',   // service name, not localhost
+        changeOrigin: true,
+        secure: false,
+      },
+      '/uploads': {
+        target: 'https://backend:8081',
         changeOrigin: true,
         secure: false,
       },
       '/ws': {
-        target: 'wss://localhost:8081',
+        target: 'https://backend:8081',
         ws: true,
         changeOrigin: true,
         secure: false,

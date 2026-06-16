@@ -14,9 +14,10 @@ interface UserContextType {
   login: (userData: User) => void;
   logout: () => void;
   isReady: boolean;
-  ws: WebSocket | null; //socket global
+  ws: WebSocket | null;
   levelInfo: { level: number; xpInLevel: number; xpForNext: number } | null;
   refreshLevel : () => Promise<void>;
+  onlineUsers: number[];
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -27,12 +28,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [levelInfo, setLevelInfo] = useState<{ level: number; xpInLevel: number; xpForNext: number } | null>(null);
 
+  // État qui va contenir les IDs des joueurs connectés
+  const [onlineUsers, setOnlineUsers] = useState<number[]>([]);
+
   useEffect(() => {
     const checkToken = async () => {
       const token = localStorage.getItem('jwt_token');
       if (token) {
         try {
-          const response = await fetch("https://localhost:8081/api/user/me", {
+          const response = await fetch("/api/user/me", {
             headers: { "Authorization": `Bearer ${token}` }
           });
           if (response.ok) {
@@ -50,31 +54,48 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     checkToken();
   }, []);
 
-  // gestion du websoket
+  // gestion du websocket
   useEffect(() => {
     let socket: WebSocket | null = null;
+    let connectTimer: ReturnType<typeof setTimeout>;
 
     if (user) {
-      const token = localStorage.getItem('jwt_token');
-      socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
+        const token = localStorage.getItem('jwt_token');
 
-      socket.onopen = () => {
-        console.log("🟢 WebSocket Connecté !");
-      };
+        connectTimer = setTimeout(() => {
+            socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
 
-      socket.onclose = () => {
-        console.log("🔴 WebSocket Déconnecté !");
-      };
+            socket.onopen = () => {
+                console.log("🟢 WebSocket Connecté !");
+            };
 
-      setWs(socket);
+            // CORRECTION : On remet l'écouteur de messages qui met à jour la liste !
+            socket.onmessage = (event: MessageEvent) => {
+              try {
+                const data = JSON.parse(event.data);
+                if (data.type === "online_users") {
+                  setOnlineUsers(data.users || []);
+                }
+              } catch (err) {
+                console.error("Erreur de parsing WS", err);
+              }
+            };
+
+            socket.onclose = () => {
+                console.log("🔴 WebSocket Déconnecté !");
+                setOnlineUsers([]); // On vide la liste à la déconnexion
+            };
+
+            setWs(socket);
+        }, 150);
     }
 
-    // nettoyage
     return () => {
-      if (socket) {
-        socket.close();
-        setWs(null);
-      }
+        clearTimeout(connectTimer);
+        if (socket) {
+            socket.close();
+            setWs(null);
+        }
     };
   }, [user]);
 
@@ -82,7 +103,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) { setLevelInfo(null); return; }
     const token = localStorage.getItem('jwt_token');
     try {
-      const res = await fetch("https://localhost:8081/api/user/level", {
+      const res = await fetch("/api/user/level", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -108,7 +129,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, login, logout, isReady, ws, levelInfo, refreshLevel }}>
+    <UserContext.Provider value={{ user, login, logout, isReady, ws, levelInfo, refreshLevel, onlineUsers }}>
       {children}
     </UserContext.Provider>
   );

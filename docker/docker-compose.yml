@@ -97,9 +97,9 @@ services:
 
   node-exporter:
     container_name: node-exporter
-    image: prom/node-exporter
+    image: docker.io/prom/node-exporter:latest
     ports:
-      - "9101:9101"
+      - "9101:9100"
     networks:
       - appnet
     logging:
@@ -110,7 +110,7 @@ services:
 
   postgres-exporter:
     container_name: postgres-exporter
-    image: prometheuscommunity/postgres-exporter
+    image: docker.io/prometheuscommunity/postgres-exporter:latest
     environment:
       DATA_SOURCE_NAME: "postgresql://admin:goodPassword123@postgres:5432/myapp?sslmode=disable"
     ports:
@@ -221,7 +221,7 @@ services:
     volumes:
       - ./certs/ca.pem:/usr/share/logstash/config/certs/ca.pem:ro
       - ./src/logstash/logs:/usr/share/logstash/logs
-      - ./src/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      # - ./src/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:z
       - ./src/logstash/config/pipeline:/usr/share/logstash/pipeline:ro
       - esdata:/usr/share/logstash/data
     depends_on:
@@ -248,7 +248,7 @@ services:
       - /etc/machine-id:/etc/machine-id:ro
       # - /var/lib/docker/containers:/var/lib/docker/containers:ro
       # - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /run/user/44515483/podman/podman.sock:/var/run/docker.sock:ro
+      - $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock:ro
       - esdata:/var/lib/elasticsearch/data
       - ./certs/ca.pem:/usr/share/elasticsearch/config/certs/ca.pem:ro
       - ./src/logstash/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro

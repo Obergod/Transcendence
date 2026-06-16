@@ -28,7 +28,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
       const token = localStorage.getItem('jwt_token');
       if (!token) return;
       try {
-        const res = await fetch("https://localhost:8081/api/user/stats", {
+        const res = await fetch("/api/user/stats", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (res.ok) {
@@ -98,7 +98,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     if (avatarFile) formData.append("avatar", avatarFile);
 
     try {
-      const response = await fetch("https://localhost:8081/api/user/update", {
+      const response = await fetch("/api/user/update", {
         method: "PUT",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData,
@@ -129,7 +129,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     const token = localStorage.getItem('jwt_token');
     if (!token) return;
     try {
-      const response = await fetch("https://localhost:8081/api/friends/list", {
+      const response = await fetch("/api/friends/list", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await response.json();
@@ -146,7 +146,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     setSocialMsg(null);
     const token = localStorage.getItem('jwt_token');
     try {
-      const response = await fetch("https://localhost:8081/api/friends/request", {
+      const response = await fetch("/api/friends/request", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ username: targetUsername }),
@@ -167,7 +167,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const respondToRequest = async (friendshipId: number, action: 'accept' | 'reject') => {
     const token = localStorage.getItem('jwt_token');
     try {
-      await fetch("https://localhost:8081/api/friends/respond", {
+      await fetch("/api/friends/respond", {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ friendship_id: friendshipId, action }),

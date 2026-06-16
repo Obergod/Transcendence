@@ -10,6 +10,7 @@ import Lobby from './pages/Lobby';
 import Game from './pages/Game';
 import MatchHistory from './pages/MatchHistory';
 import Chat from './pages/Chat';
+import TermsOfService from './pages/TermsOfService'; // <-- NOUVEL IMPORT
 import AuthModal from './components/AuthModal';
 
 // IMPORTS DE WIDGETS
@@ -49,7 +50,6 @@ function App() {
             </Link>
           </div>
 
-          {/* <-- La correction est ici (on utilise 'user' au lieu de 'isLoggedIn') */}
           {user ? (
             <Link to="/profile" className="flex items-center space-x-4 cursor-pointer hover:bg-gray-800 p-2 rounded-lg transition-colors">
               <div className="flex flex-col items-end leading-tight">
@@ -73,20 +73,32 @@ function App() {
         </header>
 
         {/* --- ROUTES --- */}
-        <Routes>
-          {/* La route Home reste publique */}
-          <Route path="/" element={<Home isLoggedIn={!!user} onLoginClick={() => setIsAuthModalOpen(true)} />} />
+        <div className="flex-1 flex flex-col">
+          <Routes>
+            {/* La route Home reste publique */}
+            <Route path="/" element={<Home isLoggedIn={!!user} onLoginClick={() => setIsAuthModalOpen(true)} />} />
 
-          {/* TOUTES LES AUTRES ROUTES SONT MAINTENANT ENVELOPPÉES DANS <ProtectedRoute> */}
-          <Route path="/profile" element={<ProtectedRoute><Profile onLogout={() => console.log("Déconnexion en attente du contexte !")} /></ProtectedRoute>} />
-          <Route path="/play" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
-          <Route path="/game" element={<ProtectedRoute><Game /></ProtectedRoute>} />
-          <Route path="/history" element={<ProtectedRoute><MatchHistory /></ProtectedRoute>} />
-          <Route path="/chat/:friendId/:friendName" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-          <Route path="/chat/:friendName" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            {/* NOUVELLE ROUTE PUBLIQUE POUR LE TOS */}
+            <Route path="/tos" element={<TermsOfService />} />
 
-		  <Route path="*" element={<Navigate to= "/" replace />} />
-        </Routes>
+            {/* TOUTES LES AUTRES ROUTES SONT MAINTENANT ENVELOPPÉES DANS <ProtectedRoute> */}
+            <Route path="/profile" element={<ProtectedRoute><Profile onLogout={() => console.log("Déconnexion en attente du contexte !")} /></ProtectedRoute>} />
+            <Route path="/play" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
+            <Route path="/game" element={<ProtectedRoute><Game /></ProtectedRoute>} />
+            <Route path="/history" element={<ProtectedRoute><MatchHistory /></ProtectedRoute>} />
+            <Route path="/chat/:friendId/:friendName" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/chat/:friendName" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+
+            <Route path="*" element={<Navigate to= "/" replace />} />
+          </Routes>
+        </div>
+
+        {/* --- NOUVEAU FOOTER GLOBAL --- */}
+        <footer className="w-full p-4 flex justify-center items-center z-10 mt-auto bg-black/20 border-t border-gray-800">
+          <Link to="/tos" className="text-gray-500 hover:text-gray-300 text-sm transition-colors uppercase tracking-widest font-bold">
+            Terms of Service & Privacy Policy
+          </Link>
+        </footer>
 
         {/* --- MODALES --- */}
         {isSettingsOpen && (
