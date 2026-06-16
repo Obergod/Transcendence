@@ -91,7 +91,13 @@ const Game = () => {
     }
 
     return () => {
-      isCancelled = true; // <-- ON VERROUILLE L'EFFET AU DÉMONTAGE
+      isCancelled = true;
+
+      if (typeof (window as any).quitGame === 'function') {
+        (window as any).quitGame();
+        delete (window as any).quitGame;
+      }
+
       document.querySelectorAll('canvas').forEach(c => c.remove());
       delete (window as any).onGameover;
     };

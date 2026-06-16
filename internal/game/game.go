@@ -9,6 +9,8 @@ import (
 	"transcendance/internal/world"
 	"transcendance/internal/logger"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 )
 
@@ -21,6 +23,7 @@ type Game struct {
 	nbPlayer      int
 	lastShotTicks map[string]int
 	initialized	  bool
+	ShouldQuit	  bool
 
 	fontSource *text.GoTextFaceSource
 	fontFace *text.GoTextFace
@@ -37,6 +40,7 @@ func NewGame(w *world.World, IDs []string, nb int) *Game {
 		nbPlayer:      nb,
 		lastShotTicks: make(map[string]int),
 		initialized: false,
+		ShouldQuit:  false,
 	}
 }
 
@@ -113,6 +117,9 @@ func (g *Game) initialize() {
 }
 
 func (g *Game) Update() error {
+	if g.ShouldQuit {
+		return ebiten.Termination
+	}
 	if !g.initialized {
 		g.initialize()
 	}
