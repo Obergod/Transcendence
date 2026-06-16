@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 interface User {
   id: number;
@@ -14,7 +14,9 @@ interface UserContextType {
   login: (userData: User) => void;
   logout: () => void;
   isReady: boolean;
-  ws: WebSocket | null;
+  ws: WebSocket | null; //socket global
+  levelInfo: { level: number; xpInLevel: number; xpForNext: number } | null;
+  refreshLevel : () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -23,13 +25,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
+  const [levelInfo, setLevelInfo] = useState<{ level: number; xpInLevel: number; xpForNext: number } | null>(null);
 
   useEffect(() => {
     const checkToken = async () => {
       const token = localStorage.getItem('jwt_token');
       if (token) {
         try {
-          const response = await fetch("http://localhost:8081/api/user/me", {
+          const response = await fetch("https://localhost:8081/api/user/me", {
             headers: { "Authorization": `Bearer ${token}` }
           });
           if (response.ok) {
@@ -53,7 +56,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (user) {
       const token = localStorage.getItem('jwt_token');
-      socket = new WebSocket(`ws://localhost:8081/ws?token=${token}`);
+      socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
 
       socket.onopen = () => {
         console.log("🟢 WebSocket Connecté !");
@@ -75,6 +78,24 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [user]);
 
+  const refreshLevel = useCallback(async () => {
+    if (!user) { setLevelInfo(null); return; }
+    const token = localStorage.getItem('jwt_token');
+    try {
+      const res = await fetch("https://localhost:8081/api/user/level", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLevelInfo({ level: data.level, xpInLevel: data.xp_in_level, xpForNext: data.xp_for_next });
+      }
+    } catch (err) {
+      console.error("Erreur chargement niveau", err);
+    }
+  }, [user]);
+
+  useEffect(() => { refreshLevel(); }, [refreshLevel]);
+
   const login = (userData: User) => setUser(userData);
 
   const logout = () => {
@@ -87,7 +108,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, login, logout, isReady, ws }}>
+    <UserContext.Provider value={{ user, login, logout, isReady, ws, levelInfo, refreshLevel }}>
       {children}
     </UserContext.Provider>
   );

@@ -1,14 +1,14 @@
 {
   "nav": {
-    "home": "Accueil"
+    "home": "Accueil",
+    "login": "Se connecter"
   },
   "settings": {
     "title": "Paramètres",
-    "music_volume": "Volume de la musique",
-    "sfx_volume": "Volume des effets (SFX)"
+    "language": "Langue"
   },
   "home": {
-    "title_line1": "42",
+    "title_line1": "67",
     "title_line2": "SURVIVOR",
     "play": "JOUER",
     "match_history": "Historique des parties",
@@ -24,16 +24,17 @@
     "confirm_password": "Confirmer le mot de passe",
     "submit_login": "JOUER",
     "submit_register": "CRÉER MON COMPTE",
-    "or": "OU",
-    "google": "Continuer avec Google",
     "already_account": "J'ai déjà un compte",
     "no_account": "Je n'ai pas encore de compte",
     "error_password_mismatch": "Les mots de passe ne correspondent pas !",
     "error_password_short": "Le mot de passe doit faire au moins 6 caractères.",
     "error_register": "Erreur lors de l'inscription.",
     "error_login": "Email ou mot de passe incorrect.",
-	"pseudo_or_email": "Pseudo ou Email",
-    "login_btn": "Se connecter"
+    "pseudo_or_email": "Pseudo ou Email",
+    "login_btn": "Se connecter",
+    "error_server_unexpected": "Erreur inattendue du serveur : {{text}}",
+    "error_missing_user": "Erreur : Données utilisateur manquantes dans la réponse.",
+    "error_server_unreachable": "Impossible de joindre le serveur. Est-il allumé ?"
   },
   "profile": {
     "my_profile": "MON PROFIL",
@@ -52,8 +53,17 @@
     "pending_requests": "Demandes reçues",
     "my_friends": "Mes Amis",
     "no_friends": "Looseeeeeeeeeer...",
-    "chat_btn": "💬 Chat"
-
+    "chat_btn": "💬 Chat",
+    "choose_file": "Choisir un fichier",
+    "no_file_chosen": "Aucun fichier choisi",
+    "error_format": "Format non autorisé. Utilise JPG, PNG, GIF ou WEBP.",
+    "error_size": "Image trop lourde. Maximum 2 MB.",
+    "error_dimensions": "Image trop grande ({{width}}x{{height}}). Maximum 2000x2000 pixels.",
+    "error_read": "Impossible de lire l'image.",
+    "update_success": "Profil mis à jour !",
+    "error_update": "Erreur de mise à jour",
+    "error_server": "Erreur serveur",
+    "error_network": "Erreur réseau"
   },
   "lobby": {
     "title": "SALLE D'",
@@ -81,13 +91,30 @@
     "col_kills": "Monstres Tués",
     "col_result": "Résultat",
     "victory": "Victoire",
-    "defeat": "Défaite"
+    "defeat": "Défaite",
+    "data_center_pre": "Centre de",
+    "data_center_highlight": "Données",
+    "tab_history": "Mon Historique",
+    "tab_leaderboard": "Classement Amis",
+    "col_mission_date": "Date de mission",
+    "col_time_survived": "Temps survécu",
+    "no_missions": "Aucune mission enregistrée.",
+    "col_rank": "Rang",
+    "col_player": "Joueur",
+    "col_record": "Record de survie",
+    "no_scores": "Aucun score disponible."
   },
   "chat": {
     "online": "En ligne",
     "close": "Fermer le chat",
     "send": "Envoyer",
-    "placeholder": "Envoyer un message à {{name}}..."
+    "placeholder": "Envoyer un message à {{name}}...",
+    "back_to_profile": "Retour au profil",
+    "no_messages": "Aucun message. Lance la discussion !",
+    "spam_warning": "Doucement ! Tu envoies des messages trop vite."
+  },
+  "level": {
+    "short": "Nv"
   },
   "game": {
     "in_progress": "SURVIE EN COURS...",
@@ -95,6 +122,15 @@
     "quit": "Abandonner la partie",
     "error_prefix": "Erreur :",
     "error_wasm": "Impossible de charger le jeu. Vérifiez la console.",
-    "error_script": "Impossible de charger wasm_exec.js"
+    "error_script": "Impossible de charger wasm_exec.js",
+    "over_title": "Échec de la mission",
+    "over_subtitle": "Ton personnage a succombé",
+    "retry": "Réessayer",
+    "abandon": "Abandonner",
+    "footer": "Système de survie v1.0",
+    "timer_init": "TEMPS: 00:00",
+    "score_init": "SCORE: 00000",
+    "timer_label": "TEMPS",
+    "score_label": "SCORE"
   }
 }

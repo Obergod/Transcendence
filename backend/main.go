@@ -12,6 +12,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+    l "github.com/rs/zerolog/log"
+    "github.com/rs/zerolog"
 	//"go.mongodb.org/mongo-driver/v2/x/mongo/driver/auth"
 )
 
@@ -69,10 +71,22 @@ func main() {
 		protected.GET("/match/history", social.MyHistoryHandler(db))
 		protected.GET("/match/leaderboard", social.LeaderboardHandler(db))
 		protected.GET("/user/stats", social.UserStatsHandler(db))
+        protected.GET("/chat/history/:friendId", social.GetHistoryHandler(db))
+        protected.GET("/user/level", social.GetLevelHandler(db))
     }
 
 	//r.Static("/", "./frontend/dist")
 
+    logWriter := zerolog.MultiLevelWriter(os.Stdout)
+    l.Logger = zerolog.New(logWriter).With().Timestamp().Logger()
+
+    r.Use(gin.LoggerWithWriter(logWriter))
+    r.Use(gin.Recovery())
+
 	log.Println("Serveur sur :8081")
-    log.Fatal(r.Run(":8081"))
+    log.Fatal(r.RunTLS(
+        ":8081",
+        "/app/ssl/localhost+2.pem",
+        "/app/ssl/localhost+2-key.pem",
+        ))
 }

@@ -83,11 +83,13 @@ func (g *Game) UpdateScoreTimer() {
 					seconds := g.ticks / 60
 					minutes := seconds / 60
 					secRemainder := seconds % 60
-					timerEl.Set("innerText", fmt.Sprintf("TEMPS: %02d:%02d", minutes, secRemainder))
+					timerLabel := js.Global().Get("timerLabel").String()
+					timerEl.Set("innerText", fmt.Sprintf("%s: %02d:%02d", timerLabel, minutes, secRemainder))
 				}
 				scoreEl := jsDoc.Call("getElementById", "game-score")
 				if scoreEl.Type() != js.TypeNull {
-					scoreEl.Set("innerText", fmt.Sprintf("SCORE: %05d", g.ticks))
+					scoreLabel := js.Global().Get("scoreLabel").String()
+					scoreEl.Set("innerText", fmt.Sprintf("%s: %05d", scoreLabel, g.ticks))
 				}
 			}
 		}

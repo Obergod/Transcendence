@@ -31,7 +31,8 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { t } = useTranslation();
 
-  const { user } = useUser();
+  // MAGIE : On récupère l'utilisateur depuis notre Contexte !
+  const { user, levelInfo } = useUser();
 
   return (
     <BrowserRouter>
@@ -48,15 +49,26 @@ function App() {
             </Link>
           </div>
 
-          <LanguageSwitcher></LanguageSwitcher>
-
-          {user && (
+          {/* <-- La correction est ici (on utilise 'user' au lieu de 'isLoggedIn') */}
+          {user ? (
             <Link to="/profile" className="flex items-center space-x-4 cursor-pointer hover:bg-gray-800 p-2 rounded-lg transition-colors">
-              <span className="font-bold text-lg">{user.pseudo}</span>
+              <div className="flex flex-col items-end leading-tight">
+                <span className="font-bold text-lg">{user.pseudo}</span>
+                <span className="text-red-500 font-bold text-sm">
+                  {levelInfo ? `${t('level.short')} ${levelInfo.level}` : ''}
+                </span>
+              </div>
               <div className="w-12 h-12 bg-gray-700 rounded-full border-2 border-red-500 overflow-hidden">
                 <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
               </div>
             </Link>
+          ) : (
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="text-gray-400 hover:text-white font-bold text-xl flex items-center"
+            >
+              {t('nav.login')}
+            </button>
           )}
         </header>
 
@@ -85,8 +97,10 @@ function App() {
               </button>
               <h2 className="text-3xl font-bold text-center text-gray-200 mb-8 border-b border-gray-700 pb-4">{t('settings.title')}</h2>
               <div className="space-y-6">
-                <div><label className="block text-gray-400 mb-2 font-semibold">{t('settings.music_volume')}</label><input type="range" className="w-full accent-red-600" /></div>
-                <div><label className="block text-gray-400 mb-2 font-semibold">{t('settings.sfx_volume')}</label><input type="range" className="w-full accent-red-600" /></div>
+                <div>
+                  <label className="block text-gray-400 mb-2 font-semibold">{t('settings.language')}</label>
+                  <LanguageSwitcher />
+                </div>
               </div>
             </div>
           </div>

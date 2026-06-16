@@ -67,7 +67,39 @@ func ListFriendsHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"data": friendships})
+		type FriendItem struct {
+			FriendshipID	uint	`json:"friendship_id"`
+			Status			string	`json:"status"`
+			UserID			uint	`json:"user_id"`
+			FriendID		uint	`json:"friend_id"`
+			OtherID			uint	`json:"other_id"`
+			OtherUsername	string	`json:"other_username"`
+			OtherAvatar		string	`json:"other_avatar"`
+			OtherLevel		int		`json:"other_level"`
+		}
+
+		result := make([]FriendItem, 0, len(friendships))
+		for _, f := range friendships {
+			item := FriendItem{
+				FriendshipID:	f.ID,
+				Status:			f.Status,
+				UserID:			f.UserID,
+				FriendID:		f.FriendID,
+			}
+			if f.UserID == userID && f.Friend != nil {
+				item.OtherID = f.Friend.ID
+				item.OtherUsername = f.Friend.Username
+				item.OtherAvatar = f.Friend.AvatarURL
+			} else if f.User != nil {
+				item.OtherID = f.User.ID
+				item.OtherUsername = f.User.Username
+				item.OtherAvatar = f.User.AvatarURL
+			}
+			item.OtherLevel = LevelForUser(db, item.OtherID)
+			result = append(result, item)
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": result})
 	}
 }
 

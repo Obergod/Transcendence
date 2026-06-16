@@ -1,0 +1,36 @@
+services:
+  certs:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    tty: true
+    volumes:
+        - ./certs:/certs
+    command: >
+      sh -c '
+      set -e
+
+      [[ ! -f /certs/ca.pem ]] && {
+      
+        if [[ ! -f /certs/ca/ca.pem ]]; then
+          elasticsearch-certutil ca --pem --out /certs/ca.zip;
+          unzip /certs/ca.zip -d /certs/ca;
+        fi;
+
+        if [[ ! -f /certs/elasticsearch.pem ]]; then
+          elasticsearch-certutil cert --pem --name elasticsearch --dns elasticsearch --ip 127.0.0.1 --out /certs/elasticsearch.zip;
+          unzip /certs/elasticsearch.zip -d /certs;
+          # cp -f /certs/elasticsearch/instance/instance.crt /certs/elasticsearch/elasticsearch.crt;
+          # cp -f /certs/elasticsearch/instance/instance.key /certs/elasticsearch/elasticsearch.key;
+        fi;
+
+        if [[ ! -f /certs/kibana/kibana-http.p12 ]]; then
+          elasticsearch-certutil cert --ca-cert /certs/ca/ca/ca.crt --ca-key /certs/ca/ca/ca.key --pem --name kibana --dns kibana --ip 127.0.0.1 --out /certs/kibana.zip;
+          unzip /certs/kibana.zip -d /certs;
+          # mv /certs/kibana/instance/instance.p12 /certs/kibana/kibana-http.p12;
+        fi;
+
+        cp -f /certs/ca/ca/ca.crt /certs/ca.pem;
+
+        echo "PEM certificates generated and ready for use";
+      } 
+
+      '

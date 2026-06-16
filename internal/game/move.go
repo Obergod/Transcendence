@@ -57,7 +57,7 @@ func (g *Game) MovePlayer(id string) error {
 	}
 
 	localPlayer, exists := g.world.Players[id]
-	if !exists {
+	if !exists || !localPlayer.IsAlive {
 		return nil
 	}
 

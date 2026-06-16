@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useUser } from '../context/UserContext';
 
 const Game = () => {
   const [isGameLoaded, setIsGameLoaded] = useState(false);
@@ -9,6 +10,7 @@ const Game = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { t } = useTranslation();
+  const { refreshLevel } = useUser();
 
   // onrécupère le mode choisi dans le Lobby (1 ou 2 joueurs). Par défaut 1.
   const location = useLocation();
@@ -19,11 +21,12 @@ const Game = () => {
       setIsGameOver(true);
       const token = localStorage.getItem('jwt_token');
       try {
-        await fetch("http://localhost:8081/api/match/save", {
+        await fetch("https://localhost:8081/api/match/save", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify({ duration: durationInSeconds, score: score }),
         });
+        await refreshLevel();
       } catch (err) {
         console.error("Erreur de sauvegarde du score", err);
       }
@@ -36,7 +39,10 @@ const Game = () => {
 
       const go = new (window as any).Go();
 
+      // LA MAGIE EST ICI : On passe les variables à Go juste avant de le lancer !
       (window as any).gameMode = gameMode;
+      (window as any).timerLabel = t('game.timer_label');
+      (window as any).scoreLabel = t('game.score_label');
 
       WebAssembly.instantiateStreaming(fetch('/main.wasm'), go.importObject)
         .then((result) => {
@@ -94,9 +100,9 @@ const Game = () => {
       {/* HEADER DU JEU (Avec les IDs pour que Go puisse injecter le texte en temps réel) */}
       <div className="flex justify-between items-end w-full max-w-7xl mb-4 px-4">
         <h2 id="game-timer" className="text-3xl font-black text-red-500 tracking-widest uppercase">
-            TEMPS: 00:00
+            {t('game.timer_init')}
         </h2>
-        <div id="game-score" className="text-gray-400 font-mono text-xl">SCORE: 00000</div>
+        <div id="game-score" className="text-gray-400 font-mono text-xl">{t('game.score_init')}</div>
       </div>
 
       {/* CONTENEUR DU JEU */}
@@ -133,10 +139,10 @@ const Game = () => {
 
             <div className="p-10 text-center">
               <h2 className="text-4xl font-black text-white mb-2 uppercase tracking-tighter leading-tight">
-                Échec de la mission
+                {t('game.over_title')}
               </h2>
               <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mb-8">
-                Ton personnage a succombé
+                {t('game.over_subtitle')}
               </p>
 
               <div className="space-y-4">
@@ -144,20 +150,20 @@ const Game = () => {
                   onClick={handleRetry}
                   className="w-full bg-[#e60000] hover:bg-red-700 text-white font-black py-5 rounded-xl transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(230,0,0,0.4)] hover:scale-[1.02] active:scale-95"
                 >
-                  Réessayer
+                  {t('game.retry')}
                 </button>
 
                 <Link
                   to="/"
                   className="w-full inline-block bg-gray-800 hover:bg-gray-700 text-gray-300 font-black py-4 rounded-xl transition-all uppercase tracking-widest text-sm"
                 >
-                  Abandonner
+                  {t('game.abandon')}
                 </Link>
               </div>
             </div>
 
             <div className="bg-[#1a2035] p-4 text-center border-t border-gray-800">
-                <span className="text-gray-600 text-[10px] font-black uppercase tracking-widest">Système de survie v1.0</span>
+                <span className="text-gray-600 text-[10px] font-black uppercase tracking-widest">{t('game.footer')}</span>
             </div>
           </div>
         </div>
