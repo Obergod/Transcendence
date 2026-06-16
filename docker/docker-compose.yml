@@ -27,6 +27,7 @@ services:
     container_name: backend
     ports:
       - "8081:8081"
+      - "5173:5173"
     depends_on:
       - database
     networks:
@@ -50,26 +51,26 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  frontend:
-    build:
-      context: ..
-      dockerfile: docker/src/frontend/Dockerfile
-    container_name: frontend
-    restart: always
-    ports:
-      - "5173:5173"
-    networks:
-      - appnet
-    depends_on:
-      - backend
-    volumes:
-      - ./backups:/backup
-      - ./:/ssl:ro
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+  # frontend:
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/src/frontend/Dockerfile
+  #   container_name: frontend
+  #   restart: always
+  #   ports:
+  #     - "5173:5173"
+  #   networks:
+  #     - appnet
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - ./backups:/backup
+  #     - ./:/ssl:ro
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
 
   prometheus:
     container_name: prometheus
