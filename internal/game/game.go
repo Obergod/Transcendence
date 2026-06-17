@@ -34,7 +34,7 @@ func NewGame(w *world.World, IDs []string, nb int) *Game {
 	return &Game{
 		world:         w,
 		localIDs:      IDs,
-		waveNumber:    1,
+		waveNumber:    0,
 		isGameover:    false,
 		ticks:         0,
 		nbPlayer:      nb,
