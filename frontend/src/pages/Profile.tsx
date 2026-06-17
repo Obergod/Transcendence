@@ -176,6 +176,31 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     } catch (error) {}
   };
 
+  // --- NOUVELLE FONCTION : Supprimer un ami ---
+  const removeFriend = async (friendId: number) => {
+    if (!window.confirm(t('profile.confirm_remove_friend', 'Es-tu sûr de vouloir supprimer cet ami ?'))) {
+      return;
+    }
+
+    const token = localStorage.getItem('jwt_token');
+    try {
+      // Utilisation du chemin relatif /api/... pour être compatible avec l'IP ou le domaine
+      const response = await fetch(`/api/friends/remove/${friendId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        fetchFriends();
+      } else {
+        const data = await response.json();
+        setSocialMsg({ text: data.error, type: 'error' });
+      }
+    } catch (error) {
+      setSocialMsg({ text: t('profile.error_network'), type: 'error' });
+    }
+  };
+
   if (!user) return null;
 
   const pendingRequests = friendships.filter(f => f.status === 'pending' && f.friend_id === user.id);
@@ -356,12 +381,22 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
                         <span className="text-red-500 font-bold text-sm">{t('level.short')} {f.other_level}</span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => navigate(`/chat/${f.other_id}/${f.other_username}`)}
-                      className="text-gray-400 hover:text-white px-4 py-2 bg-gray-800 hover:bg-red-600 transition-colors rounded-lg"
-                    >
-                      {t('profile.chat_btn')}
-                    </button>
+                    {/* --- NOUVELLE DISPOSITION AVEC LE BOUTON SUPPRIMER --- */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => navigate(`/chat/${f.other_id}/${f.other_username}`)}
+                        className="text-gray-400 hover:text-white px-4 py-2 bg-gray-800 hover:bg-blue-600 transition-colors rounded-lg font-bold"
+                      >
+                        {t('profile.chat_btn')}
+                      </button>
+                      <button
+                        onClick={() => removeFriend(f.other_id)}
+                        className="text-gray-400 hover:text-white px-3 py-2 bg-gray-800 hover:bg-red-600 transition-colors rounded-lg font-bold"
+                        title="Supprimer l'ami"
+                      >
+                        ✗
+                      </button>
+                    </div>
                   </div>
                 );
               })}
