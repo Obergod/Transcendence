@@ -9,11 +9,13 @@ import (
     "transcendance/internal/models"
     "transcendance/internal/social"
     "transcendance/internal/ws"
+    "transcendance/internal/metrics"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
     l "github.com/rs/zerolog/log"
     "github.com/rs/zerolog"
+    "github.com/prometheus/client_golang/prometheus/promhttp"
 	//"go.mongodb.org/mongo-driver/v2/x/mongo/driver/auth"
 )
 
@@ -44,6 +46,10 @@ func main() {
     corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 
 	r.Use(cors.New(corsConfig))
+    r.Use(metrics.TrackRequests())
+    r.Use(metrics.TrackUniqueVisitors())
+    r.Use(metrics.TrackActiveUsers())
+    r.Use(metrics.TrackVisitDuration())
 
 	r.Static("/uploads", "./uploads")
 
@@ -57,6 +63,8 @@ func main() {
     r.GET("/ws", func(c *gin.Context) {
         ws.ServeWs(hub, c)
     })
+
+    r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
     protected.Use(auth.AuthRequired())
     {
@@ -73,6 +81,7 @@ func main() {
 		protected.GET("/user/stats", social.UserStatsHandler(db))
         protected.GET("/chat/history/:friendId", social.GetHistoryHandler(db))
         protected.GET("/user/level", social.GetLevelHandler(db))
+		protected.DELETE("/friends/delete/:friendsId", social.RemoveFriendHandler(db))
     }
 
 	//r.Static("/", "./frontend/dist")

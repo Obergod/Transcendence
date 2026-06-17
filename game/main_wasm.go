@@ -37,6 +37,14 @@ func main() {
 		return nil
 	}))
 
+	js.Global().Set("quitGame", js.FuncOf(func(this js.Value, args []js.Value) any {
+		logger.Infof("Arrêt du moteur Ebitengine demandé par React")
+		if gameInstance != nil {
+			gameInstance.ShouldQuit = true
+		}
+		return nil
+	}))
+
 	ebiten.SetTPS(60) // force 60 ticks par seconde
 	ebiten.SetWindowSize(800, 600)
 	ebiten.SetWindowTitle("Multiplayer with Ranged Enemies")

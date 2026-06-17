@@ -132,5 +132,20 @@
     "score_init": "SCORE: 00000",
     "timer_label": "TEMPS",
     "score_label": "SCORE"
+  },
+  "tos": {
+    "title": "Conditions d'Utilisation",
+    "s1_title": "1. Acceptation des conditions",
+    "s1_text": "En accédant et en utilisant cette plateforme de jeu Transcendence, vous acceptez d'être lié par les conditions et dispositions de cet accord.",
+    "s2_title": "2. Comptes Utilisateurs",
+    "s2_li1": "Vous êtes responsable du maintien de la confidentialité de votre compte et de votre mot de passe.",
+    "s2_li2": "Vous acceptez de fournir des informations exactes et complètes lors de la création de votre compte.",
+    "s2_li3": "Vous ne devez pas utiliser le service à des fins illégales ou non autorisées.",
+    "s3_title": "3. Comportement des joueurs",
+    "s3_text": "Les joueurs doivent agir avec respect envers les autres. Tricher, exploiter des bugs ou harceler d'autres utilisateurs dans le chat est strictement interdit et peut entraîner un bannissement immédiat du compte.",
+    "s4_title": "4. Confidentialité des données",
+    "s4_text": "Votre utilisation de la plateforme est également régie par notre Politique de Confidentialité. Nous collectons des données de base (pseudo, email, statistiques) uniquement dans le but de faire fonctionner le jeu.",
+    "s5_title": "5. Modifications du Service",
+    "s5_text": "Nous nous réservons le droit de modifier ou d'interrompre, temporairement ou définitivement, le service avec ou sans préavis."
   }
 }

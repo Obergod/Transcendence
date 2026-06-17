@@ -15,9 +15,9 @@ func NewHitbox(x, y, r fixed.Int26_6) *Hitbox {
 }
 
 func CheckCollision(h1, h2 *Hitbox) bool {
-    dx := h2.X - h1.X
-    dy := h2.Y - h1.Y
-    rsum := h1.R + h2.R
+    dx := int64(h2.X - h1.X)
+    dy := int64(h2.Y - h1.Y)
+    rsum := int64(h1.R + h2.R)
     return dx*dx+dy*dy <= rsum*rsum
 }
 

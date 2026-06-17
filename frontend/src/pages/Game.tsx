@@ -17,11 +17,13 @@ const Game = () => {
   const gameMode = location.state?.mode || 1;
 
   useEffect(() => {
+    let isCancelled = false; // <-- LE VERROU DE SÉCURITÉ
+
     (window as any).onGameover = async (durationInSeconds: number, score: number) => {
       setIsGameOver(true);
       const token = localStorage.getItem('jwt_token');
       try {
-        await fetch("https://localhost:8081/api/match/save", {
+        await fetch("/api/match/save", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify({ duration: durationInSeconds, score: score }),
@@ -39,13 +41,18 @@ const Game = () => {
 
       const go = new (window as any).Go();
 
-      // LA MAGIE EST ICI : On passe les variables à Go juste avant de le lancer !
       (window as any).gameMode = gameMode;
       (window as any).timerLabel = t('game.timer_label');
       (window as any).scoreLabel = t('game.score_label');
 
       WebAssembly.instantiateStreaming(fetch('/main.wasm'), go.importObject)
         .then((result) => {
+          // SI LE COMPOSANT A ÉTÉ DÉMONTÉ ENTRE-TEMPS, ON NE LANCE PAS LE JEU
+          if (isCancelled) {
+            console.log("🛑 Instance asynchrone bloquée pour éviter un double lancement.");
+            return;
+          }
+
           setIsGameLoaded(true);
           go.run(result.instance);
 
@@ -66,8 +73,10 @@ const Game = () => {
           setTimeout(moveCanvas, 100);
         })
         .catch((err) => {
-          console.error("Erreur Wasm:", err);
-          setError(t('game.error_wasm'));
+          if (!isCancelled) {
+            console.error("Erreur Wasm:", err);
+            setError(t('game.error_wasm'));
+          }
         });
     };
 
@@ -82,10 +91,17 @@ const Game = () => {
     }
 
     return () => {
+      isCancelled = true;
+
+      if (typeof (window as any).quitGame === 'function') {
+        (window as any).quitGame();
+        delete (window as any).quitGame;
+      }
+
       document.querySelectorAll('canvas').forEach(c => c.remove());
       delete (window as any).onGameover;
     };
-  }, [t, gameMode]);
+  }, [t, gameMode, refreshLevel]);
 
   const handleRetry = () => {
     setIsGameOver(false);

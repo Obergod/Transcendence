@@ -15,7 +15,7 @@ const MatchHistory = () => {
       if (!token) return;
 
       try {
-        const histRes = await fetch("https://localhost:8081/api/match/history", {
+        const histRes = await fetch("/api/match/history", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (histRes.ok) {
@@ -23,7 +23,7 @@ const MatchHistory = () => {
           setMyHistory(histData.data || []);
         }
 
-        const leadRes = await fetch("https://localhost:8081/api/match/leaderboard", {
+        const leadRes = await fetch("/api/match/leaderboard", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (leadRes.ok) {

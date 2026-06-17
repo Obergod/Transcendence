@@ -73,7 +73,7 @@ curl -s -k -u elastic:${ELASTIC_PASSWORD} \
 -H "Content-Type: application/json" \
 -d '{
   "schedule": "0 0 2 * * ?",
-  "name": "backup-{now/d}",
+  "name": "<backup-{now/d}>",
   "repository": "s3-repo",
   "config": {
     "indices": ["app-logs-*"],

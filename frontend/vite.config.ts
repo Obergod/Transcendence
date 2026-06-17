@@ -34,6 +34,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/uploads': {
+        target: 'https://backend:8081',
+        changeOrigin: true,
+        secure: false,
+      },
       '/ws': {
         target: 'https://backend:8081',
         ws: true,
