@@ -81,6 +81,7 @@ func main() {
 		protected.GET("/user/stats", social.UserStatsHandler(db))
         protected.GET("/chat/history/:friendId", social.GetHistoryHandler(db))
         protected.GET("/user/level", social.GetLevelHandler(db))
+		protected.DELETE("/friends/delete/:friendsId", social.RemoveFriendHandler(db))
     }
 
 	//r.Static("/", "./frontend/dist")
