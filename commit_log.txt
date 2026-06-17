@@ -1,0 +1,1617 @@
+commit 905c5c6b3a8924ddccac34469af1b0aca4360592
+Merge: cd006d0 c469170
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 16:16:39 2026 +0200
+
+    Merge branch 'mafioron' into Maati
+
+commit c469170d4e279baa7d4ed597c45c6e026d8eb441
+Merge: 26a3704 7956e74
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 16:16:27 2026 +0200
+
+    Merge branch 'mafioron' of github.com:Obergod/Transcendence into mafioron
+
+commit cd006d09c930c7d9186ecef13c8735cd60810b32
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 16:15:55 2026 +0200
+
+    gne
+
+commit 01b09e07b447af0d1824238ce1fc452fe03c8605
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 16:14:53 2026 +0200
+
+    adding front side delete friend handeling
+
+commit 7956e7472d20dbb54c6c4f5044ce0d30d6c1177c
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed Jun 17 16:13:25 2026 +0200
+
+    added remove friends backend
+
+commit 7b9ae39b7ca1e3be47fb4ba55761576208c3cd67
+Merge: d06e043 a39d428
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 15:32:36 2026 +0200
+
+    Merge branch 'main' into Maati
+
+commit d06e04317bf768e7905ecef6a168d17594cb9388
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 15:31:54 2026 +0200
+
+    add front side del user management
+
+commit a39d428a386168b772596e9776b8ac988d37018c
+Merge: 9909729 8692314
+Author: aule-bre <aule-bre@f1r7s19.paris.42.school>
+Date:   Wed Jun 17 14:33:40 2026 +0200
+
+    Merge branch 'Maati' into aule-bre
+
+commit 8692314ec538d9bbacb712facfdf39ba2550a897
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 14:32:14 2026 +0200
+
+    tres legere modification de checkorigin
+
+commit 9909729cffbb0477b06f17c13c4610bedec6e445
+Author: aule-bre <aule-bre@f1r7s19.paris.42.school>
+Date:   Wed Jun 17 14:28:54 2026 +0200
+
+    fix: player hitbox, bullet color
+
+commit 56a0f7a9c76fcda0fecd08bbbe25bf9442c0214b
+Author: aule-bre <aule-bre@f1r7s19.paris.42.school>
+Date:   Wed Jun 17 14:28:23 2026 +0200
+
+    fix: player hitbox, bullet color
+
+commit 6d8eeb52bc61a605b1345377a89f1548f6ddf811
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 14:15:52 2026 +0200
+
+    changing the localhost to real ip website
+
+commit 1a85dc5c03f6925fbe30a64243bb56d810d72e6b
+Merge: 6366a78 7d08f03
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed Jun 17 11:36:43 2026 +0200
+
+    Merge branch 'gbakulin' into Maati
+
+commit 7d08f03f802a9a1623a5ba00bf791f5a1b4b7de0
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Tue Jun 16 22:24:54 2026 +0200
+
+    mix of two dockerfiles frontend and backend
+
+commit f24cc15a6928e31cd39849a41a65474061ff44ad
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue Jun 16 18:01:01 2026 +0200
+
+    broken dockers, path to make backend as a stage builder
+
+commit 6366a787ced03876d766029ed1ea735e6e6cbeaf
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue Jun 16 16:55:12 2026 +0200
+
+    fixed double game instance
+
+commit e93eecd33529791c0b96bf2d9bc36e87be7b63fa
+Merge: cfe480c 7df3330
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue Jun 16 15:10:39 2026 +0200
+
+    Merge branch 'aule-bre'
+
+commit cfe480c09a1e10a52095db1c036000e71d86cb41
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue Jun 16 15:09:40 2026 +0200
+
+    fixing some bullshit
+
+commit 7df3330fc4c86e8ea198f8758eebbdf045542bd0
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue Jun 16 14:41:16 2026 +0200
+
+    merge with main + change of docker-compose
+
+commit 3ee1cfef30c44baf5b29dba51d8dd47374b18063
+Merge: 43d662a 542c74f
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue Jun 16 14:35:05 2026 +0200
+
+    Merge branch 'main' into aule-bre
+
+commit 43d662a14caabbb5daf0ef28cddc29ac20ce99a9
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue Jun 16 14:34:47 2026 +0200
+
+    docker change
+
+commit f512c8048fb32f0a15a2ec09124d5c1dd62bc232
+Merge: 4d9df6d f52eb4c
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue Jun 16 14:30:49 2026 +0200
+
+    Merge branch 'main' into aule-bre
+
+commit 4d9df6d955894f136ec850db2f54f692d4710ce8
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Tue Jun 16 00:06:22 2026 +0200
+
+    added hp, fixed range
+
+commit 542c74f610f7a2815b9410b039b208901f8d2871
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 17:57:58 2026 +0200
+
+    Added TOS + traduction. Everything works
+
+commit d1ddc2889cf67eeb10e0e95e293e0a887df67975
+Merge: 83d78f6 f50c50f
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 16:49:33 2026 +0200
+
+    Merge branch 'main' into Maati
+
+commit f50c50f0489d4436a707321cbfcf44dfc34ded81
+Merge: c816f12 90bc924
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 16:49:22 2026 +0200
+
+    Merge branch 'main' of github.com:Obergod/Transcendence
+
+commit 26a370460c8eac4e8f091053ddead2e308effca8
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 16:49:13 2026 +0200
+
+    changing branch
+
+commit 90bc924663796a50642b7e3dc49b1c955602297c
+Merge: b5b142a 1fc45b6
+Author: awaegaer <awaegaer@f1r1s6.paris.42.school>
+Date:   Mon Jun 15 16:39:54 2026 +0200
+
+    Merge remote-tracking branch 'origin/gbakulin' into arthur
+
+commit b5b142a634d8085d7649a847f88cb67f24bef670
+Author: awaegaer <awaegaer@f1r1s6.paris.42.school>
+Date:   Mon Jun 15 16:38:32 2026 +0200
+
+    Fixed: replaced absolute URLs to relative api path to dodge self signed certificat rejection by using Vite relay
+
+commit 1fc45b65366fc9992c710117bba64e7e2dde175b
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon Jun 15 16:04:55 2026 +0200
+
+    changed back to backend-builder
+
+commit db7c12c0e1f1c98fad6c111982519a20a049cbbb
+Merge: 18e6984 2849f63
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon Jun 15 16:03:12 2026 +0200
+
+    Merge branch 'mafioron' into gbakulin
+
+commit 18e6984ab097286e7140ca3a7a81766a1009f1a3
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon Jun 15 16:02:55 2026 +0200
+
+    changed to fix doeble make on gbakulin brunch
+
+commit 2849f63d81b2b11a34483755e27586ae61cee917
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon Jun 15 15:54:30 2026 +0200
+
+    fix of the problem with double make
+
+commit 83d78f6fc60a8d065082eec0674ad5c14804b2e6
+Merge: 2c739ec 0e29216
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 14:38:12 2026 +0200
+
+    Merge branch 'gbakulin' into Maati
+
+commit 0e29216b0265c0f9b682745bdbd077c31a2ac00b
+Merge: cb8fedf 71cedf0
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 14:36:16 2026 +0200
+
+    Merge branch 'gbakulin' of github.com:Obergod/Transcendence into gbakulin
+
+commit cb8fedf566cd5639c8a18e612298ed8001022c90
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 14:36:04 2026 +0200
+
+    gne
+
+commit 71cedf0e10c77882dcebca7e76a8902f10d77cdb
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon Jun 15 14:27:56 2026 +0200
+
+    fixed docker-compose
+
+commit a9509e7d43f14b0e45e5d42b0e10dddd93e61b4c
+Merge: 0f23121 87f467b
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon Jun 15 14:12:59 2026 +0200
+
+    Merge branch 'mafioron' into gbakulin
+
+commit 0f23121e5b3f9bca7cd6c3c3804141c44f842224
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon Jun 15 14:10:19 2026 +0200
+
+    modified docker-compose to fit each computer
+
+commit 0f4e8768809e007bc96ddae7ba2a0718a471c684
+Merge: a332331 f61159d
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 13:59:06 2026 +0200
+
+    Merge branch 'gbakulin' of github.com:Obergod/Transcendence into gbakulin
+
+commit c816f12ccfcea3231944f0cb0d52c05789a3653d
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 13:58:06 2026 +0200
+
+    merge probleme
+
+commit 5af180f66d46c0aa2d5bd7b56ca034c51178f290
+Merge: 1734760 87f467b
+Author: Obergod <loupmael19@gmail.com>
+Date:   Mon Jun 15 13:57:40 2026 +0200
+
+    Merge branch 'mafioron'
+
+commit 17347603321a0807ac1a2d7c20bdd936efa4ac59
+Author: mafioron <mafioron@f1br7s8.paris.42.school>
+Date:   Fri Jun 12 20:21:40 2026 +0200
+
+    fixed ws, compilation error, and added images volume
+
+commit bb2e0360ac7fd7aa7d6cc652faf906c78ff9e70d
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri Jun 5 18:27:03 2026 +0200
+
+    fix compile error draw
+
+commit 2c739ec14515963c8aed4292eeb57318677dd7a0
+Merge: 7665588 f61159d
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 13:49:31 2026 +0200
+
+    Merge branch 'main' into Maati
+
+commit 7665588ee3edcec1766c7d430972429b506129ba
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon Jun 15 13:49:07 2026 +0200
+
+    mergin with main
+
+commit 87f467b8e340f92f89b476a8c0a8b44bc38683af
+Author: mafioron <mafioron@f1br7s8.paris.42.school>
+Date:   Fri Jun 12 20:21:40 2026 +0200
+
+    fixed ws, compilation error, and added images volume
+
+commit 0b2c254ccca0c645043413bc7baf19856e9d2e42
+Merge: eb8622d f61159d
+Author: mafioron <mafioron@f1br7s8.paris.42.school>
+Date:   Fri Jun 12 16:59:29 2026 +0200
+
+    Merge remote-tracking branch 'origin/gbakulin' into mafioron
+
+commit f61159d75c56aadd3d8eb1a7e679fce1e8cddea7
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Thu Jun 11 16:36:37 2026 +0200
+
+    working logstash
+
+commit f52eb4cac395d31e3319b7a27107313bd58a93c7
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed Jun 10 20:17:06 2026 +0200
+
+    merging all with docker + switching to https. problems with ws and images to check
+
+commit cae1431bb3d0b196f13afc6f773d438344b9319a
+Merge: 9e6728b 99e67e0
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed Jun 10 18:58:43 2026 +0200
+
+    Merge branch 'arthur' into gbakulin
+
+commit 9e6728b2a3dd169ac2f5cde0d5c61ad34dc9dfd8
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed Jun 10 18:42:34 2026 +0200
+
+    fix for the school
+
+commit eb8622d6bd8b36ecfe88167e6ee4ab3a95b50270
+Merge: b5b7989 99e67e0
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed Jun 10 18:42:29 2026 +0200
+
+    Merge branch 'arthur' into mafioron
+
+commit b9c3581cd89de0397c8cf8db079662d542c1b392
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Wed Jun 10 09:48:21 2026 +0200
+
+    Readme for the recovery
+
+commit e8b2e3c080d4a08f19bda1a3d2752b2ed7cf0604
+Merge: ce46553 99e67e0
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue Jun 9 11:29:35 2026 +0200
+
+    Merge branch 'arthur' into Maati
+
+commit 99e67e09c06b0cebeaa07892150a3a3621ce6d18
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue Jun 9 11:27:23 2026 +0200
+
+    verification d'email lors de la creation d'un User (plus solide que juste un check du char '@')
+
+commit ce46553332012189c0247e1497673bee58c9f5fe
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue Jun 9 10:50:57 2026 +0200
+
+    online/offline status real
+
+commit df3f1e0d99eb09ed86f8a8c85c84b8f19ecdd6bc
+Merge: 4590ec9 5163f4c
+Author: awaegaer <awaegaer@f1br7s11.paris.42.school>
+Date:   Mon Jun 8 14:00:07 2026 +0200
+
+    merge with branch origin/aule-bre
+
+commit 4590ec9c8351039188eab5eecfd4b141262f3c1b
+Author: awaegaer <awaegaer@f1br7s11.paris.42.school>
+Date:   Mon Jun 8 11:58:17 2026 +0200
+
+    small fix: friend request used old friend ids references
+
+commit 33444512598c759406c56735a65a476f0d07f956
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Sun Jun 7 16:44:53 2026 +0200
+
+    huge push from 3 weeks, grafan + ELK stack + backups + scripts
+
+commit 9624eb0a464ed4bbb2f40bf84186034c03ffdf98
+Author: root <root@DESKTOP-DEI0RU5.localdomain>
+Date:   Sat Jun 6 12:59:12 2026 +0200
+
+    added: level system for users. removed: google connexion
+
+commit 5163f4c41404ae2b461d072f5c54cb93676cca39
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Sat Jun 6 11:36:22 2026 +0200
+
+    debug logs implemented, wth is not working
+
+commit 0ceb814bcff45d09968bfa7a553044e5198409f2
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Sat Jun 6 11:35:53 2026 +0200
+
+    debug logs implemented, wth is not working
+
+commit da145f730ccccc7c47bbc43f891eaa54511c3cb1
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri Jun 5 19:28:43 2026 +0200
+
+    merge done
+
+commit b5b79893a9ca47d46ff9d813e96239e2a71579f9
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri Jun 5 18:27:03 2026 +0200
+
+    fix compile error draw
+
+commit 37cd16524f0106d8b9c9467f362002fbc9e3c23e
+Merge: 7c2d6fa a38e553
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri Jun 5 18:22:32 2026 +0200
+
+    merge good
+
+commit 7c2d6fa60b06b46fb38c31d7744af10131a9eb94
+Merge: f040666 b847437
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri Jun 5 18:19:57 2026 +0200
+
+    merge good
+
+commit a38e5538dc6ea7b25c4b32a7f009368234d6478a
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri Jun 5 18:16:27 2026 +0200
+
+    dispatch game functions for prettier code
+
+commit c80fd33cf277646ecbb9234289d4f0a90c0b4161
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri Jun 5 18:08:11 2026 +0200
+
+    adding enemmy shooting
+
+commit f04066642388b9d17b99217d85727ccc400983de
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri Jun 5 17:52:16 2026 +0200
+
+    added spawnWaves
+
+commit b84743706f6ea4fe30046ff5b3d685177b9edba2
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri Jun 5 17:18:33 2026 +0200
+
+    merge with matti
+
+commit e2b3846bda1e8acbfd87b723f8379b7182f31ac0
+Merge: bcdaa13 4aad329
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri Jun 5 17:14:26 2026 +0200
+
+    Merge branch 'Maati' into mafioron
+
+commit bcdaa1322caad45478538a675d9d57dc32d3c883
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri Jun 5 17:10:37 2026 +0200
+
+    added local multiplayer
+
+commit 4aad32969bd59534af8b2c3e6afe880a78c11961
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Fri Jun 5 16:50:41 2026 +0200
+
+    upscaling de game window
+
+commit 870f619b6df712e9c6e098589b4c033dfb41a5c2
+Author: root <root@DESKTOP-DEI0RU5.localdomain>
+Date:   Fri Jun 5 15:38:08 2026 +0200
+
+    added pfps volume for persistance, added traduction to 40 elements (errors, messages, game, history), removed sound options and mooved langage selection to options, changed language selection style, added a login button and changer login to play -> play
+
+commit df16f8cf6b34f046e4fcf63fb61f620c7d9f7e97
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Fri Jun 5 15:08:23 2026 +0200
+
+    securing route
+
+commit 3e166d402c91719916522b789f35b9a0bb633951
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Fri Jun 5 14:11:34 2026 +0200
+
+    polishing front
+
+commit d13edea474e03d512bf9bd7217b084f82a6699a6
+Merge: f700e90 b66e776
+Author: awaegaer <awaegaer@f1br7s12.paris.42.school>
+Date:   Thu Jun 4 18:25:34 2026 +0200
+
+    merging with branch origin/Maati
+
+commit f700e90e28335a3040ff9a47cfbde0590d32930e
+Author: awaegaer <awaegaer@f1br7s12.paris.42.school>
+Date:   Thu Jun 4 18:20:41 2026 +0200
+
+    feature: chat now integrates friend's pfp in top left corner. Note: pfp file has no persistance yet and no folder in volumes
+
+commit b66e7769cfbbc1f05193021ccf8270004f73e368
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu Jun 4 17:19:02 2026 +0200
+
+    adding new translation
+
+commit e9e56e9e7676531880091dc959ca805d2c975823
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu Jun 4 16:50:14 2026 +0200
+
+    adding 1 Player / 2 Player buttons, a bit modified the init n game_wsm .go for it to work and securing pseudo, mail, mdp with max size
+
+commit 4d6341df4afb34359fb5aae4559ea646545668e5
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu Jun 4 15:20:57 2026 +0200
+
+    adding 1player 2player button
+
+commit d36cb972b5c453e4e0f7a44541e843a9f66f06c4
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu Jun 4 14:58:37 2026 +0200
+
+    adding real stats on user profile : best score , best time , sum time
+
+commit a60bfb61f9be2dc91a0101169d0f500a2ce5b9e9
+Author: awaegaer <awaegaer@f4r11s12.paris.42.school>
+Date:   Thu Jun 4 14:39:05 2026 +0200
+
+    minor trad adds
+
+commit be01e32db3c3270a1999d83461e401a4944df104
+Author: root <root@DESKTOP-DEI0RU5.localdomain>
+Date:   Thu Jun 4 10:18:22 2026 +0200
+
+    new feature: verifiying profile picture file (format, size, resolution) before uploading) -> changed profile.tsx and auth.go
+
+commit 4d4706877d048c1b954d17e4312ef5f7778e5fb8
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue Jun 2 15:28:36 2026 +0200
+
+    adding real match history with timer compare and a popup for retry
+
+commit 662d4eb5fc408d24c2d478f24b609bfe659eae19
+Author: Obergod <loupmael19@gmail.com>
+Date:   Sun May 31 22:09:03 2026 +0200
+
+    implementation reset et ranger init du game
+
+commit e2d7709abeac952f0d3fda4955ed812f5806b668
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Sun May 31 20:07:02 2026 +0200
+
+    working https for backend only
+
+commit b30bb14e79d7767efe6ca3120dd367b6b28d8b92
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Sun May 31 18:12:30 2026 +0200
+
+    before disaster, better makefile and nginx
+
+commit 76a2a671a31ed579d1e3e3cc3d9fba41d1759c13
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Sun May 31 14:34:51 2026 +0200
+
+    grafana + prometeus + dashboards
+
+commit d09f7ff55bc15ae1afb9a0a6c50fbb77b7e6e56c
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Fri May 29 17:53:45 2026 +0200
+
+    grafana + node_exporter
+
+commit e86a3d9c8e1c345a6a927cc1c53fb8ea73897313
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Fri May 29 17:21:17 2026 +0200
+
+    logstash + elasticsearch + kibana all secured and with dashboard
+
+commit 022c4d99cc46032115980556f55a9d46c569fd9f
+Merge: 528ea05 0443b0c
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri May 29 17:11:01 2026 +0200
+
+    Merge branch 'Maati' into mafioron
+
+commit 528ea053db2498d0d95dd2c5de159b4c651522f2
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri May 29 17:06:05 2026 +0200
+
+    nothings working
+
+commit 0443b0ca932da259cd9ce5830671e051f68f76e8
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Fri May 29 16:53:27 2026 +0200
+
+    adding security on chat box
+
+commit 4fc7a1fc0eb88254df6133a113a8d232a14df9e2
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Fri May 29 15:27:12 2026 +0200
+
+    securing chat box, max 300 char/messages and 1 sec cooldown between them
+
+commit d6873fe2b063679071fc365fd558e80a83c820ef
+Merge: 4e358f0 bda4999
+Author: Obergod <loupmael19@gmail.com>
+Date:   Thu May 28 17:13:08 2026 +0200
+
+    Merge remote-tracking branch 'origin/Maati' into mafioron
+
+commit cb40e6107b0234c40737af8ae8fead1797b64a67
+Merge: 6f7a4f3 c0829f1
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 28 14:12:10 2026 +0200
+
+    Merge branch 'main' into Maati
+
+commit c0829f1635d729c72e30457335d743a25b0bb369
+Merge: f16b634 4e358f0
+Author: Obergod <loupmael19@gmail.com>
+Date:   Thu May 28 13:54:19 2026 +0200
+
+    Merge branch 'mafioron'
+
+commit 4e358f03a5b471a729853e5ff37b61cca1bfd4b2
+Author: Obergod <loupmael19@gmail.com>
+Date:   Thu May 28 13:53:57 2026 +0200
+
+    rm old signin
+
+commit f16b63419fa8a0ef600554d1eef6ec8737400256
+Merge: b8798f3 50756ed
+Author: Obergod <loupmael19@gmail.com>
+Date:   Thu May 28 13:52:46 2026 +0200
+
+    Merge branch 'mafioron'
+
+commit 6f7a4f342b149cdc1815f5c05685416c3ffd96a1
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 28 13:51:28 2026 +0200
+
+    adding real chat box
+
+commit 50756ed939b6e6b9886330a94684722188b65ffe
+Author: Obergod <loupmael19@gmail.com>
+Date:   Thu May 28 13:49:31 2026 +0200
+
+    mod main.go
+
+commit 09ee54f862b8baba1af1c9fda26a368331e71eb7
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Thu May 28 10:05:04 2026 +0200
+
+    secure elasticsearch and kibana
+
+commit 1538889f2313df22a4076445945f89cadac114a1
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Wed May 27 19:40:47 2026 +0200
+
+    kibana + elasticsearch
+
+commit bda499920db63a1b62a0dfbb73ed8d4982be42fa
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 27 15:29:20 2026 +0200
+
+    fixed an issue were : if the user refresh he's loged out
+
+commit bdcaa1cc4d483db3d85ca33276028f4305d22847
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 27 11:26:41 2026 +0200
+
+    compiles at school with new services
+
+commit a3323316b17d7abb5b550d4b622b789f02d31123
+Merge: 1d31c93 03a603d
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 27 11:17:28 2026 +0200
+
+    Merge branch 'gbakulin' of github.com:Obergod/Transcendence into gbakulin
+
+commit b8d8a7a6e868cb5acf89d2a29ce730fdb99ade5f
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue May 26 17:00:30 2026 +0200
+
+    adding real friend request and profile picture modification
+
+commit b8798f337d978a9e30c0f878a9070b1fd4459a41
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Tue May 26 16:54:43 2026 +0200
+
+    WE CAN DIE NOW
+
+commit 89029fb26a191d3a5b988feda285c46955ba07d4
+Merge: 5fa3d09 ffcac5d
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Tue May 26 16:31:27 2026 +0200
+
+    Merge branch 'main' into aule-bre
+
+commit 5fa3d09eeca995ba1c06ecebbf03130b1ae96939
+Merge: 08c5aa5 22f7539
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Tue May 26 16:31:07 2026 +0200
+
+    tmp
+
+commit 03a603dfd36d76516d43813b6c327b5238566e5c
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Mon May 25 17:05:55 2026 +0200
+
+    changed the main.go to be able to have custome metrics
+
+commit bac0cdbe491f7e6af9e0fa4eaf9d96b46b2cd19b
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Mon May 25 14:45:33 2026 +0200
+
+    logstash config and kibana
+
+commit 02d1ef642bf69c1f007cba7b1930e5ea100c24ba
+Merge: 9840a49 6d02d36
+Author: Obergod <loupmael19@gmail.com>
+Date:   Sat May 23 19:01:23 2026 +0200
+
+    Merge branch 'gbakulin' into mafioron
+
+commit 6d02d36ef360da7623e8ea60279638a8421c40a4
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Sat May 23 18:25:25 2026 +0200
+
+    optimized go
+
+commit 5ff2dee090364ef2bbc81ff672019a15ba4caed9
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Sat May 23 18:15:06 2026 +0200
+
+    pathetic try to optimise dockers
+
+commit 9840a495ca1718675f5526bf5da3c611c0144256
+Merge: ec2be77 22f7539
+Author: Obergod <loupmael19@gmail.com>
+Date:   Sat May 23 16:57:28 2026 +0200
+
+    Merge branch 'gbakulin' into mafioron
+
+commit 06fb8f9246bf6b44ef738105b4724f281e3dbed3
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Fri May 22 15:00:37 2026 +0200
+
+    fixed space issues
+
+commit ec2be7747abec8ab057aebc1eae0501cf335791a
+Author: Obergod <loupmael19@gmail.com>
+Date:   Fri May 22 11:40:19 2026 +0200
+
+    Switching login to use gin-jwt
+
+commit 22f7539223d866311b35b4c8cce79cf8762d9c33
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Thu May 21 13:27:07 2026 +0200
+
+    small change for backend docker
+
+commit 1d31c93020b1c5bbe6830f3d6e77e7b2edb9e79a
+Merge: e9d064b b4e715e
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 21 11:24:15 2026 +0200
+
+    resolving merg issues
+
+commit b4e715e9d883949981d571ab3a5abf92136f5c35
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Thu May 21 11:14:47 2026 +0200
+
+    changed makefile + new rule
+
+commit 08c5aa5670e7824bbb931b97297563d25f5bfa43
+Merge: 79bd3cc aa1bdb0
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Thu May 21 10:33:07 2026 +0200
+
+    Merge branch 'gbakulin' into aule-bre
+
+commit 79bd3ccb2858ef3456a6f069ea57e068c2776178
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Thu May 21 10:30:49 2026 +0200
+
+    broken makefile
+
+commit 14c64ba145279c3710f1339d1aba5d1576fc2843
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 20 17:49:37 2026 +0200
+
+    adding real user registration and connection
+
+commit aa1bdb05de6de3dcb190cd284268699d450538b5
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Wed May 20 16:56:54 2026 +0200
+
+    backend is back for game
+
+commit 76f7f7f61128dcc29a755e7b88c95740921a5eaa
+Merge: a68c40e ffcac5d
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 20 14:54:52 2026 +0200
+
+    mergin with main
+
+commit ffcac5d9b3e80a79363dc4cacc147c3eca95e992
+Merge: 2a142ff c80500e
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed May 20 14:50:27 2026 +0200
+
+    merge with mafioron
+
+commit 2a142ff2fccadcb878b75a31bfbb97c2afe39760
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 20 14:44:36 2026 +0200
+
+    compiling with the podman fedora
+
+commit a68c40e7f2484078f6e29c7f505ae479d0f7039f
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 20 14:41:23 2026 +0200
+
+    adding frontend side user fonctionality
+
+commit cd596e2c1dde2dad06ce84fd4042980a690467ef
+Merge: 5ab7a5e 3ec3706
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 20 14:41:19 2026 +0200
+
+    Merge branch 'gbakulin'
+
+commit 3ec3706041aa07b507d733ae131b3b22bf257607
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 20 14:21:32 2026 +0200
+
+    compatible with the podman
+
+commit 5ab7a5e2bcbf3bfa6974a174da42eb12ccafe6d4
+Merge: bc56f44 61e0dd7
+Author: Arthur Waegaert <awaegaer@f2r10s19.clusters.42paris.fr>
+Date:   Tue May 19 15:44:36 2026 +0200
+
+    translation in front + merge main
+
+commit bc56f44da9d8578694625cfd77552c7a5da00d98
+Author: Arthur Waegaert <awaegaer@f2r10s19.clusters.42paris.fr>
+Date:   Tue May 19 15:40:10 2026 +0200
+
+    front: added translation files, modified brute text to translation key, added language change button, new npm lib l18n
+
+commit 61e0dd7f2fad34791c8a7da18ffb1ad1abbbddef
+Merge: f647e12 581bc91
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue May 19 15:26:39 2026 +0200
+
+    merged with main and compiles
+
+commit f647e12519253a208b54129da46ffd73bd0e78c4
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue May 19 15:19:19 2026 +0200
+
+    came bacck to my old brunch and all monitorings are up
+
+commit 835fd9e179ca7806cb9c165a4970a5e7170f6e0d
+Merge: f0c3007 e9d064b
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue May 19 12:01:47 2026 +0200
+
+    mergin with gba
+
+commit f0c300792f870de94eb2fadf358c4dcbd7c3b98e
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue May 19 11:58:28 2026 +0200
+
+    yee
+
+commit e9d064b38b7f461d1e3be39047aa8f22eb8f8ebb
+Merge: 44ca040 581bc91
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue May 19 11:53:34 2026 +0200
+
+    Merge branch 'main' into gbakulin
+
+commit c80500e8a68c46709ee541372654a23f61aa1930
+Author: Obergod <loupmael19@gmail.com>
+Date:   Mon May 18 23:13:38 2026 +0200
+
+    Added api logic for user and refactored main for this
+
+commit b70cb610180d9b19f148fcc9cef43f5970f5347a
+Author: CARUANA Maati <mhp.cua@gmail.com>
+Date:   Mon May 18 21:07:06 2026 +0200
+
+    deleting my WS version and creating a .json that will mock user data. creating semi real version of the frontend
+
+commit 44ca040fb885dd2164c974c4a361ade34fd14137
+Author: gbakulin <galbakulina@gmail.com>
+Date:   Mon May 18 20:11:59 2026 +0200
+
+    resolved issue with frontend and backened not being linked
+
+commit 6ce32153ce0ac14c41ef3c522322829a09d2263e
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 18 17:04:33 2026 +0200
+
+    building the fondation of a real user (dosn't work rn :c )
+
+commit d4e3c9a4f5a25b9c684f081ed1e876a6e042eeda
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon May 18 16:58:40 2026 +0200
+
+    to have backup
+
+commit 1558508d23a50e4889a34f891387a57f8a99d822
+Merge: d0a5e48 46f7bf1
+Author: Obergod <loupmael19@gmail.com>
+Date:   Mon May 18 16:12:17 2026 +0200
+
+    Merge branch 'gbakulin' into mafioron
+
+commit 9c593e8e730131cebe5f4132eb6aa27fd7ddaa44
+Merge: 8a7da24 46f7bf1
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 18 14:58:54 2026 +0200
+
+    Merge branch 'gbakulin' into Maati
+
+commit 8a7da24de56795fdaa5fb07a29cdeb32aa086259
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 18 14:58:33 2026 +0200
+
+    fixing problemes caused by a certain Russian mate 👀
+
+commit 46f7bf10bbb0dced45d182cc085ac09672fa52f4
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon May 18 14:57:17 2026 +0200
+
+    changed of vite file of Maati cuz it was not good boo
+
+commit 2d1db6192c70c5607999f0f98d843af754e859b8
+Merge: e9be30c 9100da0
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 18 14:04:49 2026 +0200
+
+    Récupération des Dockerfiles depuis la branche de gbakulin
+
+commit 9100da0e95f320bb76fd964edb8c8f539b85d35e
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon May 18 11:58:36 2026 +0200
+
+    dcokers that holds backend and frontend
+
+commit e9be30cd6f1b5e1aa00250a9223118bac90561bf
+Merge: 05b7b48 581bc91
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 18 11:30:26 2026 +0200
+
+    Merge branch 'Maati' of github.com:Obergod/Transcendence into Maati
+
+commit 05b7b482d267ec210f78b9450a1710d8c52bf4f0
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 18 11:30:07 2026 +0200
+
+    resolving compilation issues
+
+commit 581bc9198bfd0d57e590a9720d62901761236329
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri May 15 14:45:23 2026 +0200
+
+    fixed main branch
+
+commit 94f8e1c3f082f288991fd5d8196805c00b64445c
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri May 15 14:43:11 2026 +0200
+
+    xRevert "fixed my disastrous sorting"
+    
+    This reverts commit 236ecd498b6eda4370b65075c854d8d2323326cd.
+
+commit 9ee67eb260a57f6e210a95c7b2162dbf21ac6341
+Merge: 236ecd4 879ac9c
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri May 15 14:15:44 2026 +0200
+
+    Merge branch 'Maati'
+
+commit 236ecd498b6eda4370b65075c854d8d2323326cd
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri May 15 14:14:34 2026 +0200
+
+    fixed my disastrous sorting
+
+commit fe8fe985b044588f3a89514a3bf8a4e66862a63f
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri May 15 14:11:12 2026 +0200
+
+    sorted funcs in game.go
+
+commit 23851ae50976de7222bf27e9390aa6114cc5b508
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri May 15 14:06:24 2026 +0200
+
+    fixed char typo in client.go
+
+commit 0e010df22f41875d7281d7d2638d33fd855b532e
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Fri May 15 13:58:59 2026 +0200
+
+    edit main_wasm for enemy spawn
+
+commit 41a1034cc9c9cdaf5eac9b2eac40a60959e0db90
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Thu May 14 17:03:11 2026 +0200
+
+    idk
+
+commit 879ac9cdc136b49002524abedbc9f0988ce6bfec
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 14 14:53:50 2026 +0200
+
+    adding /src in /docker
+
+commit a6dca3440a29edcd7646dcb78707394157e2f5db
+Merge: 98ce885 a602433
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 14 14:24:04 2026 +0200
+
+    Merge branch 'gbakulin' into Maati
+
+commit a6024337dcd4334e79c0e52fdf0cd7e0f0ec2424
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Thu May 14 14:23:31 2026 +0200
+
+    changed
+
+commit 98ce885ba7191aca584ef72f4b3fbfe4bc26605d
+Merge: 9e11d92 2fcfa22
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 14 14:21:16 2026 +0200
+
+    Merge branch 'gbakulin' into Maati
+
+commit 2fcfa224f5eedf66dd06d71e44fbaca8e4237873
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Thu May 14 14:19:08 2026 +0200
+
+    grafana and prometheus
+
+commit 9e11d92a36f4b7820b3daeb0d9640b635d0d217a
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 14 14:13:46 2026 +0200
+
+    modified 2 char in client.go and hub.go, changing directory position
+
+commit c787f8c6e62d54131787758fe65aae31932ec90b
+Merge: d33b773 e1a110c
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 14 13:21:48 2026 +0200
+
+    Merge branch 'main' into Maati
+
+commit e7ff39333df8d8b4567a614d4edadea27a21f403
+Merge: 6e8cc62 e1a110c
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Thu May 14 13:21:03 2026 +0200
+
+    Merge branch 'main' into gbakulin
+
+commit d33b7732694474af7ad357432d8b998eba79e1c9
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 14 11:28:55 2026 +0200
+
+    adding a few file for future user registration
+
+commit d0a5e48c377d53fa639deffc65dd313d2252b9c9
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed May 13 18:15:42 2026 +0200
+
+    Begiging of database init with gorm
+
+commit cd959a885748462630de21abbb25cb850fbb002f
+Merge: e1a110c 6e8cc62
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed May 13 17:12:36 2026 +0200
+
+    Merge branch 'gbakulin' into mafioron
+
+commit e1a110c49d548c2700fd803a072b3d3e1fc4b0b2
+Merge: f6d2df2 4581eaa
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed May 13 16:16:31 2026 +0200
+
+    Merge branch 'mafioron'
+
+commit 4581eaa5854e341991b27b2c023cc08c883eff4c
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed May 13 16:16:12 2026 +0200
+
+    Basic implementation of ws
+
+commit 3f2f4ebd1ccdcf38eebc8c025b90003150c4b37f
+Merge: 9eabe08 6e8cc62
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 13 16:13:56 2026 +0200
+
+    refactor Dockerfiles for backend and frontend: streamline build processes and improve file copying
+
+commit 9eabe089e065d34da06eb53b82149a38bf697889
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 13 16:09:29 2026 +0200
+
+    adding a parsing on the creation of a user, frontend side
+
+commit 6e8cc629630b585f1f2dd3f9be67666c4864aa1a
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 15:33:24 2026 +0200
+
+    dockers compile all the frontend and backend
+
+commit c00210cad6178058e1446cab1f5e6a727ec1fdac
+Merge: 0e31002 f6d2df2
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 13 14:26:54 2026 +0200
+
+    Merge branch 'main' into Maati
+
+commit 0e3100262ae4de29f2a462bc37009a48d8ac7c1b
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 13 14:26:25 2026 +0200
+
+    double all in makefile
+
+commit 46a53b2f045e60deb7958bc373d5bb877be36293
+Merge: a016b91 f6d2df2
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 14:22:49 2026 +0200
+
+    Merge branch 'main' into gbakulin
+
+commit f6d2df252e2a9f5f847097f17de75e8c2fcab1eb
+Merge: 5548525 227c6f4
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Wed May 13 14:19:57 2026 +0200
+
+    Merge branch 'aule-bre'
+
+commit a016b9177af28298acec208457d85b34e368a374
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 14:18:31 2026 +0200
+
+    makefile changed
+
+commit 227c6f4d02c6ab92d23d06b78ac15c02eb09373c
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Wed May 13 14:18:26 2026 +0200
+
+    added bullets / weapons, created a class Ranged of enemies, arbitrary stats for player / enemies movespeed and enemie's weapons stats
+
+commit 554852575a61c4759bb941169baceebb6e47a934
+Merge: 64c2534 a806597
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 14:17:06 2026 +0200
+
+    Merge branch 'gbakulin'
+
+commit a80659780038015eec7af82ca48adff56cc48b10
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 14:14:10 2026 +0200
+
+    compiling with dockers
+
+commit 64c2534c5774f5e33051979c4aaf9175a0bf0641
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 13 14:13:21 2026 +0200
+
+    resolving bugs in the makefile
+
+commit b9a38b19f29668485a940d8bc17078bc25abbc25
+Merge: 839bcc8 417aab0
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 13:50:27 2026 +0200
+
+    Merge branch 'main' into gbakulin
+
+commit 839bcc81983e99c51f1a0bf973c105b4ab56d413
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 13:49:46 2026 +0200
+
+    changed dockerfile for backend
+
+commit 60af9db0e4df65e3c9aba69653b39c85cbe6f5c1
+Merge: 575705b 417aab0
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed May 13 13:47:01 2026 +0200
+
+    Merge branch 'main' into mafioron
+
+commit 417aab01314875f8c05ef4d080f9b3a0491fd5a5
+Merge: 6bf7e7a d3d8025
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Wed May 13 12:16:12 2026 +0200
+
+    Merge remote-tracking branch 'origin/aule-bre'
+
+commit 6bf7e7a3bbae1e34ec94b7c61590d77e70f9493e
+Merge: d6f79f5 ba83aff
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 13 11:16:02 2026 +0200
+
+    Merge branch 'main' into Maati
+
+commit d6f79f5de5ae65b8de6ba7a616be95ca0a64fe11
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 13 11:15:31 2026 +0200
+
+    major update
+
+commit ba83affca1b5a98e7d9b73feed64d3fc5d6efa79
+Merge: 31e08ec 1c4534f
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 11:07:37 2026 +0200
+
+    Merge branch 'Maati' into gbakulin
+
+commit 31e08ecbe6e1ebaaaf32b18ea8e8737c0d936c85
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Wed May 13 11:06:20 2026 +0200
+
+    makefile for dockers is back
+
+commit 1c4534fca987fb9d486927c0c16e4308b6f8c39f
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Wed May 13 11:05:40 2026 +0200
+
+    fixing the css and the makefile
+
+commit 575705bf8b8dcf226ac8d1ea59b3360762db17a2
+Author: Obergod <loupmael19@gmail.com>
+Date:   Tue May 12 18:34:21 2026 +0200
+
+    Starting to add basic Websocket
+
+commit 115f6cde87342215a22b2cd0ea6ae867a1276cda
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue May 12 18:13:46 2026 +0200
+
+    broken site
+
+commit d3d8025b92ecc4e99750a19e7f8831d6810d0de8
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Tue May 12 17:59:50 2026 +0200
+
+    added collisions with enemies, playes can go through each other assuming its a coop game
+
+commit 3412973cb73be5f4830106e7f72f228f39404134
+Merge: 479c38b 17b5488
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue May 12 16:53:51 2026 +0200
+
+    Merge branch 'main' into gbakulin
+
+commit 479c38b0706317c3caae83233b0b5cdeb5f120d3
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue May 12 16:52:38 2026 +0200
+
+    dcokers
+
+commit 17b5488579a0fd0e7bc699300c3038e84925053e
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue May 12 16:46:42 2026 +0200
+
+    preparing the terrain for a user struct
+
+commit e443ad370a279937b196b3032d2d857905511a82
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue May 12 15:24:43 2026 +0200
+
+    more dockers and working db
+
+commit 7c2c4fc589dc22ccafde33a954889fe01874e551
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Tue May 12 15:18:59 2026 +0200
+
+    enemies now take player's aggro. test with 3 enemies at fixed speed
+
+commit 176844517e807a62154aecaca4a6990111bfa4a9
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue May 12 15:11:57 2026 +0200
+
+    backup version, tryed too add different languages but failed
+
+commit 34e1314dfac25b20d9209ece46e388cd5f1f6e84
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Tue May 12 14:47:24 2026 +0200
+
+    added a DrawEnemies func
+
+commit 1e857238e93f60ddf967fdc79758b2e0b29c0df2
+Author: aule-bre <aule-bre@marvin42.fr>
+Date:   Tue May 12 14:10:26 2026 +0200
+
+    refactored game, added a world struct to store players and enemies, redone game update with dx dy (it also treats diagonal direction speed properly and prints local player differently
+
+commit 3685e30668a6c2a7f7b99796579738883013c0b2
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Tue May 12 14:09:48 2026 +0200
+
+    adding a modal for the login/signin(type of webpage but in a pop up style)
+
+commit 6de7c87afc7464b628ddfc9bba169ac74bacf7d0
+Merge: 2a1df0c 204f8da
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Tue May 12 13:35:47 2026 +0200
+
+    Merge branch 'main' into gbakulin
+
+commit 2a1df0c6f00a1b8fe4c4293eae5899274c83f6e1
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon May 11 18:28:15 2026 +0200
+
+    commented out stuff to be more clean
+
+commit 9a2f642c3b0d4a629e4297fa352bb50493b1ce26
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon May 11 18:22:32 2026 +0200
+
+    docker to be able tohave latest go, npm etc
+
+commit f71cea00fd471f9314c9adbc864a27234ccddbdf
+Merge: 333dc09 204f8da
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 11 18:13:16 2026 +0200
+
+    Merge branch 'main' into Maati
+
+commit 204f8da87e348806479d382399bd97221ec8412f
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 11 18:08:52 2026 +0200
+
+    resolutions des problemes de mort a cause du .js qui se cree pas
+
+commit 333dc0994b235ed0eeefea2d759309c09b270ca9
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Mon May 11 17:44:06 2026 +0200
+
+    test
+
+commit e73354d9050e91a85b8d67e42ae2b38b3c7dfa73
+Author: aule-bre <aule-bre@f1br10s4.paris.42.school>
+Date:   Mon May 11 17:43:08 2026 +0200
+
+    fixed disastrous merging
+
+commit 0e26a9615812606d52ce3fa212b838f1790703e2
+Merge: e436a7b ee7fd06
+Author: aule-bre <aule-bre@f1br10s4.paris.42.school>
+Date:   Mon May 11 17:35:56 2026 +0200
+
+    merging
+
+commit e436a7baf205d7cf3c94480a1644425c3aa1f431
+Author: aule-bre <aule-bre@f1br10s4.paris.42.school>
+Date:   Mon May 11 17:27:57 2026 +0200
+
+    compiling and serving the server with the game_wasm.go
+
+commit ee7fd06e13e46e9e34ef9291a815f4dccf0c8c82
+Merge: 31f8810 e22b98a
+Author: Obergod <loupmael19@gmail.com>
+Date:   Mon May 11 17:26:39 2026 +0200
+
+    Merge branch 'mafioron'
+
+commit e22b98af34e6508da7bc9933440b516f24724220
+Author: Obergod <loupmael19@gmail.com>
+Date:   Mon May 11 16:16:41 2026 +0200
+
+    first rectangle moving
+
+commit 0377cb446bed6ec03f42cc6721ca4e92800076c1
+Merge: 31f8810 c3b4dd5
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Mon May 11 15:52:05 2026 +0200
+
+    Merge branch 'aule-bre'
+
+commit c3b4dd57d48cce299f8424a3e5fb00a05422b7a0
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Mon May 11 15:51:33 2026 +0200
+
+    beginning of multiplayer main_wasm.go
+
+commit 31f881095bc1bb5fce58cfd8c8656b670d62e129
+Author: Maati Caruana <mhp.cua@gmail.com>
+Date:   Mon May 11 15:50:53 2026 +0200
+
+    hoolo
+
+commit 1e256fec329ee9e92bab812ee24d32609ec7686e
+Author: Jackysuma0 <galbakulina@gmail.com>
+Date:   Mon May 11 15:38:27 2026 +0200
+
+    beginning for dockers
+
+commit 6f4770ddb465aeaf8cc4085e2041b4d2590be7cd
+Author: Maati Caruana <mhp.cua@gmail.com>
+Date:   Mon May 11 15:36:50 2026 +0200
+
+    changing the multiplayer and solo button to play
+
+commit ac667bfddde3f6fc68271ac09f42c01a6cd3f76e
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Mon May 11 15:25:19 2026 +0200
+
+    merge main aulebre
+
+commit 9aa80a9c8d260d8eec3461df9fa1d0e1e1fb578f
+Merge: 5892240 1893f44
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Mon May 11 15:23:56 2026 +0200
+
+    merge main aulebre
+
+commit 1893f443f7158660893c1119f4ad519ae289f05e
+Author: Maati Caruana <mhp.cua@gmail.com>
+Date:   Mon May 11 15:21:22 2026 +0200
+
+    enabling websocket and modifing the makefile and main.go
+
+commit 58922402ad1422eb5bc6f48be0a22a9e5fe84dd7
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Mon May 11 15:01:59 2026 +0200
+
+    current working
+
+commit 1c7e14c5cb47d8041b7019d8a40962fbe6de569c
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Mon May 11 13:54:49 2026 +0200
+
+    mke fclean
+
+commit 9e33547de759c2c73d8a5086e1a457947415fdb4
+Merge: 152df61 0222bcb
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Mon May 11 13:52:39 2026 +0200
+
+    merging branches
+
+commit 152df61e89cdabd49dd12b439f6b127e7a0e8a5f
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Mon May 11 13:50:38 2026 +0200
+
+    finished archi, remade makefile
+
+commit 0222bcb874653b6461e6489c2d64d05295d367b5
+Merge: 1e40c6a cd551b0
+Author: Obergod <loupmael19@gmail.com>
+Date:   Mon May 11 12:11:26 2026 +0200
+
+    Merge branch 'mafioron'
+
+commit 1e40c6a6d668f78fa4bb1d5882e123a1337dcb10
+Merge: 1737876 ecff0fa
+Author: Maati Caruana <mhp.cua@gmail.com>
+Date:   Mon May 11 12:10:17 2026 +0200
+
+    Merge branch 'Maati'
+
+commit ecff0fad16c2274a41126a6bcfb19106e832d8b7
+Author: macaruan <mhp.cua@gmail.com>
+Date:   Thu May 7 17:42:49 2026 +0200
+
+    adding a solo, mulitplayer, match history, profile page, chat. all of them are template, i do not fetch any data from the server. this is a mock version
+
+commit 14ba2b8050e81c2dd2402e7e02b5ca38ee64468f
+Author: Maati Caruana <mhp.cua@gmail.com>
+Date:   Thu May 7 15:27:49 2026 +0200
+
+    creatingn a folder containing all web pages
+
+commit 1737876b45e9d85f5ca49fe9e61673b60d385fb7
+Author: Aurele Le Bretonnic <aule-bre@f2r9s16.clusters.42paris.fr>
+Date:   Thu May 7 15:26:16 2026 +0200
+
+    reworked infrastructure, not working yet
+
+commit cd551b06b1e0c9164fbf124b954b3bae6380d27c
+Author: Obergod <loupmael19@gmail.com>
+Date:   Wed May 6 18:07:25 2026 +0200
+
+    Added enemy class basic
+
+commit 36b4d231ebd8905afdb940c3ae9fc84d479a2992
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 18:01:37 2026 +0200
+
+    added player speed
+
+commit 06c58a08ae414f1309c952c258f7aa9127357a72
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 17:33:45 2026 +0200
+
+    added HP and Esc keybind
+
+commit 1999b8f6fe0885392fac056853eceae0a8df8987
+Author: Maati Caruana <mhp.cua@gmail.com>
+Date:   Wed May 6 17:29:47 2026 +0200
+
+    adding features: settings, login. playing buttons (they don't work for now)
+
+commit 7e870308db5e10a9818167103032fcdcc16f6692
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 16:39:18 2026 +0200
+
+    player and game structs created
+
+commit 773394ccfa258e9f22bcc0d1dee807d03f21f9b5
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 14:29:48 2026 +0200
+
+    learning git...
+
+commit 2b1d80f193f49bd3c4c213ff66ee59c3de04aaa1
+Merge: ce0a972 c90eab8
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 14:01:23 2026 +0200
+
+    Merge branch 'main' of github.com:Obergod/Transcendence into aule-bre
+
+commit c90eab8f5b20d31273b18f79469315cee92d74bd
+Merge: 3491de1 0cb6cb6
+Author: Maati Caruana <mhp.cua@gmail.com>
+Date:   Wed May 6 13:53:25 2026 +0200
+
+    Merge branch 'main' of github.com:Obergod/Transcendence into Maati
+
+commit ce0a9722c56ccac93238247107e46bd57ebeb79f
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 13:49:47 2026 +0200
+
+    added makefile
+
+commit 1d47778b6c19f3b8c5cdcdce6ed5fa78dcc1d9db
+Merge: c2188cf 0cb6cb6
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 13:47:42 2026 +0200
+
+    removing trash
+
+commit c2188cfc039608d67ec4d3fd6334d867fe231fbf
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 13:46:37 2026 +0200
+
+    removing trash
+
+commit 3491de1510cc8bd37b9c805af249f2065908c155
+Author: Maati Caruana <mhp.cua@gmail.com>
+Date:   Wed May 6 13:46:10 2026 +0200
+
+    creating the website on local host with vite
+
+commit 0cb6cb64622f518b7637a599a27ffbfd8d4a8c3b
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 13:45:31 2026 +0200
+
+    created backend folder
+
+commit f6dea4b63a932b1b56c1e72f7b3053fcfe112827
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 13:45:10 2026 +0200
+
+    created backend folder
+
+commit 27ac8c89865d28f1bd314babc807335465a3419a
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 13:37:06 2026 +0200
+
+    push makefile + beginning of arch
+
+commit fca9038b996c483504da9f854cb393a374492496
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 13:36:41 2026 +0200
+
+    class template to work on
+
+commit 446a81e59988d2f3001a55148c251285b366b270
+Author: Aurele Le Bretonnic <aule-bre@f2r2s19.clusters.42paris.fr>
+Date:   Wed May 6 12:17:46 2026 +0200
+
+    push makefile + beginning of arch
+
+commit 1cd45780096846f4eef7695ebb6d74794c0b4883
+Author: Obergod <loupmael19@gmail.com>
+Date:   Tue May 5 12:16:36 2026 +0200
+
+    mod
+
+commit b14838e1edab476906630cfaf5dc67a9e133e469
+Author: Obergod <loupmael19@gmail.com>
+Date:   Tue May 5 12:16:17 2026 +0200
+
+    add makefile
+
+commit 35c918c457c47d573dafd8950881953e1cf7934f
+Author: Obergod <loupmael19@gmail.com>
+Date:   Tue May 5 12:12:49 2026 +0200
+
+    sa
+
+commit 5983a7c3e67a42211e72716899fdaf0edba68caf
+Author: Alain <144012252+Obergod@users.noreply.github.com>
+Date:   Tue May 5 12:04:29 2026 +0200
+
+    Initial commit

@@ -57,7 +57,7 @@ func main() {
     r.POST("/api/signup", auth.SignupHandler(db))
     r.POST("/api/signin", auth.SigninHandler(db))
 
-    // --- ROUTES PROTÉGÉES ---
+    // --- ROUTES PROTÉGÉES ---clear
     protected := r.Group("/api")
 
     r.GET("/ws", func(c *gin.Context) {
@@ -74,6 +74,7 @@ func main() {
         protected.POST("/friends/request", social.SendFriendRequestHandler(db))
         protected.PUT("/friends/respond", social.RespondFriendRequestHandler(db))
         protected.GET("/friends/list", social.ListFriendsHandler(db))
+		protected.DELETE("/friends/remove/:friendId", social.RemoveFriendHandler(db))
         protected.GET("/user/me", auth.GetMeHandler(db))
 		protected.POST("/match/save", social.SaveMatchHandler(db))
 		protected.GET("/match/history", social.MyHistoryHandler(db))
@@ -81,7 +82,6 @@ func main() {
 		protected.GET("/user/stats", social.UserStatsHandler(db))
         protected.GET("/chat/history/:friendId", social.GetHistoryHandler(db))
         protected.GET("/user/level", social.GetLevelHandler(db))
-		protected.DELETE("/friends/delete/:friendsId", social.RemoveFriendHandler(db))
     }
 
 	//r.Static("/", "./frontend/dist")
