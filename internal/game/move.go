@@ -1,11 +1,12 @@
 package game
 
 import (
+	"math"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/math/fixed"
 	"transcendance/internal/hitbox"
 	"transcendance/internal/player"
-	"transcendance/internal/utils"
 )
 
 func KeyPressp1() (fixed.Int26_6, fixed.Int26_6) {
@@ -104,7 +105,7 @@ func (g *Game) MoveEnemies() {
 			continue
 		}
 		var closestPlayer *player.Player = g.world.Players["p1"]
-		var closestDistSq int64 = 1 << 62
+		var closestDistSq int64 = 9223372036854775807
 		for _, p := range g.world.Players {
 			if !p.IsAlive {
 				continue
@@ -125,13 +126,18 @@ func (g *Game) MoveEnemies() {
 		if dx == 0 && dy == 0 {
 			continue
 		}
-		dist := int64(utils.FixedSqrt(fixed.Int26_6(dx*dx + dy*dy)))
+		// Calcul de la distance sans overflow en utilisant float64
+		dist := math.Sqrt(float64(dx*dx + dy*dy))
 		if dist == 0 {
 			continue
 		}
-		speed := int64(e.Speed)
-		moveX := fixed.Int26_6((dx * speed) / dist)
-		moveY := fixed.Int26_6((dy * speed) / dist)
+		speed := float64(e.Speed) / 64.0 // Convertir la vitesse en pixels par frame
+		// Déplacement en pixels
+		moveXFloat := (float64(dx) / dist) * speed
+		moveYFloat := (float64(dy) / dist) * speed
+		// Reconvertir en fixed.Int26_6 (multiplier par 64)
+		moveX := fixed.Int26_6(int64(moveXFloat * 64))
+		moveY := fixed.Int26_6(int64(moveYFloat * 64))
 
 		e.Hitbox.X += moveX
 		e.Hitbox.Y += moveY
