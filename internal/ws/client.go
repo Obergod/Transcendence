@@ -34,10 +34,8 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-//		origin := r.Header.Get("Origin")
-//		return origin == "https://localhost:5173"
-		return true
+	CheckOrigin: func(r *http.Request) bool { //c le CORS cross origine ressource sharing
+		return true // normalement ca c'est pas good pour un vrais site en entreprise mais etant donner que le projet va etre compiler sur des pc differrent on laisse ca pour les test et la correction fonctionne bien
 	},
 }
 
