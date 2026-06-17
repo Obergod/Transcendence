@@ -33,15 +33,6 @@
           "freeze": {}
         }
       },
-      "snapshot": {
-        "min_age": "31d",
-        "actions": {
-          "snapshot": {
-            "repository": "fs_repository",
-            "snapshot": "logs_snapshot_{now/d}"
-          }
-        }
-      },
       "delete": {
         "min_age": "31d",
         "actions": {
