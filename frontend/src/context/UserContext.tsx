@@ -63,7 +63,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         const token = localStorage.getItem('jwt_token');
 
         connectTimer = setTimeout(() => {
-            socket = new WebSocket(`wss://localhost:5173/ws?token=${token}`);
+            socket = new WebSocket(`wss://${window.location.host}/ws?token=${token}`);
 
             socket.onopen = () => {
                 console.log("🟢 WebSocket Connecté !");
