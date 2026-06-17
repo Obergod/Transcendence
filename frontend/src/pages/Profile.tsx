@@ -176,7 +176,6 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     } catch (error) {}
   };
 
-  // --- NOUVELLE FONCTION : Supprimer un ami ---
   const removeFriend = async (friendId: number) => {
     if (!window.confirm(t('profile.confirm_remove_friend', 'Es-tu sûr de vouloir supprimer cet ami ?'))) {
       return;
@@ -184,7 +183,7 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
 
     const token = localStorage.getItem('jwt_token');
     try {
-      // Utilisation du chemin relatif /api/... pour être compatible avec l'IP ou le domaine
+      // ytilisation du chemin relatif /api/... pour être compatible avec l'IP ou le domaine
       const response = await fetch(`/api/friends/remove/${friendId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
