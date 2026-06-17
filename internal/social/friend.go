@@ -3,6 +3,7 @@ package social
 import (
 	"net/http"
 	"transcendance/internal/models"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -144,4 +145,36 @@ func SendFriendRequestHandler(db *gorm.DB) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, gin.H{"message": "Demande d'ami envoyée à " + targetUser.Username})
 	}
+}
+
+func RemoveFriendHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userIDInterface, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Non autorisé"})
+			return
+		}
+		myID := userIDInterface.(uint)
+		
+        friendIDStr := c.Param("friendId")
+        friendID, err := strconv.Atoi(friendIDStr)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "ID d'ami invalide"})
+            return
+        }
+
+        result := db.Where("(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)", myID, friendID, friendID, myID).Delete(&models.Friendship{})
+        if result.Error != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la suppression"})
+            return
+        }
+
+        // Si aucune ligne n'a été affectée, c'est qu'ils n'étaient pas amis
+        if result.RowsAffected == 0 {
+            c.JSON(http.StatusNotFound, gin.H{"error": "Amitié introuvable"})
+            return
+        }
+
+        c.JSON(http.StatusOK, gin.H{"message": "Ami supprimé avec succès"})
+    }
 }
