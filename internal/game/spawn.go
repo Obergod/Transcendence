@@ -53,26 +53,7 @@ func (g *Game) SpawnEnemies() {
         enemyName := "enemy_wave" + itoa(g.waveNumber + 1) + "_" + itoa(i + 1)
         newEnemy := enemy.NewRanged(fixed.I(x), fixed.I(y), enemyName)
 
-        if g.waveNumber > 3 {
-            oldHp := newEnemy.HP
-            newEnemy.HP = 100 + (g.waveNumber-3)*10
-            if newEnemy.HP > 300 {
-                newEnemy.HP = 300
-            }
-            newEnemy.Speed = fixed.I(4 + (g.waveNumber-3)/2)
-            if newEnemy.Speed > fixed.I(8) {
-                newEnemy.Speed = fixed.I(8)
-            }
-            if newEnemy.Weapon != nil {
-                oldDamage := newEnemy.Weapon.Damage
-                newEnemy.Weapon.Damage = 5 + (g.waveNumber-3)/2
-                if newEnemy.Weapon.Damage > 15 {
-                    newEnemy.Weapon.Damage = 15
-                }
-                logger.Debugf("Ennemi %s renforcé: PV %d->%d, Vitesse %v, Dégâts %d->%d",
-                    enemyName, oldHp, newEnemy.HP, newEnemy.Speed, oldDamage, newEnemy.Weapon.Damage)
-            }
-        }
+        
 
         g.world.Enemies[enemyName] = newEnemy
         logger.Debugf("Ennemi %s spawné à (%d, %d)", enemyName, x, y)

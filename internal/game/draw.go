@@ -15,7 +15,12 @@ func (g *Game) DrawBullets(screen *ebiten.Image) {
     for _, b := range g.world.Bullets {
         x := utils.FixedToFloat32(b.X)
         y := utils.FixedToFloat32(b.Y)
-        col := color.RGBA{255, 255, 0, 255}
+        var col color.Color
+        if (b.OwnerIsPlayer) {
+            col = color.RGBA{255, 255, 0, 255}
+        } else {
+            col = color.RGBA{255, 127, 0, 255}
+        }
         vector.FillCircle(screen, x, y, 3, col, true)
     }
 }
