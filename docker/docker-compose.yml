@@ -8,16 +8,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backup:/backup
     restart: on-failure
-    environment:
-      POSTGRES_PASSWORD: goodPassword123
-      POSTGRES_USER: admin
-      POSTGRES_DB: myapp
-      JWT_SECRET: jwt_secret
+    env_file:
+      - .env.dop
     ports:
       - "5432:5432"
 
   backend:
-    # image: backend-builder
     build:
       context: ..
       dockerfile: docker/src/backend/Dockerfile
@@ -29,9 +25,8 @@ services:
       - database
     networks:
       - appnet
-    #ne pas oublier de changer env
-    environment:
-      DATABASE_URL: postgres://admin:goodPassword123@database:5432/myapp
+    env_file:
+      - .env.dop
     healthcheck:
       test: ["CMD", "curl", "-f", "--http1.1", "https://backend:8081/health"]
       interval: 30s
@@ -47,27 +42,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
-  # frontend:
-  #   build:
-  #     context: ..
-  #     dockerfile: docker/src/frontend/Dockerfile
-  #   container_name: frontend
-  #   restart: always
-  #   ports:
-  #     - "5173:5173"
-  #   networks:
-  #     - appnet
-  #   depends_on:
-  #     - backend
-  #   volumes:
-  #     - ./backups:/backup
-  #     - ./:/ssl:ro
-  #   logging:
-  #     driver: "json-file"
-  #     options:
-  #       max-size: "10m"
-  #       max-file: "3"
 
   prometheus:
     container_name: prometheus
@@ -244,8 +218,6 @@ services:
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
-      # - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      # - /var/run/docker.sock:/var/run/docker.sock:ro
       - $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock:ro
       - esdata:/var/lib/elasticsearch/data
       - ./certs/ca.pem:/usr/share/elasticsearch/config/certs/ca.pem:ro
@@ -270,7 +242,6 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./src/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
-      # - ./src/grafana/dashboards:/var/lib/grafana/dashboards
       - ./src/grafana/alerting/alerts.yml:/etc/grafana/provisioning/alerting/alerts.yml:ro
       - ./src/grafana/grafana.ini:/etc/grafana/grafana.ini
       - ./src/grafana/ssl:/etc/grafana/ssl:ro
@@ -279,11 +250,11 @@ services:
     user: "472"
     networks:
       - appnet
+    env_file:
+      - .env.dop
     environment:
-      GF_SERVER_ROOT_URL: http://localhost:3000
-      ENV GF_SERVER_PROTOCOL: https
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: secret
+      GF_SERVER_ROOT_URL: https://localhost:3000
+      GF_SERVER_PROTOCOL: https
       GF_AUTH_ANONYMOUS_ENABLED: "false"
       GF_PROMETHEUS_PROXY_ENABLED: "true"
       GF_PROMETHEUS_URL: http://prometheus:9090
