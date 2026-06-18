@@ -18,6 +18,7 @@ CLEAR = \033[2K\r
 
 SRCS=docker/docker-compose.yml
 SETUP=docker/docker-compose.setup.yml
+HOST_IP := $(shell hostname -I | awk '{print $$1}')
 
 all: bootstrap build up # build clean <up> # TODO clean has been deleted from all launch, check if it is needed 
 
@@ -29,6 +30,7 @@ bootstrap:
 
 up:
 	@docker compose -f ${SRCS} up -d
+	@echo "address to access site is: https://$(HOST_IP):5173"
 
 build:
 	@docker compose -f ${SRCS} build #backend && docker compose -f ${SRCS} build
