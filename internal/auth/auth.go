@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"os"
 	"net/http"
 	"time"
 	"fmt"
@@ -19,8 +20,15 @@ type UpdateProfileRequest struct {
 	AvatarURL string `json:"avatarUrl"`
 }
 
-// Clé secrète pour signer les JWT (À mettre dans un .env plus tard pour la sécurité)
-var jwtSecretKey = []byte("super_secret_key_transcendence_42")
+// NOUVEAU : Fonction sécurisée pour récupérer la clé secrète depuis le .env
+func getJWTSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		// Valeur de secours au cas où (ne devrait pas arriver si le .env est bien configuré)
+		return []byte("fallback_secret_key")
+	}
+	return []byte(secret)
+}
 
 type SignupRequest struct {
 	Username string `json:"username"`
@@ -59,7 +67,8 @@ func GenerateJWT(userID uint) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecretKey)
+	// CORRECTION ICI : on utilise getJWTSecret()
+	return token.SignedString(getJWTSecret())
 }
 
 func SignupHandler(db *gorm.DB) gin.HandlerFunc {
@@ -284,7 +293,8 @@ func ValidateToken(tokenString string) (uint, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("méthode de signature inattendue")
 		}
-		return jwtSecretKey, nil
+		// CORRECTION ICI : on utilise getJWTSecret()
+		return getJWTSecret(), nil
 	})
 
 	if err != nil || !token.Valid {

@@ -32,7 +32,7 @@ func AuthRequired() gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("méthode de signature inattendue")
 			}
-			return jwtSecretKey, nil
+			return getJWTSecret(), nil
 		})
 
 		if err != nil || !token.Valid {
