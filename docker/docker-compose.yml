@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:14
+    image: docker.io/library/postgres:14
     networks:
       - appnet
     container_name: postgres
@@ -45,7 +45,7 @@ services:
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus
+    image: docker.io/prom/prometheus
     restart: on-failure
     networks:
       - appnet
