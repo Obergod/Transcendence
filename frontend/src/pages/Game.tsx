@@ -41,6 +41,18 @@ const Game = () => {
 
       const go = new (window as any).Go();
 
+      // --- LE PATCH MAGIQUE ---
+      // On intercepte la fonction interne de Go pour la rendre silencieuse
+      // si le jeu a été quitté, évitant ainsi le spam d'erreurs sur les autres pages.
+      const originalResume = go._resume;
+      go._resume = function() {
+        if (this.exited || this._inst == null) {
+          return; // Sortie silencieuse au lieu de throw new Error()
+        }
+        return originalResume.apply(this, arguments);
+      };
+      // ------------------------
+
       (window as any).gameMode = gameMode;
       (window as any).timerLabel = t('game.timer_label');
       (window as any).scoreLabel = t('game.score_label');
@@ -113,7 +125,7 @@ const Game = () => {
   return (
     <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-8 w-full">
 
-      {/* HEADER DU JEU (Avec les IDs pour que Go puisse injecter le texte en temps réel) */}
+      {/* HEADER DU JEU */}
       <div className="flex justify-between items-end w-full max-w-7xl mb-4 px-4">
         <h2 id="game-timer" className="text-3xl font-black text-red-500 tracking-widest uppercase">
             {t('game.timer_init')}
